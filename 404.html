@@ -1,19 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>Redirecting...</title>
-  <script>
-    // This captures the exact URL the user tried to load, saves it, and pushes them back to index.html
-    // The "handleInitialRoute()" logic added into your index.html will pick this up and securely transition them.
-    sessionStorage.redirect = location.href;
-
-    // --- IMPORTANT DEPLOYMENT NOTE ---
-    // If you are deploying to a GitHub Pages repository subfolder (e.g., username.github.io/my-site/)
-    // Change the URL='/' below to URL='/my-site/' 
-    document.write('<meta http-equiv="refresh" content="0;URL=\'/\'">');
-  </script>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script type="text/javascript">
+        // বর্তমান লিংকটি সেভ করে রাখা
+        sessionStorage.redirect = location.href;
+        
+        var l = window.location;
+        var basePath = '/';
+        var pathSegments = l.pathname.split('/').filter(Boolean);
+        
+        // যদি GitHub Pages এ হোস্ট করা থাকে, তবে রিপোজিটরির নাম ধরে রাখা
+        if(l.hostname.includes('github.io') && pathSegments.length > 0) {
+            basePath = '/' + pathSegments[0] + '/';
+        }
+        
+        // সঠিক Base URL এ পাঠিয়ে দেওয়া
+        window.location.replace(basePath);
+    </script>
 </head>
-<body>
-</body>
+<body></body>
 </html>
