@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+  <script>
+    // This captures the exact URL the user tried to load, saves it, and pushes them back to index.html
+    // The "handleInitialRoute()" logic added into your index.html will pick this up and securely transition them.
+    sessionStorage.redirect = location.href;
+
+    // --- IMPORTANT DEPLOYMENT NOTE ---
+    // If you are deploying to a GitHub Pages repository subfolder (e.g., username.github.io/my-site/)
+    // Change the URL='/' below to URL='/my-site/' 
+    document.write('<meta http-equiv="refresh" content="0;URL=\'/\'">');
+  </script>
+</head>
+<body>
+</body>
+</html>
