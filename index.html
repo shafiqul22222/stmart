@@ -99,6 +99,53 @@
         </main>
     </div>
 
+    <!-- Product Details Landing Page -->
+    <div id="product-landing-page" class="hidden min-h-[80vh] bg-gray-50 py-8">
+        <div class="container mx-auto px-4">
+            <button onclick="closeProductDetails()" class="mb-6 flex items-center text-gray-600 hover:text-orange-600 transition font-bold text-sm">
+                <i class="fas fa-arrow-left mr-2"></i> ফিরে যান
+            </button>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row overflow-hidden w-full mx-auto">
+                <div class="w-full md:w-1/2 p-8 flex flex-col items-center justify-center bg-white relative">
+                    <img id="detail-image" src="" alt="Product" class="max-h-[450px] w-auto object-contain transition duration-300">
+                    <div id="detail-thumbnails" class="flex gap-3 mt-6 overflow-x-auto w-full justify-center pb-2 scrollbar-hide"></div>
+                </div>
+                <div class="w-full md:w-1/2 p-8 bg-white md:border-l border-gray-100">
+                    <h2 id="detail-name" class="text-3xl font-bold text-gray-900 mb-4"></h2>
+                    <div class="flex items-center gap-4 mb-6">
+                        <span id="detail-old-price" class="text-gray-400 line-through text-xl"></span>
+                        <span id="detail-price" class="text-[#ff5722] font-bold text-4xl"></span>
+                        <span id="detail-discount-tag" class="bg-[#ff5722] text-white text-xs px-2.5 py-1 rounded-full font-bold hidden"></span>
+                    </div>
+                    <div class="mb-6" id="detail-variants-container">
+                        <p class="font-bold text-gray-800 mb-3 text-sm">বাছাই করুন:</p>
+                        <div class="flex gap-3 flex-wrap" id="detail-variants"></div>
+                    </div>
+                    <div class="mb-8">
+                        <div class="flex items-center border border-gray-300 rounded w-max">
+                            <button onclick="updateQty(-1)" class="px-5 py-2.5 border-r border-gray-300 text-gray-600 hover:bg-gray-50 font-bold">-</button>
+                            <input type="text" id="detail-qty" value="1" class="w-16 text-center outline-none text-gray-800 font-bold" readonly>
+                            <button onclick="updateQty(1)" class="px-5 py-2.5 border-l border-gray-300 text-gray-600 hover:bg-gray-50 font-bold">+</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <button onclick="addToCart()" class="border-2 border-black text-black font-bold py-3.5 px-4 rounded hover:bg-gray-50 transition text-sm">কার্টে যোগ করুন</button>
+                        <button onclick="proceedToOrderModal()" class="bg-[#ff5722] text-white font-bold py-3.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#e64a19] transition text-sm shadow-md"><i class="fas fa-shopping-bag"></i> অর্ডার করুন</button>
+                    </div>
+                    <button id="call-order-btn" class="w-full border-2 border-black text-black font-bold py-3.5 rounded hover:bg-gray-50 transition text-sm">কল অর্ডার: 09678812525</button>
+                    <div class="mt-8 border-t border-gray-100 pt-6">
+                        <p class="text-gray-500 text-sm mb-2">ক্যাটাগরি: <span id="detail-category" class="text-gray-800 font-bold"></span></p>
+                        <p id="detail-desc" class="text-gray-600 text-sm leading-relaxed mb-6"></p>
+                    </div>
+                    <div class="mt-6 border-t border-gray-100 pt-6">
+                        <h3 class="font-bold text-lg mb-4 text-gray-800">Customer Reviews</h3>
+                        <div id="detail-reviews-container" class="space-y-4 max-h-[400px] overflow-y-auto pr-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Login & Registration -->
     <div id="signin-page" class="hidden min-h-[80vh] flex items-center justify-center px-4 py-12">
         <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
@@ -290,7 +337,7 @@
         </div>
     </div>
 
-    <!-- Modals and Sidebars (Kept Exactly as they were) -->
+    <!-- Modals and Sidebars -->
     <div id="review-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4" style="z-index: 10002;">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative">
             <button type="button" onclick="closeReviewModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-2xl leading-none">&times;</button>
@@ -331,48 +378,6 @@
             <button onclick="trackMyOrder()" class="bg-[#3b51a3] text-white px-6 py-3 rounded-r hover:bg-blue-800 transition font-bold">Track</button>
         </div>
         <div id="trackResultContainer" class="mt-10 px-4"></div>
-    </div>
-
-    <div id="product-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4" style="z-index: 9998;">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl relative overflow-hidden flex flex-col md:flex-row max-h-[90vh] overflow-y-auto">
-            <button type="button" onclick="closeProductDetails()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-3xl leading-none z-10 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow">&times;</button>
-            <div class="w-full md:w-1/2 p-8 flex flex-col items-center justify-center bg-white relative">
-                <img id="detail-image" src="" alt="Product" class="max-h-[350px] w-auto object-contain transition duration-300">
-                <div id="detail-thumbnails" class="flex gap-3 mt-6 overflow-x-auto w-full justify-center pb-2 scrollbar-hide"></div>
-            </div>
-            <div class="w-full md:w-1/2 p-8 bg-white md:border-l border-gray-100">
-                <h2 id="detail-name" class="text-2xl font-bold text-gray-900 mb-4"></h2>
-                <div class="flex items-center gap-3 mb-6">
-                    <span id="detail-old-price" class="text-gray-400 line-through text-lg"></span>
-                    <span id="detail-price" class="text-[#ff5722] font-bold text-3xl"></span>
-                    <span id="detail-discount-tag" class="bg-[#ff5722] text-white text-[10px] px-2 py-1 rounded-full hidden"></span>
-                </div>
-                <div class="mb-6" id="detail-variants-container">
-                    <p class="font-bold text-gray-800 mb-3 text-sm">বাছাই করুন (Size / Unit):</p>
-                    <div class="flex gap-3 flex-wrap" id="detail-variants"></div>
-                </div>
-                <div class="mb-8">
-                    <div class="flex items-center border rounded w-max">
-                        <button onclick="updateQty(-1)" class="px-4 py-2 border-r text-gray-600 hover:bg-gray-50">-</button>
-                        <input type="text" id="detail-qty" value="1" class="w-12 text-center outline-none text-gray-800 font-medium" readonly>
-                        <button onclick="updateQty(1)" class="px-4 py-2 border-l text-gray-600 hover:bg-gray-50">+</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <button onclick="addToCart()" class="border-2 border-black text-black font-bold py-3 px-4 rounded hover:bg-gray-50 transition text-sm">কার্টে যোগ করুন</button>
-                    <button onclick="proceedToOrderModal()" class="bg-[#ff5722] text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#e64a19] transition text-sm shadow-md"><i class="fas fa-shopping-bag"></i> অর্ডার করুন</button>
-                </div>
-                <button id="call-order-btn" class="w-full border-2 border-black text-black font-bold py-3 rounded hover:bg-gray-50 transition text-sm">কল অর্ডার: 09678812525</button>
-                <div class="mt-8 border-t pt-4">
-                    <p class="text-gray-500 text-sm mb-2">ক্যাটাগরি: <span id="detail-category" class="text-gray-700 font-semibold"></span></p>
-                    <p id="detail-desc" class="text-gray-600 text-sm leading-relaxed mb-6"></p>
-                </div>
-                <div class="mt-6 border-t pt-6">
-                    <h3 class="font-bold text-lg mb-4 text-gray-800">Customer Reviews</h3>
-                    <div id="detail-reviews-container" class="space-y-4 max-h-[300px] overflow-y-auto pr-2"></div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div id="order-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4" style="z-index: 9999;">
@@ -563,7 +568,7 @@
         //                  SPA ROUTING & HISTORY API                 //
         // ========================================================== //
 
-        const knownPages = ['home', 'signin', 'registration', 'track-order', 'my-account'];
+        const knownPages = ['home', 'signin', 'registration', 'track-order', 'my-account', 'product-landing'];
         let spaBasePath = '/';
 
         function initBasePath() {
@@ -604,13 +609,11 @@
             if(productId) {
                 openProductById(productId);
             } else {
-                document.getElementById('product-details-modal').classList.add('hidden');
-            }
-
-            if (event.state && event.state.page) {
-                showPage(event.state.page, false);
-            } else {
-                handleInitialRoute();
+                if (event.state && event.state.page) {
+                    showPage(event.state.page, false);
+                } else {
+                    handleInitialRoute();
+                }
             }
         });
 
@@ -630,17 +633,17 @@
                     break;
                 }
             }
-
-            showPage(targetPage, false);
             
             // Added check for product share link
             const urlObj = new URL(currentUrl);
             const productId = urlObj.searchParams.get('product');
             
-            history.replaceState({ page: targetPage }, '', spaBasePath + (targetPage === 'home' ? '' : targetPage) + (productId ? '?product=' + productId : ''));
-
             if(productId) {
+                history.replaceState({ page: 'product-landing', product: productId }, '', spaBasePath + '?product=' + productId);
                 openProductById(productId);
+            } else {
+                history.replaceState({ page: targetPage }, '', spaBasePath + (targetPage === 'home' ? '' : targetPage));
+                showPage(targetPage, false);
             }
         }
 
@@ -918,11 +921,11 @@
             } catch(e) {}
 
             loadProductReviews(currentSelectedProduct.id); 
-            document.getElementById('product-details-modal').classList.remove('hidden');
+            showPage('product-landing', false);
             
             // Add unique link parameter
             const newUrl = spaBasePath + '?product=' + currentSelectedProduct.id;
-            history.pushState({ page: 'home', product: currentSelectedProduct.id }, '', newUrl);
+            history.pushState({ page: 'product-landing', product: currentSelectedProduct.id }, '', newUrl);
         }
         
         // Custom function to load product by ID from URL
@@ -973,15 +976,13 @@
                     } else document.getElementById('detail-variants-container').classList.add('hidden');
 
                     loadProductReviews(currentSelectedProduct.id);
-                    document.getElementById('product-details-modal').classList.remove('hidden');
+                    showPage('product-landing', false);
                 }
             } catch(e) { console.error("Error loading product", e); }
         }
 
         function closeProductDetails() { 
-            document.getElementById('product-details-modal').classList.add('hidden'); 
-            // Remove product link parameter from URL when closed
-            history.pushState({ page: 'home' }, '', spaBasePath);
+            showPage('home', true);
         }
 
         function updateQty(change) {
@@ -1010,7 +1011,7 @@
             let existing = cartItems.find(item => item.id === currentSelectedProduct.id && item.name === name);
             if (existing) existing.qty += currentSelectedProduct.qty;
             else cartItems.push({ id: currentSelectedProduct.id, name: name, price: currentSelectedProduct.price, qty: currentSelectedProduct.qty, image: currentSelectedProduct.image });
-            updateCartUI(); closeProductDetails(); toggleCart(); 
+            updateCartUI(); toggleCart(); 
         }
 
         function removeFromCart(index) { cartItems.splice(index, 1); updateCartUI(); }
@@ -1050,7 +1051,6 @@
         }
 
         function proceedToOrderModal() {
-            closeProductDetails();
             let orderName = currentSelectedProduct.name + (currentSelectedProduct.selectedVariant ? ` (${currentSelectedProduct.selectedVariant})` : '');
             let subTotal = currentSelectedProduct.price * currentSelectedProduct.qty;
             document.getElementById('orderProductId').value = currentSelectedProduct.id;
