@@ -686,98 +686,6 @@
         let pendingOrderDataForConfirmation = null;
         let confirmationTimerInterval = null;
 
-        // ========================================================== //
-        //                  SPA ROUTING & HISTORY API                 //
-        // ========================================================== //
-
-        // Detect correct Base Path for deployments in sub-folders (like GitHub Pages)
-        let spaBasePath = '/';
-        function initBasePath() {
-            let path = window.location.pathname;
-            const knownPages = Array.from(document.querySelectorAll('[id$="-page"]')).map(el => el.id.replace('-page', ''));
-            let segments = path.split('/').filter(Boolean);
-            if (segments.length > 0) {
-                let last = segments[segments.length - 1];
-                if (knownPages.includes(last) || last.includes('.html')) {
-                    segments.pop();
-                }
-            }
-            spaBasePath = '/' + segments.join('/') + (segments.length > 0 ? '/' : '');
-        }
-        initBasePath(); // Calculate immediately
-
-        function showPage(page, pushToHistory = true) {
-            // Find all elements ending with '-page'
-            const pageElements = document.querySelectorAll('[id$="-page"]');
-            let found = false;
-
-            pageElements.forEach(el => {
-                if (el.id === page + '-page') {
-                    el.classList.remove('hidden');
-                    found = true;
-                } else {
-                    el.classList.add('hidden');
-                }
-            });
-
-            // Fallback to home if page ID not found
-            if (!found) {
-                const homeEl = document.getElementById('home-page');
-                if (homeEl) homeEl.classList.remove('hidden');
-                page = 'home';
-            }
-
-            // Update URL securely without reloading
-            if (pushToHistory) {
-                const urlPath = spaBasePath + (page === 'home' ? '' : page);
-                history.pushState({ page: page }, '', urlPath);
-            }
-            
-            window.scrollTo(0, 0);
-        }
-
-        // Handle Browser Back and Forward Navigation Native Events
-        window.addEventListener('popstate', (event) => {
-            if (event.state && event.state.page) {
-                showPage(event.state.page, false);
-            } else {
-                handleInitialRoute();
-            }
-        });
-
-        // Detect initial URL on page load & GH Pages Fallback Redirections
-        function handleInitialRoute() {
-            // Capture session storage redirection from standard 404.html (for Static Hosting)
-            if (sessionStorage.redirect) {
-                const redirect = sessionStorage.redirect;
-                delete sessionStorage.redirect;
-                if (redirect !== window.location.href) {
-                    history.replaceState(null, null, redirect);
-                    initBasePath(); // recalculate base path
-                }
-            }
-
-            const path = window.location.pathname;
-            let page = 'home';
-            
-            const knownPages = Array.from(document.querySelectorAll('[id$="-page"]')).map(el => el.id.replace('-page', ''));
-            let segments = path.split('/').filter(Boolean);
-            
-            // Extract the target page out of URL path
-            if (segments.length > 0) {
-                const lastSegment = segments[segments.length - 1];
-                if (knownPages.includes(lastSegment)) {
-                    page = lastSegment;
-                }
-            }
-
-            showPage(page, false);
-            // Replace state so first hit acts fully loaded
-            history.replaceState({ page: page }, '', spaBasePath + (page === 'home' ? '' : page));
-        }
-
-        // ========================================================== //
-
         // Dynamic Search Function
         function dynamicSearch() {
             let filter = document.getElementById('headerSearchBar').value.toLowerCase();
@@ -1013,6 +921,13 @@
             });
         }
 
+        function showPage(page) {
+            const pages = ['home-page', 'signin-page', 'registration-page', 'track-order-page', 'my-account-page'];
+            pages.forEach(p => document.getElementById(p).classList.add('hidden'));
+            document.getElementById(page + '-page').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
         function changeMainImage(src) { document.getElementById('detail-image').src = src; }
 
         function selectSize(btn, size) {
@@ -1213,7 +1128,7 @@
                 });
 
                 if(isBlocked) {
-                    alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে। আপনি কোনো অর্ডার করতে পারবেনবিধা পাবেন না। যোগাযোগ করুন।");
+                    alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে। আপনি কোনো অর্ডার করতে পারবেন না। যোগাযোগ করুন।");
                     submitBtn.innerText = "অর্ডার করুন";
                     submitBtn.disabled = false;
                     return;
@@ -1881,14 +1796,7 @@
             }
         });
 
-        // Initialize Core Functions
-        loadSiteSettings(); 
-        loadHeaderCategories(); 
-        loadProducts(); 
-        updateCartUI(); 
-        
-        // Initialize Native SPA Routing URL matching on load
-        handleInitialRoute();
+        loadSiteSettings(); loadHeaderCategories(); loadProducts(); updateCartUI(); 
     </script>
 </body>
 </html>
