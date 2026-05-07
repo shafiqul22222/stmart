@@ -4,15 +4,29 @@
     <meta charset="utf-8">
     <title>Loading...</title>
     <script>
-        // যে লিংকে ইউজার ভিজিট করেছে, সেটি সেভ করে রাখা হচ্ছে
+        // ইউজার যে লিংকে ভিজিট করেছে তা সেভ করা
         sessionStorage.redirect = window.location.href;
         
-        // GitHub Pages এর জন্য ফোল্ডারের (Repo) নাম বের করা
-        var segments = window.location.pathname.split('/').filter(Boolean);
-        var basePath = (window.location.hostname.includes('github.io') && segments.length > 0) ? '/' + segments[0] + '/' : '/';
-        
-        // মেইন index.html এ পাঠিয়ে দেওয়া হচ্ছে
-        window.location.replace(basePath);
+        var l = window.location;
+        var path = l.pathname;
+        var validPages = ['/signin', '/registration', '/track-order', '/my-account'];
+        var basePath = path;
+
+        // Custom Domain এবং GitHub Pages উভয়ের জন্য ডাইনামিক Base Path বের করা
+        for (var i = 0; i < validPages.length; i++) {
+            if (path.endsWith(validPages[i])) {
+                basePath = path.replace(validPages[i], '/');
+                break;
+            } else if (path.endsWith(validPages[i] + '/')) {
+                basePath = path.replace(validPages[i] + '/', '/');
+                break;
+            }
+        }
+
+        if(!basePath.endsWith('/')) basePath += '/';
+
+        // index.html এ পাঠিয়ে দেওয়া
+        window.location.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + basePath);
     </script>
 </head>
 <body></body>
