@@ -2,21 +2,16 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Redirecting...</title>
-    <script type="text/javascript">
-        // বর্তমান লিংকটি সেভ করে রাখা
-        sessionStorage.redirect = location.href;
+    <title>Loading...</title>
+    <script>
+        // যে লিংকে ইউজার ভিজিট করেছে, সেটি সেভ করে রাখা হচ্ছে
+        sessionStorage.redirect = window.location.href;
         
-        var l = window.location;
-        var basePath = '/';
-        var pathSegments = l.pathname.split('/').filter(Boolean);
+        // GitHub Pages এর জন্য ফোল্ডারের (Repo) নাম বের করা
+        var segments = window.location.pathname.split('/').filter(Boolean);
+        var basePath = (window.location.hostname.includes('github.io') && segments.length > 0) ? '/' + segments[0] + '/' : '/';
         
-        // যদি GitHub Pages এ হোস্ট করা থাকে, তবে রিপোজিটরির নাম ধরে রাখা
-        if(l.hostname.includes('github.io') && pathSegments.length > 0) {
-            basePath = '/' + pathSegments[0] + '/';
-        }
-        
-        // সঠিক Base URL এ পাঠিয়ে দেওয়া
+        // মেইন index.html এ পাঠিয়ে দেওয়া হচ্ছে
         window.location.replace(basePath);
     </script>
 </head>
