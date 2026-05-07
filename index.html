@@ -598,6 +598,15 @@
         }
 
         window.addEventListener('popstate', (event) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('product');
+
+            if(productId) {
+                openProductById(productId);
+            } else {
+                document.getElementById('product-details-modal').classList.add('hidden');
+            }
+
             if (event.state && event.state.page) {
                 showPage(event.state.page, false);
             } else {
@@ -623,7 +632,16 @@
             }
 
             showPage(targetPage, false);
-            history.replaceState({ page: targetPage }, '', spaBasePath + (targetPage === 'home' ? '' : targetPage));
+            
+            // Added check for product share link
+            const urlObj = new URL(currentUrl);
+            const productId = urlObj.searchParams.get('product');
+            
+            history.replaceState({ page: targetPage }, '', spaBasePath + (targetPage === 'home' ? '' : targetPage) + (productId ? '?product=' + productId : ''));
+
+            if(productId) {
+                openProductById(productId);
+            }
         }
 
         // ========================================================== //
@@ -901,9 +919,70 @@
 
             loadProductReviews(currentSelectedProduct.id); 
             document.getElementById('product-details-modal').classList.remove('hidden');
+            
+            // Add unique link parameter
+            const newUrl = spaBasePath + '?product=' + currentSelectedProduct.id;
+            history.pushState({ page: 'home', product: currentSelectedProduct.id }, '', newUrl);
+        }
+        
+        // Custom function to load product by ID from URL
+        async function openProductById(productId) {
+            try {
+                const doc = await db.collection('products').doc(productId).get();
+                if(doc.exists) {
+                    const p = doc.data();
+                    currentSelectedProduct.id = doc.id;
+                    currentSelectedProduct.name = p.name || '';
+                    currentSelectedProduct.price = parseFloat(p.price) || 0;
+                    currentSelectedProduct.qty = 1;
+                    currentSelectedProduct.image = p.image || (p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400');
+                    currentSelectedProduct.selectedVariant = '';
+
+                    let oldPrice = parseFloat(p.oldPrice) || 0;
+                    document.getElementById('detail-image').src = currentSelectedProduct.image;
+                    document.getElementById('detail-name').innerText = currentSelectedProduct.name;
+                    document.getElementById('detail-price').innerText = '৳' + currentSelectedProduct.price;
+                    document.getElementById('detail-qty').value = currentSelectedProduct.qty;
+
+                    let thumbContainer = document.getElementById('detail-thumbnails');
+                    if(p.images && p.images.length > 1) {
+                        thumbContainer.innerHTML = p.images.map(imgSrc => `<img src="${imgSrc}" onclick="changeMainImage('${imgSrc}')" class="w-16 h-16 object-cover rounded cursor-pointer border-2 hover:border-[#ff5722] transition border-gray-200">`).join('');
+                        thumbContainer.classList.remove('hidden');
+                    } else thumbContainer.classList.add('hidden');
+
+                    let oldPriceElem = document.getElementById('detail-old-price');
+                    let discountTag = document.getElementById('detail-discount-tag');
+                    if(oldPrice > currentSelectedProduct.price) {
+                        oldPriceElem.innerText = '৳' + oldPrice;
+                        discountTag.innerText = Math.round(((oldPrice - currentSelectedProduct.price) / oldPrice) * 100) + '% OFF';
+                        discountTag.classList.remove('hidden');
+                    } else { oldPriceElem.innerText = ''; discountTag.classList.add('hidden'); }
+
+                    document.getElementById('detail-category').innerText = p.category || 'সাধারণ';
+                    document.getElementById('detail-desc').innerText = p.description || '';
+
+                    let variantsContainer = document.getElementById('detail-variants');
+                    if (p.sizes && p.sizes.length > 0) {
+                        currentSelectedProduct.selectedVariant = p.sizes[0];
+                        variantsContainer.innerHTML = p.sizes.map((s, idx) => `<button onclick="selectSize(this, '${s}')" class="size-btn border-2 ${idx===0?'border-[#ff5722] text-[#ff5722] bg-orange-50':'border-gray-300 text-gray-700 bg-white'} px-4 py-1.5 rounded font-bold text-sm transition">${s}</button>`).join('');
+                        document.getElementById('detail-variants-container').classList.remove('hidden');
+                    } else if (p.unit && p.unit !== 'null') {
+                        currentSelectedProduct.selectedVariant = p.unit;
+                        variantsContainer.innerHTML = `<span class="border-2 border-gray-200 text-gray-800 px-4 py-1.5 rounded bg-gray-50 font-bold text-sm cursor-default inline-block">${p.unit}</span>`;
+                        document.getElementById('detail-variants-container').classList.remove('hidden');
+                    } else document.getElementById('detail-variants-container').classList.add('hidden');
+
+                    loadProductReviews(currentSelectedProduct.id);
+                    document.getElementById('product-details-modal').classList.remove('hidden');
+                }
+            } catch(e) { console.error("Error loading product", e); }
         }
 
-        function closeProductDetails() { document.getElementById('product-details-modal').classList.add('hidden'); }
+        function closeProductDetails() { 
+            document.getElementById('product-details-modal').classList.add('hidden'); 
+            // Remove product link parameter from URL when closed
+            history.pushState({ page: 'home' }, '', spaBasePath);
+        }
 
         function updateQty(change) {
             let newQty = currentSelectedProduct.qty + change;
