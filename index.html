@@ -20,6 +20,34 @@
         /* Stars Rating CSS */
         .star-rating .fa-star { color: #d1d5db; cursor: pointer; transition: color 0.2s; }
         .star-rating .fa-star.active { color: #f59e0b; }
+
+        /* Dynamic Order Button CSS */
+        @keyframes shine-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes pulse-heartbeat {
+            0% { transform: scale(1); }
+            5% { transform: scale(1.05); }
+            10% { transform: scale(1); }
+            15% { transform: scale(1.05); }
+            50% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+        .btn-order-dynamic {
+            background: linear-gradient(270deg, #ff5722, #ff9800, #ff5722);
+            background-size: 200% 200%;
+            animation: shine-gradient 3s ease infinite, pulse-heartbeat 2.5s infinite;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+            border: none;
+            color: white !important;
+        }
+        .btn-order-dynamic:hover {
+            animation: shine-gradient 1.5s ease infinite;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.6);
+        }
     </style>
 </head>
 <body class="bg-gray-50 overflow-x-hidden">
@@ -106,8 +134,8 @@
                 <i class="fas fa-arrow-left mr-2"></i> ফিরে যান
             </button>
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row overflow-hidden w-full mx-auto">
-                <div class="w-full md:w-1/2 p-8 flex flex-col items-center justify-center bg-white relative">
-                    <img id="detail-image" src="" alt="Product" class="max-h-[450px] w-auto object-contain transition duration-300">
+                <div class="w-full md:w-1/2 p-6 md:p-8 flex flex-col items-center justify-start bg-white relative">
+                    <img id="detail-image" src="" alt="Product" class="w-full max-h-[550px] md:max-h-[650px] object-contain transition duration-500 drop-shadow-2xl" style="image-rendering: high-quality; image-rendering: -webkit-optimize-contrast;">
                     <div id="detail-thumbnails" class="flex gap-3 mt-6 overflow-x-auto w-full justify-center pb-2 scrollbar-hide"></div>
                 </div>
                 <div class="w-full md:w-1/2 p-8 bg-white md:border-l border-gray-100">
@@ -130,7 +158,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <button onclick="addToCart()" class="border-2 border-black text-black font-bold py-3.5 px-4 rounded hover:bg-gray-50 transition text-sm">কার্টে যোগ করুন</button>
-                        <button onclick="proceedToOrderModal()" class="bg-[#ff5722] text-white font-bold py-3.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#e64a19] transition text-sm shadow-md"><i class="fas fa-shopping-bag"></i> অর্ডার করুন</button>
+                        <button onclick="proceedToOrderModal()" class="text-white font-bold py-3.5 px-4 rounded flex items-center justify-center gap-2 transition text-sm btn-order-dynamic"><i class="fas fa-shopping-bag"></i> অর্ডার করুন</button>
                     </div>
                     <button id="call-order-btn" class="w-full border-2 border-black text-black font-bold py-3.5 rounded hover:bg-gray-50 transition text-sm">কল অর্ডার: 09678812525</button>
                     <div class="mt-8 border-t border-gray-100 pt-6">
@@ -338,6 +366,19 @@
     </div>
 
     <!-- Modals and Sidebars -->
+
+    <!-- Dynamic Toast Success Modal for Registration -->
+    <div id="dynamic-toast-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4" style="z-index: 10005;">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center transform transition-all duration-300 scale-95" id="toast-modal-content">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 text-green-500 text-4xl shadow-inner">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 id="toast-title" class="text-2xl font-bold text-gray-800 mb-2"></h3>
+            <p id="toast-message" class="text-gray-500 mb-8 font-medium"></p>
+            <button onclick="closeDynamicToast()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">OK, Continue</button>
+        </div>
+    </div>
+
     <div id="review-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4" style="z-index: 10002;">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative">
             <button type="button" onclick="closeReviewModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-2xl leading-none">&times;</button>
@@ -438,7 +479,7 @@
                             <span>I have read and agree to the Terms and Conditions, Privacy Policy & Refund and Return Policy.</span>
                         </label>
                     </div>
-                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-bold text-lg transition shadow-md mt-4">অর্ডার করুন</button>
+                    <button type="submit" class="w-full btn-order-dynamic py-3 rounded-lg font-bold text-lg transition shadow-md mt-4">অর্ডার করুন</button>
                 </form>
             </div>
         </div>
@@ -495,7 +536,7 @@
         <div id="cart-body" class="flex-1 overflow-y-auto p-4 flex flex-col bg-white"></div>
         <div id="cart-footer" class="hidden p-4 border-t border-gray-100 bg-white">
             <div class="flex justify-between items-center text-lg mb-4"><span class="font-bold text-gray-800">Total:</span><span id="cart-total-price" class="font-bold text-[#ff5722]">৳0</span></div>
-            <button onclick="checkoutCart()" class="w-full bg-[#ff5722] text-white py-3.5 rounded flex items-center justify-center gap-2 font-bold hover:bg-[#e64a19] transition-colors shadow-md">অর্ডার কনফার্ম করুন</button>
+            <button onclick="checkoutCart()" class="w-full btn-order-dynamic py-3.5 rounded flex items-center justify-center gap-2 font-bold transition-colors shadow-md">অর্ডার কনফার্ম করুন</button>
         </div>
     </div>
 
@@ -645,6 +686,33 @@
                 history.replaceState({ page: targetPage }, '', spaBasePath + (targetPage === 'home' ? '' : targetPage));
                 showPage(targetPage, false);
             }
+        }
+
+        // ========================================================== //
+        //           DYNAMIC TOAST SUCCESS MODAL FUNCTIONS          //
+        // ========================================================== //
+        function showDynamicToast(title, message, callback) {
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-message').innerText = message;
+            let modal = document.getElementById('dynamic-toast-modal');
+            let content = document.getElementById('toast-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+            window.dynamicToastCallback = callback;
+        }
+
+        function closeDynamicToast() {
+            let modal = document.getElementById('dynamic-toast-modal');
+            let content = document.getElementById('toast-modal-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if(window.dynamicToastCallback) window.dynamicToastCallback();
+            }, 200);
         }
 
         // ========================================================== //
@@ -853,7 +921,7 @@
                     if(p.oldPrice && parseFloat(p.oldPrice) > 0) priceHtml += ` <span class="text-sm text-gray-400 line-through font-normal ml-1">৳${p.oldPrice}</span>`;
                     const dataAttributes = `data-id="${doc.id}" data-name="${safeName}" data-price="${safePrice}" data-image="${safeImg}" data-oldprice="${p.oldPrice || ''}" data-category="${safeCategory}" data-unit="${p.unit || ''}" data-images="${encodeURIComponent(JSON.stringify(p.images || [safeImg]))}" data-sizes="${encodeURIComponent(JSON.stringify(p.sizes || []))}" data-desc="${safeDesc}"`;
                     
-                    productDiv.innerHTML += `<div class="product-card bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition" ${dataAttributes}><div class="h-48 mb-4 overflow-hidden rounded-lg cursor-pointer relative group" onclick="openProductDetails(this)" ${dataAttributes}><img src="${safeImg}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"><div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition duration-300 flex items-center justify-center"><span class="bg-white text-orange-600 text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 transform translate-y-2 group-hover:translate-y-0 shadow-md">Quick View</span></div></div><h3 class="text-sm font-semibold text-gray-800 h-10 overflow-hidden mb-2 cursor-pointer hover:text-orange-500 transition" onclick="openProductDetails(this)" ${dataAttributes}>${p.name}</h3><p class="text-lg font-bold text-emerald-600 mb-4">${priceHtml}</p><button type="button" onclick="openProductDetails(this)" ${dataAttributes} class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded font-bold transition">অর্ডার করুন</button></div>`;
+                    productDiv.innerHTML += `<div class="product-card bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition" ${dataAttributes}><div class="h-48 mb-4 overflow-hidden rounded-lg cursor-pointer relative group" onclick="openProductDetails(this)" ${dataAttributes}><img src="${safeImg}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"><div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition duration-300 flex items-center justify-center"><span class="bg-white text-orange-600 text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 transform translate-y-2 group-hover:translate-y-0 shadow-md">Quick View</span></div></div><h3 class="text-sm font-semibold text-gray-800 h-10 overflow-hidden mb-2 cursor-pointer hover:text-orange-500 transition" onclick="openProductDetails(this)" ${dataAttributes}>${p.name}</h3><p class="text-lg font-bold text-emerald-600 mb-4">${priceHtml}</p><button type="button" onclick="openProductDetails(this)" ${dataAttributes} class="w-full text-white py-2 rounded font-bold transition btn-order-dynamic">অর্ডার করুন</button></div>`;
                 });
                 if(productCount === 0) productDiv.innerHTML = `<p class="col-span-full text-center py-10 text-gray-500 font-semibold">এই ক্যাটাগরিতে কোনো প্রোডাক্ট পাওয়া যায়নি।</p>`;
             });
@@ -1103,7 +1171,7 @@
                 let isBlocked = false;
                 userCheck.forEach(doc => { if(doc.data().isBlocked === true) isBlocked = true; });
                 if(isBlocked) {
-                    alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে। আপনি কোনো অর্ডার করতে পারবেন না। যোগাযোগ করুন।");
+                    alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে। আপনি কোনো অর্ডার করতে পারবেন পণ্ডিত। যোগাযোগ করুন।");
                     submitBtn.innerText = "অর্ডার করুন";
                     submitBtn.disabled = false;
                     return;
@@ -1506,7 +1574,7 @@
                     guestOrders.forEach(doc => { if(!doc.data().userId) { batch.update(doc.ref, { userId: res.user.uid }); hasUpdates = true; } });
                     if(hasUpdates) await batch.commit();
                 }
-                alert("রেজিস্ট্রেশন সফল হয়েছে!"); showPage('home');
+                showDynamicToast('Success!', 'Account Registration Successfully!', () => { showPage('home'); });
             } catch(err) { alert(err.message); } 
             finally { submitBtn.innerText = "রেজিস্ট্রেশন করুন"; submitBtn.disabled = false; }
         });
