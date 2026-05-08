@@ -392,6 +392,18 @@
             <button onclick="closeDynamicToast()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">OK, Continue</button>
         </div>
     </div>
+    
+    <!-- Dynamic Toast Error Modal -->
+    <div id="dynamic-error-toast-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4" style="z-index: 10006;">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center transform transition-all duration-300 scale-95" id="error-toast-modal-content">
+            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5 text-red-500 text-4xl shadow-inner">
+                <i class="fas fa-times"></i>
+            </div>
+            <h3 id="error-toast-title" class="text-2xl font-bold text-gray-800 mb-2"></h3>
+            <p id="error-toast-message" class="text-gray-500 mb-8 font-medium"></p>
+            <button onclick="closeErrorToast()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">Close</button>
+        </div>
+    </div>
 
     <div id="review-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4" style="z-index: 10002;">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative">
@@ -726,6 +738,28 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
                 if(window.dynamicToastCallback) window.dynamicToastCallback();
+            }, 200);
+        }
+
+        function showErrorToast(title, message) {
+            document.getElementById('error-toast-title').innerText = title;
+            document.getElementById('error-toast-message').innerText = message;
+            let modal = document.getElementById('dynamic-error-toast-modal');
+            let content = document.getElementById('error-toast-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeErrorToast() {
+            let modal = document.getElementById('dynamic-error-toast-modal');
+            let content = document.getElementById('error-toast-modal-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
             }, 200);
         }
 
@@ -1456,7 +1490,7 @@
             const currentPwd = document.getElementById('currentPassword').value;
             const newPwd = document.getElementById('newPassword').value;
             const btn = document.getElementById('btnUpdatePassword');
-            if(newPwd.length < 6) { alert("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।"); return; }
+            if(newPwd.length < 6) { showErrorToast("Failed", "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।"); return; }
             btn.innerText = "Updating..."; btn.disabled = true;
             try {
                 const user = auth.currentUser;
@@ -1465,13 +1499,15 @@
                 await user.updatePassword(newPwd);
                 document.getElementById('changePasswordForm').reset();
                 
-                // Show Dynamic Toast instead of Alert
                 showDynamicToast('Success!', 'আপনার পাসওয়ার্ড সফলভাবে আপডেট হয়েছে।', () => {
                     switchAccountTab('dashboard');
                 });
             } catch(error) {
-                if(error.code === 'auth/wrong-password') alert("বর্তমান পাসওয়ার্ডটি ভুল!");
-                else alert("Error: " + error.message);
+                if(error.code === 'auth/wrong-password' || error.code === 'auth/invalid-login-credentials' || error.code === 'auth/invalid-credential') {
+                    showErrorToast('Failed!', 'বর্তমান পাসওয়ার্ডটি ভুল! (Password Wrong)');
+                } else {
+                    showErrorToast('Error!', error.message);
+                }
             } finally { btn.innerText = "Update Password"; btn.disabled = false; }
         });
 
@@ -1580,7 +1616,7 @@
             const phone = document.getElementById('regPhone').value;
             const password = document.getElementById('regPassword').value;
             const submitBtn = e.target.querySelector('button[type="submit"]');
-            if(!/^01[3-9]\d{8}$/.test(phone)) { alert("দয়া করে সঠিক ১১ ডিজিটের বাংলাদেশী মোবাইল নাম্বার দিন।"); return; }
+            if(!/^01[3-9]\d{8}$/.test(phone)) { showErrorToast("Failed", "দয়া করে সঠিক ১১ ডিজিটের বাংলাদেশী মোবাইল নাম্বার দিন।"); return; }
             submitBtn.innerText = "অপেক্ষা করুন..."; submitBtn.disabled = true;
             try {
                 const res = await auth.createUserWithEmailAndPassword(email, password);
@@ -1593,13 +1629,27 @@
                     if(hasUpdates) await batch.commit();
                 }
                 showDynamicToast('Success!', 'Account Registration Successfully!', () => { showPage('home'); });
-            } catch(err) { alert(err.message); } 
+            } catch(err) { 
+                if(err.code === 'auth/email-already-in-use') {
+                    showErrorToast('Failed!', 'এই ইমেইল দিয়ে ইতিমধ্যে একটি একাউন্ট খোলা আছে।');
+                } else {
+                    showErrorToast('Error!', err.message); 
+                }
+            } 
             finally { submitBtn.innerText = "রেজিস্ট্রেশন করুন"; submitBtn.disabled = false; }
         });
 
         document.getElementById('loginForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value).then(() => showPage('home')).catch(err => alert(err.message));
+            auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value)
+                .then(() => showPage('home'))
+                .catch(err => {
+                    if(err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+                        showErrorToast('Login Failed', 'ইমেইল অথবা পাসওয়ার্ড ভুল হয়েছে।');
+                    } else {
+                        showErrorToast('Error!', err.message);
+                    }
+                });
         });
         
         function logout() { auth.signOut().then(() => location.reload()); }
