@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <!-- Firebase Storage রিমুভ করা হয়েছে কারণ এখন এটি দরকার নেই -->
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -227,7 +226,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-600 mb-1">স্লাইডার ইমেজ (একাধিক ইমেজ সিলেক্ট করতে পারবেন)</label>
                                 <input type="file" id="setHeroFiles" accept="image/*" multiple class="w-full border p-2 rounded focus:ring-2 focus:ring-orange-500 outline-none bg-white mb-2">
-                                <textarea id="setHeroImages" rows="2" class="w-full border p-3 rounded bg-gray-50 text-gray-500 outline-none text-xs" readonly placeholder="বর্তমান ইমেজ লিংকসমূহ..."></textarea>
+                                <textarea id="setHeroImages" rows="4" class="w-full border p-3 rounded bg-white text-gray-800 outline-none text-xs focus:ring-2 focus:ring-orange-500" placeholder="বর্তমান ইমেজ লিংকসমূহ... (ডিলিট করতে চাইলে এখান থেকে লিংক মুছে দিন)"></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-600 mb-1">ক্লিক লিংক/ইউআরএল (ঐচ্ছিক, কমা দিয়ে আলাদা করুন)</label>
@@ -457,7 +456,7 @@
             });
         }
 
-        // Updated Setting Form with Base64 Image Upload Support
+        // Updated Setting Form with Base64 Image Upload Support & Appending Banners
         document.getElementById('siteSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]'); 
@@ -473,12 +472,16 @@
                     document.getElementById('setLogoUrl').value = urls[0];
                 }
 
-                // Upload Hero Files directly to Firestore
+                // Upload Hero Files directly to Firestore (Appending to existing images)
                 let heroFiles = document.getElementById('setHeroFiles').files;
                 if(heroFiles.length > 0) {
                     let urls = await processImagesToBase64(heroFiles);
-                    // Base64 স্ট্রিং এর ভেতর আগে থেকেই কমা (,) থাকে, তাই '||' দিয়ে ভাগ করা হলো। 
-                    document.getElementById('setHeroImages').value = urls.join('||');
+                    let currentImages = document.getElementById('setHeroImages').value.trim();
+                    if(currentImages !== "") {
+                        document.getElementById('setHeroImages').value = currentImages + '||' + urls.join('||');
+                    } else {
+                        document.getElementById('setHeroImages').value = urls.join('||');
+                    }
                 }
 
                 const settingsData = {
