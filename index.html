@@ -17,6 +17,20 @@
         .hidden { display: none !important; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* High Quality Image Rendering for Low Quality Uploads */
+        img {
+            -ms-interpolation-mode: bicubic;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        .product-card img, #detail-image, .hero-slide-item img {
+            filter: contrast(1.03) saturate(1.05) brightness(1.01);
+            -webkit-transform: translateZ(0); /* GPU Acceleration for sharper image */
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
         /* Stars Rating CSS */
         .star-rating .fa-star { color: #d1d5db; cursor: pointer; transition: color 0.2s; }
         .star-rating .fa-star.active { color: #f59e0b; }
@@ -367,7 +381,7 @@
 
     <!-- Modals and Sidebars -->
 
-    <!-- Dynamic Toast Success Modal for Registration -->
+    <!-- Dynamic Toast Success Modal for Registration & Actions -->
     <div id="dynamic-toast-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4" style="z-index: 10005;">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center transform transition-all duration-300 scale-95" id="toast-modal-content">
             <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 text-green-500 text-4xl shadow-inner">
@@ -1442,17 +1456,21 @@
             const currentPwd = document.getElementById('currentPassword').value;
             const newPwd = document.getElementById('newPassword').value;
             const btn = document.getElementById('btnUpdatePassword');
-            if(newPwd.length < 6) { alert("New password must be at least 6 characters."); return; }
+            if(newPwd.length < 6) { alert("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।"); return; }
             btn.innerText = "Updating..."; btn.disabled = true;
             try {
                 const user = auth.currentUser;
                 const cred = firebase.auth.EmailAuthProvider.credential(user.email, currentPwd);
                 await user.reauthenticateWithCredential(cred);
                 await user.updatePassword(newPwd);
-                alert("Password updated successfully!");
                 document.getElementById('changePasswordForm').reset();
+                
+                // Show Dynamic Toast instead of Alert
+                showDynamicToast('Success!', 'আপনার পাসওয়ার্ড সফলভাবে আপডেট হয়েছে।', () => {
+                    switchAccountTab('dashboard');
+                });
             } catch(error) {
-                if(error.code === 'auth/wrong-password') alert("Current password is incorrect!");
+                if(error.code === 'auth/wrong-password') alert("বর্তমান পাসওয়ার্ডটি ভুল!");
                 else alert("Error: " + error.message);
             } finally { btn.innerText = "Update Password"; btn.disabled = false; }
         });
