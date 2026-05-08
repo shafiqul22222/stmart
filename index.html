@@ -23,9 +23,10 @@
             -ms-interpolation-mode: bicubic;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
+            image-rendering: high-quality;
         }
         .product-card img, #detail-image, .hero-slide-item img {
-            filter: contrast(1.03) saturate(1.05) brightness(1.01);
+            filter: contrast(1.08) saturate(1.1) brightness(1.02); /* Enhanced for Full HD Look */
             -webkit-transform: translateZ(0); /* GPU Acceleration for sharper image */
             transform: translateZ(0);
             backface-visibility: hidden;
@@ -117,7 +118,8 @@
     <div id="home-page">
         <!-- Dynamic Hero Slider -->
         <section class="container mx-auto px-4 py-4">
-            <div class="relative w-full rounded-xl overflow-hidden h-[250px] md:h-[450px] bg-gray-100 group shadow-md" id="hero-slider-wrapper">
+            <!-- Updated Aspect Ratio to 2:1 for perfect 1200x600 size -->
+            <div class="relative w-full max-w-[1200px] mx-auto rounded-xl overflow-hidden aspect-[2/1] max-h-[600px] bg-gray-100 group shadow-md" id="hero-slider-wrapper">
                 <div id="hero-slides-container" class="w-full h-full relative">
                     <span class="absolute inset-0 flex items-center justify-center" id="hero-initial-loader">
                         <i class="fas fa-spinner fa-spin text-gray-300 text-4xl"></i>
@@ -1228,7 +1230,7 @@
                 let isBlocked = false;
                 userCheck.forEach(doc => { if(doc.data().isBlocked === true) isBlocked = true; });
                 if(isBlocked) {
-                    alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে। আপনি কোনো অর্ডার করতে পারবেন পণ্ডিত। যোগাযোগ করুন।");
+                    alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে। আপনি কোনো অর্ডার করতে পারবেন না। যোগাযোগ করুন।");
                     submitBtn.innerText = "অর্ডার করুন";
                     submitBtn.disabled = false;
                     return;
@@ -1350,7 +1352,7 @@
                     if(currentStatusIndex === -1) currentStatusIndex = 0;
 
                     if(isCancelled) {
-                        html += `<div class="relative pl-8"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-white bg-red-500 shadow-sm"></div><h4 class="font-bold text-red-600 text-xl">অর্ডার বাতিল</h4><p class="text-gray-500 text-sm mt-1">আপনার অর্ডারটি বাতিল করা হয়েছে。</p>${order.statusTimestamps && order.statusTimestamps.Cancelled ? `<p class="text-xs text-red-500 mt-2 font-medium tracking-wide">${formatTime(order.statusTimestamps.Cancelled)}</p>` : ''}</div>`;
+                        html += `<div class="relative pl-8"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-white bg-red-500 shadow-sm"></div><h4 class="font-bold text-red-600 text-xl">অর্ডার বাতিল</h4><p class="text-gray-500 text-sm mt-1">আপনার অর্ডারটি বাতিল করা হয়েছে।</p>${order.statusTimestamps && order.statusTimestamps.Cancelled ? `<p class="text-xs text-red-500 mt-2 font-medium tracking-wide">${formatTime(order.statusTimestamps.Cancelled)}</p>` : ''}</div>`;
                     } else {
                         steps.forEach((step, index) => {
                             let isActive = index <= currentStatusIndex;
