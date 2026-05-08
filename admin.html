@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Storage রিমুভ করা হয়েছে কারণ এখন এটি দরকার নেই -->
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -212,7 +213,11 @@
 
                     <div class="bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="text-xl font-bold mb-4 text-blue-600 border-b pb-2">জেনারেল সেটিংস</h3>
-                        <div><label class="block text-sm font-semibold text-gray-600 mb-1">ওয়েবসাইট লোগো লিংক (Header Logo)</label><input type="url" id="setLogoUrl" class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none"></div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">ওয়েবসাইট লোগো (নতুন লোগো দিতে ডিভাইস থেকে সিলেক্ট করুন)</label>
+                            <input type="file" id="setLogoFile" accept="image/*" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-white mb-2">
+                            <input type="text" id="setLogoUrl" class="w-full border p-3 rounded bg-gray-50 text-gray-500 outline-none text-xs" placeholder="বর্তমান লোগো লিংক" readonly>
+                        </div>
                     </div>
                     
                     <!-- NEW: Dynamic Hero Settings in Admin -->
@@ -220,9 +225,9 @@
                         <h3 class="text-xl font-bold mb-4 text-orange-600 border-b pb-2">হিরো ইমেজ স্লাইডার সেটিংস</h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-600 mb-1">ইমেজ লিংকসমূহ (কমা দিয়ে আলাদা করুন)</label>
-                                <textarea id="setHeroImages" rows="3" class="w-full border p-3 rounded focus:ring-2 focus:ring-orange-500 outline-none" placeholder="image1.jpg, image2.jpg, image3.jpg..."></textarea>
-                                <p class="text-xs text-gray-500 mt-1">একাধিক ইমেজ স্লাইডারে দেখানোর জন্য কমা (,) দিয়ে লিংক দিন।</p>
+                                <label class="block text-sm font-semibold text-gray-600 mb-1">স্লাইডার ইমেজ (একাধিক ইমেজ সিলেক্ট করতে পারবেন)</label>
+                                <input type="file" id="setHeroFiles" accept="image/*" multiple class="w-full border p-2 rounded focus:ring-2 focus:ring-orange-500 outline-none bg-white mb-2">
+                                <textarea id="setHeroImages" rows="2" class="w-full border p-3 rounded bg-gray-50 text-gray-500 outline-none text-xs" readonly placeholder="বর্তমান ইমেজ লিংকসমূহ..."></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-600 mb-1">ক্লিক লিংক/ইউআরএল (ঐচ্ছিক, কমা দিয়ে আলাদা করুন)</label>
@@ -284,7 +289,10 @@
                         <select id="pUnit" class="w-full border p-3 rounded focus:ring-2 focus:ring-orange-500 outline-none bg-white"><option value="পিস">পিস</option><option value="কেজি">কেজি</option><option value="গ্রাম">গ্রাম</option></select>
                     </div>
                 </div>
-                <div><label class="block text-sm font-semibold text-gray-600 mb-1">ছবির লিঙ্কসমূহ *</label><textarea id="pImage" rows="2" class="w-full border p-3 rounded focus:ring-2 focus:ring-orange-500 outline-none" required></textarea></div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">প্রোডাক্টের ছবিসমূহ (একাধিক ছবি সিলেক্ট করতে পারবেন) *</label>
+                    <input type="file" id="pImageFiles" accept="image/*" multiple class="w-full border p-2 rounded focus:ring-2 focus:ring-orange-500 outline-none bg-white" required>
+                </div>
                 <div><label class="block text-sm font-semibold text-gray-600 mb-1">প্রোডাক্ট ডেসক্রিপশন</label><textarea id="pDesc" rows="3" class="w-full border p-3 rounded focus:ring-2 focus:ring-orange-500 outline-none"></textarea></div>
                 <div class="flex gap-4 pt-2">
                     <button type="button" onclick="document.getElementById('modal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-bold hover:bg-gray-300 transition">বাতিল</button>
@@ -312,28 +320,86 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+        // স্টোরেজ ইনিশিয়ালাইজেশন মুছে ফেলা হয়েছে
 
         let globalBrandName = 'ST Mart';
         let globalPhone = '';
 
+        // NEW: ফায়ারবেস স্টোরেজ ছাড়া Base64 এ ছবি কনভার্ট ও কম্প্রেস করার ফাংশন
+        function compressAndConvertToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800; // ফায়ারস্টোর লিমিট থেকে বাঁচার জন্য সাইজ কমানো হলো
+                        const MAX_HEIGHT = 800;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // WebP ফরমেটে সেভ করা হচ্ছে যাতে ব্যাকগ্রাউন্ড ট্রান্সপারেন্ট থাকে এবং সাইজ কম হয় (70% Quality)
+                        const dataUrl = canvas.toDataURL('image/webp', 0.7); 
+                        resolve(dataUrl);
+                    };
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function processImagesToBase64(files) {
+            let base64Urls = [];
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                let base64 = await compressAndConvertToBase64(file);
+                base64Urls.push(base64);
+            }
+            return base64Urls;
+        }
+
+        // ডায়নামিক পেজ রাউটিং এর সমস্যা সমাধানের জন্য
         function showSection(sectionName, pushState = true) {
             const sections = ['dashboard', 'orders', 'products', 'categories', 'customers', 'settings'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
+            
             sections.forEach(sec => {
                 const secEl = document.getElementById(`${sec}-section`);
                 const navEl = document.getElementById(`nav-${sec}`);
                 if (secEl) secEl.classList.add('hidden');
                 if (navEl) navEl.className = "w-full text-left p-3 rounded hover:bg-emerald-900 transition";
             });
+            
             document.getElementById(`${sectionName}-section`).classList.remove('hidden');
             document.getElementById(`nav-${sectionName}`).className = "w-full text-left p-3 rounded bg-orange-600 transition";
             
+            // Push State লজিক আপডেট করা হলো যাতে পেজ রিফ্রেশে এরর না আসে
             if (pushState && window.location.protocol !== 'file:') { 
-                history.pushState({ section: sectionName }, '', `/${sectionName}`); 
+                history.pushState({ section: sectionName }, '', `#${sectionName}`); 
             }
         }
 
-        function getPathSection() { const path = window.location.pathname.split('/').filter(Boolean).pop(); return path ? path : 'dashboard'; }
+        function getPathSection() { 
+            const path = window.location.hash.replace('#', ''); 
+            return path ? path : 'dashboard'; 
+        }
         window.addEventListener('popstate', (e) => showSection(getPathSection(), false));
 
         document.querySelectorAll('.size-cb').forEach(cb => {
@@ -372,8 +438,8 @@
                     document.getElementById('setCourierSecretKey').value = data.courierSecretKey || '';
                     document.getElementById('setLogoUrl').value = data.logoUrl || ''; 
                     
-                    // NEW: Load Hero Data
-                    document.getElementById('setHeroImages').value = data.heroImages || (data.heroImg1 ? data.heroImg1 + (data.heroImg2 ? ',' + data.heroImg2 : '') : '');
+                    // Base64 এর ক্ষেত্রে কমা (,) ব্যবহার করলে তা নষ্ট হয়ে যায়, তাই '||' ব্যবহার করা হয়েছে
+                    document.getElementById('setHeroImages').value = data.heroImages || (data.heroImg1 ? data.heroImg1 + (data.heroImg2 ? '||' + data.heroImg2 : '') : '');
                     document.getElementById('setHeroLinks').value = data.heroLinks || '';
                     
                     document.getElementById('setBrandName').value = data.brandName || '';
@@ -391,31 +457,64 @@
             });
         }
 
+        // Updated Setting Form with Base64 Image Upload Support
         document.getElementById('siteSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]'); btn.innerText = "সেভ হচ্ছে...";
-            const settingsData = {
-                insideDhaka: parseInt(document.getElementById('setInsideDhaka').value) || 60,
-                outsideDhaka: parseInt(document.getElementById('setOutsideDhaka').value) || 120,
-                courierApiKey: document.getElementById('setCourierApiKey').value.trim(),
-                courierSecretKey: document.getElementById('setCourierSecretKey').value.trim(),
-                logoUrl: document.getElementById('setLogoUrl').value.trim(),
+            const btn = e.target.querySelector('button[type="submit"]'); 
+            const originalText = btn.innerText;
+            btn.innerText = "সেভ ও আপলোড হচ্ছে (অপেক্ষা করুন)...";
+            btn.disabled = true;
+
+            try {
+                // Upload Logo File directly to Firestore
+                let logoFiles = document.getElementById('setLogoFile').files;
+                if(logoFiles.length > 0) {
+                    let urls = await processImagesToBase64(logoFiles);
+                    document.getElementById('setLogoUrl').value = urls[0];
+                }
+
+                // Upload Hero Files directly to Firestore
+                let heroFiles = document.getElementById('setHeroFiles').files;
+                if(heroFiles.length > 0) {
+                    let urls = await processImagesToBase64(heroFiles);
+                    // Base64 স্ট্রিং এর ভেতর আগে থেকেই কমা (,) থাকে, তাই '||' দিয়ে ভাগ করা হলো। 
+                    document.getElementById('setHeroImages').value = urls.join('||');
+                }
+
+                const settingsData = {
+                    insideDhaka: parseInt(document.getElementById('setInsideDhaka').value) || 60,
+                    outsideDhaka: parseInt(document.getElementById('setOutsideDhaka').value) || 120,
+                    courierApiKey: document.getElementById('setCourierApiKey').value.trim(),
+                    courierSecretKey: document.getElementById('setCourierSecretKey').value.trim(),
+                    logoUrl: document.getElementById('setLogoUrl').value.trim(),
+                    
+                    heroImages: document.getElementById('setHeroImages').value.trim(),
+                    heroLinks: document.getElementById('setHeroLinks').value.trim(),
+                    
+                    brandName: document.getElementById('setBrandName').value.trim(),
+                    tagline: document.getElementById('setTagline').value.trim(),
+                    phone: document.getElementById('setPhone').value.trim(),
+                    email: document.getElementById('setEmail').value.trim(),
+                    address: document.getElementById('setAddress').value.trim(),
+                    facebook: document.getElementById('setFacebook').value.trim(),
+                    whatsapp: document.getElementById('setWhatsapp').value.trim(),
+                    copyright: document.getElementById('setCopyright').value.trim(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
                 
-                // NEW: Save Hero Data
-                heroImages: document.getElementById('setHeroImages').value.trim(),
-                heroLinks: document.getElementById('setHeroLinks').value.trim(),
+                await db.collection('siteSettings').doc('global').set(settingsData, { merge: true }); 
+                alert("সাইট সেটিংস সফলভাবে আপডেট হয়েছে!"); 
                 
-                brandName: document.getElementById('setBrandName').value.trim(),
-                tagline: document.getElementById('setTagline').value.trim(),
-                phone: document.getElementById('setPhone').value.trim(),
-                email: document.getElementById('setEmail').value.trim(),
-                address: document.getElementById('setAddress').value.trim(),
-                facebook: document.getElementById('setFacebook').value.trim(),
-                whatsapp: document.getElementById('setWhatsapp').value.trim(),
-                copyright: document.getElementById('setCopyright').value.trim(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            try { await db.collection('siteSettings').doc('global').set(settingsData, { merge: true }); alert("সাইট সেটিংস সফলভাবে আপডেট হয়েছে!"); } catch (err) { alert("সেটিংস আপডেট করতে সমস্যা হয়েছে: " + err.message); } finally { btn.innerText = "সেটিংস সেভ করুন"; }
+                // Clear file inputs after success
+                document.getElementById('setLogoFile').value = "";
+                document.getElementById('setHeroFiles').value = "";
+
+            } catch (err) { 
+                alert("সেটিংস আপডেট করতে সমস্যা হয়েছে (ছবি অনেক বড় হতে পারে): " + err.message); 
+            } finally { 
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         });
 
         function loadAdminProducts() {
@@ -435,15 +534,56 @@
             });
         }
 
+        // Updated Add Product Form with Base64 Support
         document.getElementById('addForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = "আপলোড হচ্ছে (অপেক্ষা করুন)...";
+            btn.disabled = true;
+
             let selectedSizes = Array.from(document.querySelectorAll('.size-cb:checked')).map(cb => cb.value);
             let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('pUnit').value;
-            let imagesArray = document.getElementById('pImage').value.split(',').map(url => url.trim()).filter(url => url !== '');
+            
             try {
-                await db.collection('products').add({ name: document.getElementById('pName').value, purchasePrice: document.getElementById('pPurchasePrice').value || 0, oldPrice: document.getElementById('pOldPrice').value || 0, price: document.getElementById('pPrice').value, category: document.getElementById('pCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('pDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                document.getElementById('addForm').reset(); document.querySelectorAll('.size-cb').forEach(cb => cb.checked = false); document.getElementById('unitContainer').style.display = 'block'; document.getElementById('modal').classList.add('hidden'); alert("প্রোডাক্ট সফলভাবে যুক্ত হয়েছে!");
-            } catch (err) { alert("আপনার পারমিশন নেই বা কোনো এরর হয়েছে!"); }
+                // Upload Product Images Directly to Firestore as Base64
+                let files = document.getElementById('pImageFiles').files;
+                let imagesArray = [];
+                if(files.length > 0) {
+                    imagesArray = await processImagesToBase64(files);
+                } else {
+                    alert("দয়া করে প্রোডাক্টের ছবি সিলেক্ট করুন!");
+                    btn.innerText = originalText; btn.disabled = false;
+                    return;
+                }
+
+                await db.collection('products').add({ 
+                    name: document.getElementById('pName').value, 
+                    purchasePrice: document.getElementById('pPurchasePrice').value || 0, 
+                    oldPrice: document.getElementById('pOldPrice').value || 0, 
+                    price: document.getElementById('pPrice').value, 
+                    category: document.getElementById('pCategory').value, 
+                    sizes: selectedSizes, 
+                    unit: finalUnit, 
+                    description: document.getElementById('pDesc').value, 
+                    images: imagesArray, 
+                    image: imagesArray.length > 0 ? imagesArray[0] : '', 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+                
+                document.getElementById('addForm').reset(); 
+                document.getElementById('pImageFiles').value = ""; // Clear file input
+                document.querySelectorAll('.size-cb').forEach(cb => cb.checked = false); 
+                document.getElementById('unitContainer').style.display = 'block'; 
+                document.getElementById('modal').classList.add('hidden'); 
+                alert("প্রোডাক্ট সফলভাবে যুক্ত হয়েছে!");
+
+            } catch (err) { 
+                alert("আপনার পারমিশন নেই বা ডকুমেন্ট সাইজ অনেক বড় হয়েছে: " + err.message); 
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         });
 
         function loadDashboardData() {
