@@ -805,7 +805,16 @@
         let heroSlideInterval;
 
         function renderHeroSlider(imagesStr, linksStr) {
-            let images = imagesStr ? imagesStr.split(',').map(s => s.trim()).filter(s => s) : [];
+            // Updated splitting logic to handle '||' separator from admin panel Base64 uploads
+            let images = [];
+            if(imagesStr) {
+                if(imagesStr.includes('||')) {
+                    images = imagesStr.split('||').map(s => s.trim()).filter(s => s);
+                } else {
+                    images = imagesStr.split(',').map(s => s.trim()).filter(s => s);
+                }
+            }
+
             let links = linksStr ? linksStr.split(',').map(s => s.trim()) : [];
             if(images.length === 0) return;
 
@@ -885,7 +894,7 @@
                         let imgs = [];
                         if(data.heroImg1) imgs.push(data.heroImg1);
                         if(data.heroImg2) imgs.push(data.heroImg2);
-                        renderHeroSlider(imgs.join(','), '');
+                        renderHeroSlider(imgs.join('||'), '');
                     } else renderHeroSlider('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop', '');
 
                     if(data.brandName) {
