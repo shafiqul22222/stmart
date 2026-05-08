@@ -335,9 +335,9 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         
-                        // পরিবর্তন ১: সাইজ 800 থেকে বাড়িয়ে 1500 করা হলো ফুল HD এর জন্য
-                        const MAX_WIDTH = 1500; 
-                        const MAX_HEIGHT = 1500;
+                        // পরিবর্তন ১: সাইজ 800 থেকে বাড়িয়ে 2000 করা হলো ফুল HD এর জন্য
+                        const MAX_WIDTH = 2000; 
+                        const MAX_HEIGHT = 2000;
                         
                         let width = img.width;
                         let height = img.height;
@@ -362,7 +362,7 @@
                         ctx.imageSmoothingQuality = "high";
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // পরিবর্তন ২: কোয়ালিটি 0.7 থেকে বাড়িয়ে 0.95 (95% HD) করা হলো
+                        // পরিবর্তন ২: কোয়ালিটি 0.7 থেকে বাড়িয়ে 0.95 (100% HD) করা হলো
                         const dataUrl = canvas.toDataURL('image/webp', 0.95); 
                         resolve(dataUrl);
                     };
