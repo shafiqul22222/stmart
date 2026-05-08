@@ -334,8 +334,11 @@
                     img.src = event.target.result;
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 800; // ফায়ারস্টোর লিমিট থেকে বাঁচার জন্য সাইজ কমানো হলো
-                        const MAX_HEIGHT = 800;
+                        
+                        // পরিবর্তন ১: সাইজ 800 থেকে বাড়িয়ে 1500 করা হলো ফুল HD এর জন্য
+                        const MAX_WIDTH = 1500; 
+                        const MAX_HEIGHT = 1500;
+                        
                         let width = img.width;
                         let height = img.height;
 
@@ -353,10 +356,14 @@
                         canvas.width = width;
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
+                        
+                        // ছবি ক্লিয়ার করার জন্য ক্যানভাস স্মুথিং অন করা হলো
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = "high";
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // WebP ফরমেটে সেভ করা হচ্ছে যাতে ব্যাকগ্রাউন্ড ট্রান্সপারেন্ট থাকে এবং সাইজ কম হয় (70% Quality)
-                        const dataUrl = canvas.toDataURL('image/webp', 0.7); 
+                        // পরিবর্তন ২: কোয়ালিটি 0.7 থেকে বাড়িয়ে 0.95 (95% HD) করা হলো
+                        const dataUrl = canvas.toDataURL('image/webp', 0.95); 
                         resolve(dataUrl);
                     };
                 };
