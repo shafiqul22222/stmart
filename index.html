@@ -166,11 +166,44 @@
         </div>
     </div>
 
+    <!-- UPDATE 1: Confirmation Modal -> Dynamic Logo updated here -->
     <div id="step-confirmation-modal" class="hidden fixed inset-0 bg-[#1DBF60] flex items-center justify-center p-4" style="z-index: 10000;">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-6 text-center"><h2 class="text-2xl font-bold text-[#1DBF60] mb-4">ST MaRt</h2><div class="w-16 h-16 bg-[#e6f8ef] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-check text-[#1DBF60] text-3xl"></i></div><h3 class="text-xl font-bold text-gray-800 mb-1">Order Placed Successfully</h3><p class="text-sm text-gray-500 mb-6">আপনার অর্ডার কনফার্ম করতে নিচে ক্লিক করুন</p><div class="bg-gray-50 rounded-lg p-4 text-left text-sm text-gray-700 mb-6 border border-gray-100"><p class="flex items-center gap-2 mb-2"><i class="fas fa-box text-[#c89259]"></i> <strong>Product:</strong> <span id="confirm-modal-product" class="truncate"></span></p><p class="flex items-center gap-2 mb-2"><i class="fas fa-sack-dollar text-[#f5b82e]"></i> <strong>Price:</strong> <span id="confirm-modal-price"></span></p><p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-gray-600"></i> <strong>Phone:</strong> <span id="confirm-modal-phone"></span></p></div><div class="space-y-3"><button onclick="actionConfirmOrder()" class="w-full bg-[#1DBF60] hover:bg-[#18a251] text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-check"></i> Confirm Order</button><button onclick="actionCancelOrder()" class="w-full bg-[#ffebee] hover:bg-[#ffcdd2] text-red-500 font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-times"></i> Cancel</button></div><p id="confirmation-timer-text" class="text-xs text-gray-400 mt-4 flex items-center justify-center gap-1"><i class="far fa-clock"></i> Auto cancel in 10:00</p></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-6 text-center">
+            
+            <img src="logo.png" id="confirmation-logo" alt="ST Mart" class="h-20 mx-auto mb-4 object-contain">
+            
+            <div class="w-16 h-16 bg-[#e6f8ef] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-check text-[#1DBF60] text-3xl"></i></div>
+            <h3 class="text-xl font-bold text-gray-800 mb-1">Order Placed Successfully</h3>
+            <p class="text-sm text-gray-500 mb-6">আপনার অর্ডার কনফার্ম করতে নিচে ক্লিক করুন</p>
+            <div class="bg-gray-50 rounded-lg p-4 text-left text-sm text-gray-700 mb-6 border border-gray-100">
+                <p class="flex items-center gap-2 mb-2"><i class="fas fa-box text-[#c89259]"></i> <strong>Product:</strong> <span id="confirm-modal-product" class="truncate"></span></p>
+                <p class="flex items-center gap-2 mb-2"><i class="fas fa-sack-dollar text-[#f5b82e]"></i> <strong>Price:</strong> <span id="confirm-modal-price"></span></p>
+                <p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-gray-600"></i> <strong>Phone:</strong> <span id="confirm-modal-phone"></span></p>
+            </div>
+            <div class="space-y-3">
+                <button onclick="actionConfirmOrder()" class="w-full bg-[#1DBF60] hover:bg-[#18a251] text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-check"></i> Confirm Order</button>
+                <button onclick="actionCancelOrder()" class="w-full bg-[#ffebee] hover:bg-[#ffcdd2] text-red-500 font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+            <p id="confirmation-timer-text" class="text-xs text-gray-400 mt-4 flex items-center justify-center gap-1"><i class="far fa-clock"></i> Auto cancel in 10:00</p>
+        </div>
     </div>
 
-    <div id="step-success-modal" class="hidden fixed inset-0 bg-[#1DBF60] flex items-center justify-center p-4" style="z-index: 10001;"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-6 text-center"><div class="w-20 h-20 bg-[#e6f8ef] rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">🎉</div><h3 class="text-2xl font-bold text-[#1DBF60] mb-2">Order Confirmed!</h3><p class="text-sm text-gray-500 mb-6">ধন্যবাদ! আপনার অর্ডার সফলভাবে কনফার্ম হয়েছে</p><div class="bg-gray-50 rounded-lg p-4 text-left text-sm text-gray-700 mb-6 border border-gray-100"><p class="flex items-center gap-2 mb-2"><i class="fas fa-box text-[#c89259]"></i> <strong>Product:</strong> <span id="success-modal-product" class="truncate"></span></p><p class="flex items-center gap-2 mb-2"><i class="fas fa-sack-dollar text-[#f5b82e]"></i> <strong>Price:</strong> <span id="success-modal-price"></span></p><p class="flex items-center gap-2"><i class="fas fa-truck text-[#d9534f]"></i> <strong>Status:</strong> Processing</p></div><button onclick="closeFinalModals()" class="w-full bg-[#1DBF60] hover:bg-[#18a251] text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-home"></i> Back to Home</button></div></div>
+    <!-- UPDATE 2: Success Modal -> Track Order Button updated here -->
+    <div id="step-success-modal" class="hidden fixed inset-0 bg-[#1DBF60] flex items-center justify-center p-4" style="z-index: 10001;">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-6 text-center">
+            <div class="w-20 h-20 bg-[#e6f8ef] rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">🎉</div>
+            <h3 class="text-2xl font-bold text-[#1DBF60] mb-2">Order Confirmed!</h3>
+            <p class="text-sm text-gray-500 mb-6">ধন্যবাদ! আপনার অর্ডার সফলভাবে কনফার্ম হয়েছে</p>
+            <div class="bg-gray-50 rounded-lg p-4 text-left text-sm text-gray-700 mb-6 border border-gray-100">
+                <p class="flex items-center gap-2 mb-2"><i class="fas fa-box text-[#c89259]"></i> <strong>Product:</strong> <span id="success-modal-product" class="truncate"></span></p>
+                <p class="flex items-center gap-2 mb-2"><i class="fas fa-sack-dollar text-[#f5b82e]"></i> <strong>Price:</strong> <span id="success-modal-price"></span></p>
+                <p class="flex items-center gap-2"><i class="fas fa-truck text-[#d9534f]"></i> <strong>Status:</strong> Processing</p>
+            </div>
+            
+            <button onclick="goToTrackingFromSuccess()" class="w-full bg-[#1DBF60] hover:bg-[#18a251] text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-truck"></i> আপনার অর্ডার ট্রাকিং করুন</button>
+        </div>
+    </div>
+    
     <div id="step-cancelled-modal" class="hidden fixed inset-0 bg-red-500 flex items-center justify-center p-4" style="z-index: 10001;"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-8 text-center"><div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-times text-red-500 text-4xl"></i></div><h3 class="text-2xl font-bold text-red-500 mb-2">Order Cancelled</h3><p class="text-sm text-gray-500 mb-8">আপনার অর্ডারটি বাতিল করা হয়েছে।</p><button onclick="closeFinalModals()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-arrow-left"></i> Back to Home</button></div></div>
 
     <div id="cart-sidebar-backdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[10000]" onclick="toggleCart()"></div>
@@ -225,7 +258,23 @@
         function startHeroSlideShow() { clearInterval(heroSlideInterval); heroSlideInterval = setInterval(() => { moveHeroSlide(1); }, 4000); }
         function resetHeroSlideShow() { startHeroSlideShow(); }
 
-        function loadSiteSettings() { const cachedLogo = localStorage.getItem('stmart_logo'); if(cachedLogo) document.getElementById('header-logo-container').innerHTML = `<img src="${cachedLogo}" alt="Logo" class="h-[64px] max-w-full object-contain">`; db.collection('siteSettings').doc('global').onSnapshot(doc => { if(doc.exists) { const data = doc.data(); if(data.logoUrl && cachedLogo !== data.logoUrl) { document.getElementById('header-logo-container').innerHTML = `<img src="${data.logoUrl}" alt="Logo" class="h-[64px] max-w-full object-contain opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">`; localStorage.setItem('stmart_logo', data.logoUrl); } if(data.heroImages) renderHeroSlider(data.heroImages, data.heroLinks); else if (data.heroImg1 || data.heroImg2) { let imgs = []; if(data.heroImg1) imgs.push(data.heroImg1); if(data.heroImg2) imgs.push(data.heroImg2); renderHeroSlider(imgs.join('||'), ''); } else renderHeroSlider('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop', ''); if(data.brandName) { document.getElementById('footer-brand').innerHTML = `${data.brandName}<br><span class="text-[10px] text-white tracking-[0.2em] font-normal uppercase">${data.tagline || 'Back to Nature'}</span>`; document.getElementById('footer-brand-title').innerText = data.brandName; document.getElementById('footer-social-title').innerText = data.brandName; } if(data.tagline) document.getElementById('footer-tagline-title').innerText = data.tagline.toUpperCase(); if(data.phone) { document.getElementById('footer-phone').innerText = data.phone; document.getElementById('call-order-btn').innerText = `কল অর্ডার: ${data.phone}`; } if(data.address) document.getElementById('footer-address').innerHTML = data.address.replace(/\n/g, '<br>'); if(data.email) document.getElementById('footer-email').innerText = data.email; if(data.facebook) document.getElementById('footer-facebook').href = data.facebook; if(data.whatsapp) document.getElementById('footer-whatsapp').href = data.whatsapp; if(data.copyright) document.getElementById('footer-copyright').innerText = data.copyright; if(data.insideDhaka) dynamicDeliveryCharges.insideDhaka = parseInt(data.insideDhaka); if(data.outsideDhaka) dynamicDeliveryCharges.outsideDhaka = parseInt(data.outsideDhaka); document.getElementById('lbl-inside-dhaka').innerText = dynamicDeliveryCharges.insideDhaka; document.getElementById('lbl-outside-dhaka').innerText = dynamicDeliveryCharges.outsideDhaka; } }); }
+        // UPDATE: Modified this function so confirmation modal automatically gets dynamic logo
+        function loadSiteSettings() { 
+            const cachedLogo = localStorage.getItem('stmart_logo'); 
+            if(cachedLogo) {
+                document.getElementById('header-logo-container').innerHTML = `<img src="${cachedLogo}" alt="Logo" class="h-[64px] max-w-full object-contain">`;
+                if(document.getElementById('confirmation-logo')) document.getElementById('confirmation-logo').src = cachedLogo;
+            }
+            db.collection('siteSettings').doc('global').onSnapshot(doc => { 
+                if(doc.exists) { 
+                    const data = doc.data(); 
+                    if(data.logoUrl && cachedLogo !== data.logoUrl) { 
+                        document.getElementById('header-logo-container').innerHTML = `<img src="${data.logoUrl}" alt="Logo" class="h-[64px] max-w-full object-contain opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">`; 
+                        localStorage.setItem('stmart_logo', data.logoUrl); 
+                        if(document.getElementById('confirmation-logo')) document.getElementById('confirmation-logo').src = data.logoUrl;
+                    } 
+                    if(data.heroImages) renderHeroSlider(data.heroImages, data.heroLinks); else if (data.heroImg1 || data.heroImg2) { let imgs = []; if(data.heroImg1) imgs.push(data.heroImg1); if(data.heroImg2) imgs.push(data.heroImg2); renderHeroSlider(imgs.join('||'), ''); } else renderHeroSlider('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop', ''); if(data.brandName) { document.getElementById('footer-brand').innerHTML = `${data.brandName}<br><span class="text-[10px] text-white tracking-[0.2em] font-normal uppercase">${data.tagline || 'Back to Nature'}</span>`; document.getElementById('footer-brand-title').innerText = data.brandName; document.getElementById('footer-social-title').innerText = data.brandName; } if(data.tagline) document.getElementById('footer-tagline-title').innerText = data.tagline.toUpperCase(); if(data.phone) { document.getElementById('footer-phone').innerText = data.phone; document.getElementById('call-order-btn').innerText = `কল অর্ডার: ${data.phone}`; } if(data.address) document.getElementById('footer-address').innerHTML = data.address.replace(/\n/g, '<br>'); if(data.email) document.getElementById('footer-email').innerText = data.email; if(data.facebook) document.getElementById('footer-facebook').href = data.facebook; if(data.whatsapp) document.getElementById('footer-whatsapp').href = data.whatsapp; if(data.copyright) document.getElementById('footer-copyright').innerText = data.copyright; if(data.insideDhaka) dynamicDeliveryCharges.insideDhaka = parseInt(data.insideDhaka); if(data.outsideDhaka) dynamicDeliveryCharges.outsideDhaka = parseInt(data.outsideDhaka); document.getElementById('lbl-inside-dhaka').innerText = dynamicDeliveryCharges.insideDhaka; document.getElementById('lbl-outside-dhaka').innerText = dynamicDeliveryCharges.outsideDhaka; } }); }
+        
         function loadHeaderCategories() { const navContainer = document.getElementById('header-category-nav'); const cachedCategories = localStorage.getItem('stmart_categories'); if(cachedCategories) navContainer.innerHTML = cachedCategories; db.collection('categories').orderBy('createdAt', 'asc').onSnapshot(snapshot => { let categories = []; snapshot.forEach(doc => categories.push(doc.data())); let mainCategories = categories.filter(c => !c.parent || c.parent === ""); let subCategories = categories.filter(c => c.parent && c.parent !== ""); let html = ''; if(categories.length === 0) html = `<p class="text-gray-100 text-sm py-3">কোনো ক্যাটাগরি নেই</p>`; else { mainCategories.forEach(main => { let children = subCategories.filter(sub => sub.parent === main.name); if(children.length > 0) { let childHtml = children.map(child => `<a href="#" onclick="filterProducts('${child.name.replace(/'/g, "\\'")}', event)" class="block px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-[#ff5722] transition-colors border-b border-gray-50 last:border-0">${child.name}</a>`).join(''); html += `<div class="relative group cursor-pointer py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-400 transition-colors flex items-center gap-1.5 uppercase tracking-wide">${main.name} <i class="fas fa-chevron-down text-[10px] mt-0.5 opacity-80"></i></a><div class="absolute left-0 top-full pt-1 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"><div class="bg-white shadow-xl rounded-md overflow-hidden border border-gray-100">${childHtml}</div></div></div>`; } else html += `<div class="py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-400 transition-colors uppercase tracking-wide">${main.name}</a></div>`; }); } if(cachedCategories !== html) { navContainer.innerHTML = html; localStorage.setItem('stmart_categories', html); } }); }
         function filterProducts(categoryName, event) { if(event) event.preventDefault(); showPage('home'); const titleElem = document.getElementById('section-title'); if(titleElem) titleElem.innerText = categoryName === 'all' ? 'Our Products' : categoryName; document.getElementById('headerSearchBar').value = ''; loadProducts(categoryName); }
 
@@ -295,7 +344,6 @@
             document.getElementById('detail-price').innerText = '৳' + currentSelectedProduct.price;
             document.getElementById('detail-qty').value = currentSelectedProduct.qty;
 
-            // Handle Stock Button Hide/Show
             if(currentSelectedProduct.stock <= 0) {
                 document.getElementById('detail-action-buttons').classList.add('hidden');
                 document.getElementById('detail-stock-out-msg').classList.remove('hidden');
@@ -560,8 +608,69 @@
 
         function formatTime(timestamp) { if(!timestamp) return ''; const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp); return d.toLocaleString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' }); }
 
-        // Track Order logic (Unchanged)
-        async function trackMyOrder() { const phone = document.getElementById('trackPhoneNumber').value.trim(); const resultDiv = document.getElementById('trackResultContainer'); if(!phone) { alert("দয়া করে আপনার মোবাইল নাম্বার দিন।"); return; } resultDiv.innerHTML = '<p class="text-gray-600 mt-4">আপনার অর্ডার খোঁজা হচ্ছে...</p>'; try { const snapshot = await db.collection('orders').where('phone', '==', phone).get(); if(snapshot.empty) { resultDiv.innerHTML = '<p class="text-red-500 font-bold mt-4">এই নাম্বারে কোনো অর্ডার পাওয়া যায়নি!</p>'; return; } let html = '<div class="max-w-2xl mx-auto space-y-6 text-left">'; snapshot.forEach(doc => { const order = doc.data(); const orderId = doc.id.substring(0, 8).toUpperCase(); html += `<div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100"><div class="mb-8 border-b border-dashed pb-4"><h3 class="text-2xl font-bold text-gray-800 mb-1">পার্সেল ট্র্যাকিং</h3><p class="text-[#3b51a3] font-bold text-sm">ID: #BGD-2024-${orderId}</p><p class="text-sm text-gray-600 mt-3 font-medium bg-gray-50 p-2 rounded"><strong>প্রোডাক্ট:</strong> ${order.productName}</p></div><div class="relative border-l-2 border-gray-200 ml-4 space-y-8 pb-4">`; const steps = [{ key: 'Pending', title: 'অর্ডার কনফার্ম', desc: 'আপনার অর্ডারটি গ্রহণ করা হয়েছে।' }, { key: 'Processing', title: 'প্রস্তুত করা হচ্ছে', desc: 'পণ্যটি প্যাক করে কুরিয়ারে পাঠানো হচ্ছে।' }, { key: 'Shipped', title: 'শিপমেন্টে আছে', desc: 'আপনার শহরের ডেলিভারি সেন্টারে আসছে।' }, { key: 'Completed', title: 'ডেলিভারি সম্পন্ন', desc: 'পণ্যটি গ্রাহকের কাছে পৌঁছে দেওয়া হয়েছে।' }]; let isCancelled = order.status === 'Cancelled'; let currentStatusIndex = steps.findIndex(s => s.key === order.status); if(currentStatusIndex === -1) currentStatusIndex = 0; if(isCancelled) { html += `<div class="relative pl-8"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-white bg-red-500 shadow-sm"></div><h4 class="font-bold text-red-600 text-xl">অর্ডার বাতিল</h4><p class="text-gray-500 text-sm mt-1">আপনার অর্ডারটি বাতিল করা হয়েছে।</p>${order.statusTimestamps && order.statusTimestamps.Cancelled ? `<p class="text-xs text-red-500 mt-2 font-medium tracking-wide">${formatTime(order.statusTimestamps.Cancelled)}</p>` : ''}</div>`; } else { steps.forEach((step, index) => { let isActive = index <= currentStatusIndex; let dotColor = isActive ? 'bg-[#3b51a3]' : 'bg-gray-200'; let textColor = isActive ? 'text-gray-800' : 'text-gray-400'; let timeStr = (order.statusTimestamps && order.statusTimestamps[step.key]) ? formatTime(order.statusTimestamps[step.key]) : (step.key === 'Pending' && order.createdAt ? formatTime(order.createdAt) : ''); html += `<div class="relative pl-8"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-white ${dotColor} shadow-sm"></div><h4 class="font-bold ${textColor} text-xl">${step.title}</h4><p class="text-gray-500 text-sm mt-1">${step.desc}</p>${timeStr ? `<p class="text-[#3b51a3] text-xs mt-2 font-medium tracking-wide">${timeStr}</p>` : ''}</div>`; }); } html += `</div></div>`; }); resultDiv.innerHTML = html + '</div>'; } catch (error) { resultDiv.innerHTML = '<p class="text-red-500 mt-4">সার্ভার এরর: ' + error.message + '</p>'; } }
+        // UPDATE: Track Order Redirect function added
+        function goToTrackingFromSuccess() {
+            let phoneToTrack = document.getElementById('confirm-modal-phone').innerText;
+            closeFinalModals();
+            showPage('track-order');
+            document.getElementById('trackPhoneNumber').value = phoneToTrack;
+            trackMyOrder();
+        }
+
+        // UPDATE: Track Order logic (Added condition to hide 'Completed' deliveries)
+        async function trackMyOrder() { 
+            const phone = document.getElementById('trackPhoneNumber').value.trim(); 
+            const resultDiv = document.getElementById('trackResultContainer'); 
+            
+            if(!phone) { alert("দয়া করে আপনার মোবাইল নাম্বার দিন।"); return; } 
+            resultDiv.innerHTML = '<p class="text-gray-600 mt-4">আপনার অর্ডার খোঁজা হচ্ছে...</p>'; 
+            
+            try { 
+                const snapshot = await db.collection('orders').where('phone', '==', phone).get(); 
+                if(snapshot.empty) { 
+                    resultDiv.innerHTML = '<p class="text-red-500 font-bold mt-4">এই নাম্বারে কোনো অর্ডার পাওয়া যায়নি!</p>'; 
+                    return; 
+                } 
+                
+                let html = '<div class="max-w-2xl mx-auto space-y-6 text-left">'; 
+                let foundActiveOrder = false;
+
+                snapshot.forEach(doc => { 
+                    const order = doc.data(); 
+                    
+                    // এখানে চেক করা হচ্ছে ডেলিভারি সম্পন্ন হয়েছে কিনা
+                    if(order.status === 'Completed') return; 
+                    
+                    foundActiveOrder = true;
+                    const orderId = doc.id.substring(0, 8).toUpperCase(); 
+                    html += `<div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100"><div class="mb-8 border-b border-dashed pb-4"><h3 class="text-2xl font-bold text-gray-800 mb-1">পার্সেল ট্র্যাকিং</h3><p class="text-[#3b51a3] font-bold text-sm">ID: #BGD-2024-${orderId}</p><p class="text-sm text-gray-600 mt-3 font-medium bg-gray-50 p-2 rounded"><strong>প্রোডাক্ট:</strong> ${order.productName}</p></div><div class="relative border-l-2 border-gray-200 ml-4 space-y-8 pb-4">`; 
+                    const steps = [{ key: 'Pending', title: 'অর্ডার কনফার্ম', desc: 'আপনার অর্ডারটি গ্রহণ করা হয়েছে।' }, { key: 'Processing', title: 'প্রস্তুত করা হচ্ছে', desc: 'পণ্যটি প্যাক করে কুরিয়ারে পাঠানো হচ্ছে।' }, { key: 'Shipped', title: 'শিপমেন্টে আছে', desc: 'আপনার শহরের ডেলিভারি সেন্টারে আসছে।' }, { key: 'Completed', title: 'ডেলিভারি সম্পন্ন', desc: 'পণ্যটি গ্রাহকের কাছে পৌঁছে দেওয়া হয়েছে।' }]; 
+                    let isCancelled = order.status === 'Cancelled'; 
+                    let currentStatusIndex = steps.findIndex(s => s.key === order.status); 
+                    if(currentStatusIndex === -1) currentStatusIndex = 0; 
+                    if(isCancelled) { 
+                        html += `<div class="relative pl-8"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-white bg-red-500 shadow-sm"></div><h4 class="font-bold text-red-600 text-xl">অর্ডার বাতিল</h4><p class="text-gray-500 text-sm mt-1">আপনার অর্ডারটি বাতিল করা হয়েছে।</p>${order.statusTimestamps && order.statusTimestamps.Cancelled ? `<p class="text-xs text-red-500 mt-2 font-medium tracking-wide">${formatTime(order.statusTimestamps.Cancelled)}</p>` : ''}</div>`; 
+                    } else { 
+                        steps.forEach((step, index) => { 
+                            let isActive = index <= currentStatusIndex; 
+                            let dotColor = isActive ? 'bg-[#3b51a3]' : 'bg-gray-200'; 
+                            let textColor = isActive ? 'text-gray-800' : 'text-gray-400'; 
+                            let timeStr = (order.statusTimestamps && order.statusTimestamps[step.key]) ? formatTime(order.statusTimestamps[step.key]) : (step.key === 'Pending' && order.createdAt ? formatTime(order.createdAt) : ''); 
+                            html += `<div class="relative pl-8"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-white ${dotColor} shadow-sm"></div><h4 class="font-bold ${textColor} text-xl">${step.title}</h4><p class="text-gray-500 text-sm mt-1">${step.desc}</p>${timeStr ? `<p class="text-[#3b51a3] text-xs mt-2 font-medium tracking-wide">${timeStr}</p>` : ''}</div>`; 
+                        }); 
+                    } 
+                    html += `</div></div>`; 
+                }); 
+                
+                if(!foundActiveOrder) {
+                    resultDiv.innerHTML = '<p class="text-red-500 font-bold mt-4">এই নাম্বারে কোনো চলমান অর্ডার পাওয়া যায়নি! (ডেলিভারি সম্পন্ন হয়ে গেছে)</p>';
+                } else {
+                    resultDiv.innerHTML = html + '</div>'; 
+                }
+            } catch (error) { 
+                resultDiv.innerHTML = '<p class="text-red-500 mt-4">সার্ভার এরর: ' + error.message + '</p>'; 
+            } 
+        }
 
         // Account Logic (Unchanged)
         function switchAccountTab(tabName) { document.querySelectorAll('.account-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById('tab-' + tabName).classList.remove('hidden'); document.querySelectorAll('.account-nav-item').forEach(el => { el.classList.remove('bg-[#313131]', 'text-white'); el.classList.add('text-gray-600', 'hover:bg-gray-50'); }); let activeNav = document.getElementById('nav-' + tabName); activeNav.classList.add('bg-[#313131]', 'text-white'); activeNav.classList.remove('text-gray-600', 'hover:bg-gray-50'); }
@@ -580,7 +689,6 @@
         function compressImageAndGetBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = event => { const img = new Image(); img.src = event.target.result; img.onload = () => { const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const MAX_HEIGHT = 600; let width = img.width; let height = img.height; if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } } canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); resolve(canvas.toDataURL('image/jpeg', 0.6)); }; img.onerror = error => reject(error); }; reader.onerror = error => reject(error); }); }
         document.getElementById('submitReviewForm')?.addEventListener('submit', async (e) => { e.preventDefault(); const orderId = document.getElementById('reviewOrderId').value; const productIdString = document.getElementById('reviewProductId').value; const rating = parseInt(document.getElementById('reviewRatingInput').value); const text = document.getElementById('reviewText').value.trim(); const imageFile = document.getElementById('reviewImage').files[0]; const btn = document.getElementById('submitReviewBtn'); if(rating === 0) { alert("Please select a star rating!"); return; } btn.innerText = "Submitting..."; btn.disabled = true; try { let imageUrl = null; if(imageFile) { try { btn.innerText = "Processing Image..."; imageUrl = await compressImageAndGetBase64(imageFile); } catch(imgErr) { console.error("Image Error: ", imgErr); alert("ছবি প্রসেস করতে সমস্যা হয়েছে।"); } } btn.innerText = "Saving Review..."; const productIds = productIdString.split(','); await db.collection('reviews').add({ orderId: orderId, userId: auth.currentUser.uid, userName: auth.currentUser.displayName || 'Anonymous', rating: rating, comment: text, imageUrl: imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp(), productId: productIds[0] }); await db.collection('orders').doc(orderId).update({ isReviewed: true }); alert("Review submitted successfully! Thank you."); closeReviewModal(); loadUserDashboardData(); } catch(error) { alert("Failed to submit review: " + error.message); } finally { btn.innerText = "Submit Review"; btn.disabled = false; } });
 
-        // Review Loading Function for single product
         function loadProductReviews(productId) {
             const container = document.getElementById('detail-reviews-container');
             container.innerHTML = '<p class="text-gray-500 text-sm"><i class="fas fa-spinner fa-spin"></i> Loading reviews...</p>';
