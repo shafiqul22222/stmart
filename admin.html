@@ -301,6 +301,51 @@
         </div>
     </div>
 
+    <!-- Edit Product Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-40">
+        <div class="bg-white p-8 rounded-xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">প্রোডাক্ট ইডিট করুন</h3>
+            <form id="editForm" class="space-y-5">
+                <input type="hidden" id="eId">
+                <div><label class="block text-sm font-semibold text-gray-600 mb-1">প্রোডাক্টের নাম *</label><input type="text" id="eName" class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none" required></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div><label class="block text-sm font-semibold text-gray-600 mb-1">Purchase Price</label><input type="number" id="ePurchasePrice" class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none"></div>
+                    <div><label class="block text-sm font-semibold text-gray-600 mb-1">পূর্বের মূল্য</label><input type="number" id="eOldPrice" class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none"></div>
+                    <div><label class="block text-sm font-semibold text-gray-600 mb-1">বর্তমান মূল্য *</label><input type="number" id="ePrice" class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none" required></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div><label class="block text-sm font-semibold text-gray-600 mb-1">ক্যাটাগরি *</label><select id="eCategory" class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-white" required><option value="">নির্বাচন করুন</option></select></div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">সাইজ</label>
+                        <div class="w-full border p-2 rounded focus-within:ring-2 focus-within:ring-blue-500 bg-white grid grid-cols-2 gap-2 text-sm">
+                            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" value="S" class="e-size-cb"> S</label>
+                            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" value="M" class="e-size-cb"> M</label>
+                            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" value="L" class="e-size-cb"> L</label>
+                            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" value="XL" class="e-size-cb"> XL</label>
+                            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" value="XXL" class="e-size-cb"> XXL</label>
+                            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" value="XXXL" class="e-size-cb"> XXXL</label>
+                        </div>
+                    </div>
+                    <div id="eUnitContainer">
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">একক (Unit) *</label>
+                        <select id="eUnit" class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-white"><option value="পিস">পিস</option><option value="কেজি">কেজি</option><option value="গ্রাম">গ্রাম</option></select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">নতুন ছবি দিন (আগের ছবি রাখতে চাইলে এটি ফাঁকা রাখুন)</label>
+                    <input type="file" id="eImageFiles" accept="image/*" multiple class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                    <textarea id="eExistingImages" class="hidden"></textarea>
+                    <p class="text-xs text-red-500 mt-1">এখানে নতুন ছবি সিলেক্ট করলে আগের ছবি মুছে নতুনগুলো সেভ হবে।</p>
+                </div>
+                <div><label class="block text-sm font-semibold text-gray-600 mb-1">প্রোডাক্ট ডেসক্রিপশন</label><textarea id="eDesc" rows="3" class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none"></textarea></div>
+                <div class="flex gap-4 pt-2">
+                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-bold hover:bg-gray-300 transition">বাতিল</button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">আপডেট করুন</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         (function(){
             let redirect = sessionStorage.redirect;
@@ -324,7 +369,7 @@
         let globalBrandName = 'ST Mart';
         let globalPhone = '';
 
-        // NEW: ফায়ারবেস স্টোরেজ ছাড়া Base64 এ ছবি কনভার্ট ও কম্প্রেস করার ফাংশন
+        // ফায়ারবেস স্টোরেজ ছাড়া Base64 এ ছবি কনভার্ট ও কম্প্রেস করার ফাংশন
         function compressAndConvertToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -335,9 +380,9 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         
-                        // পরিবর্তন ১: সাইজ 800 থেকে বাড়িয়ে 2000 করা হলো ফুল HD এর জন্য
-                        const MAX_WIDTH = 2000; 
-                        const MAX_HEIGHT = 2000;
+                        // ফায়ারবেস 1MB লিমিট ঠিক রাখতে রেজুলেশন 1000px করা হলো (যা ফুল HD-এর মতোই ক্লিয়ার)
+                        const MAX_WIDTH = 1000; 
+                        const MAX_HEIGHT = 1000;
                         
                         let width = img.width;
                         let height = img.height;
@@ -357,13 +402,12 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         
-                        // ছবি ক্লিয়ার করার জন্য ক্যানভাস স্মুথিং অন করা হলো
                         ctx.imageSmoothingEnabled = true;
                         ctx.imageSmoothingQuality = "high";
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // পরিবর্তন ২: কোয়ালিটি 0.7 থেকে বাড়িয়ে 0.95 (100% HD) করা হলো
-                        const dataUrl = canvas.toDataURL('image/webp', 0.95); 
+                        // কোয়ালিটি 0.7 করা হলো যাতে ডাটাবেস 1MB লিমিট পার না হয়
+                        const dataUrl = canvas.toDataURL('image/webp', 0.7); 
                         resolve(dataUrl);
                     };
                 };
@@ -396,7 +440,6 @@
             document.getElementById(`${sectionName}-section`).classList.remove('hidden');
             document.getElementById(`nav-${sectionName}`).className = "w-full text-left p-3 rounded bg-orange-600 transition";
             
-            // Push State লজিক আপডেট করা হলো যাতে পেজ রিফ্রেশে এরর না আসে
             if (pushState && window.location.protocol !== 'file:') { 
                 history.pushState({ section: sectionName }, '', `#${sectionName}`); 
             }
@@ -410,6 +453,10 @@
 
         document.querySelectorAll('.size-cb').forEach(cb => {
             cb.addEventListener('change', () => { document.getElementById('unitContainer').style.display = document.querySelectorAll('.size-cb:checked').length > 0 ? 'none' : 'block'; });
+        });
+        
+        document.querySelectorAll('.e-size-cb').forEach(cb => {
+            cb.addEventListener('change', () => { document.getElementById('eUnitContainer').style.display = document.querySelectorAll('.e-size-cb:checked').length > 0 ? 'none' : 'block'; });
         });
 
         auth.onAuthStateChanged(user => {
@@ -444,7 +491,6 @@
                     document.getElementById('setCourierSecretKey').value = data.courierSecretKey || '';
                     document.getElementById('setLogoUrl').value = data.logoUrl || ''; 
                     
-                    // Base64 এর ক্ষেত্রে কমা (,) ব্যবহার করলে তা নষ্ট হয়ে যায়, তাই '||' ব্যবহার করা হয়েছে
                     document.getElementById('setHeroImages').value = data.heroImages || (data.heroImg1 ? data.heroImg1 + (data.heroImg2 ? '||' + data.heroImg2 : '') : '');
                     document.getElementById('setHeroLinks').value = data.heroLinks || '';
                     
@@ -463,7 +509,6 @@
             });
         }
 
-        // Updated Setting Form with Base64 Image Upload Support & Appending Banners
         document.getElementById('siteSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]'); 
@@ -472,14 +517,12 @@
             btn.disabled = true;
 
             try {
-                // Upload Logo File directly to Firestore
                 let logoFiles = document.getElementById('setLogoFile').files;
                 if(logoFiles.length > 0) {
                     let urls = await processImagesToBase64(logoFiles);
                     document.getElementById('setLogoUrl').value = urls[0];
                 }
 
-                // Upload Hero Files directly to Firestore (Appending to existing images)
                 let heroFiles = document.getElementById('setHeroFiles').files;
                 if(heroFiles.length > 0) {
                     let urls = await processImagesToBase64(heroFiles);
@@ -515,12 +558,11 @@
                 await db.collection('siteSettings').doc('global').set(settingsData, { merge: true }); 
                 alert("সাইট সেটিংস সফলভাবে আপডেট হয়েছে!"); 
                 
-                // Clear file inputs after success
                 document.getElementById('setLogoFile').value = "";
                 document.getElementById('setHeroFiles').value = "";
 
             } catch (err) { 
-                alert("সেটিংস আপডেট করতে সমস্যা হয়েছে (ছবি অনেক বড় হতে পারে): " + err.message); 
+                alert("সেটিংস আপডেট করতে সমস্যা হয়েছে: " + err.message); 
             } finally { 
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -539,12 +581,14 @@
                     if(!sizeStr) details += ` <span class="bg-emerald-100 px-2 py-0.5 rounded text-xs text-emerald-700">${p.unit || 'পিস'}</span>`;
                     let priceHtml = `<span class="text-emerald-600 font-bold text-lg">৳${p.price}</span>`;
                     if(p.oldPrice) priceHtml += `<br><span class="text-sm text-gray-400 line-through">৳${p.oldPrice}</span>`;
-                    list.innerHTML += `<tr class="border-b hover:bg-gray-50 transition"><td class="p-4 w-20"><img src="${mainImg}" class="w-16 h-16 rounded shadow object-cover"></td><td class="p-4"><p class="font-bold text-gray-800 text-base mb-1">${p.name}</p><p class="mb-1">${details}</p><p class="text-xs text-gray-500 max-w-xs truncate" title="${p.description || ''}">${p.description || 'কোনো ডেসক্রিপশন নেই'}</p></td><td class="p-4">${priceHtml}</td><td class="p-4 text-center"><button onclick="deleteP('${doc.id}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-3 rounded-full transition"><i class="fas fa-trash"></i></button></td></tr>`;
+                    
+                    // Added Edit Button here
+                    list.innerHTML += `<tr class="border-b hover:bg-gray-50 transition"><td class="p-4 w-20"><img src="${mainImg}" class="w-16 h-16 rounded shadow object-cover"></td><td class="p-4"><p class="font-bold text-gray-800 text-base mb-1">${p.name}</p><p class="mb-1">${details}</p><p class="text-xs text-gray-500 max-w-xs truncate" title="${p.description || ''}">${p.description || 'কোনো ডেসক্রিপশন নেই'}</p></td><td class="p-4">${priceHtml}</td><td class="p-4 text-center whitespace-nowrap"><button onclick="editP('${doc.id}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-3 rounded-full transition mr-2" title="Edit"><i class="fas fa-edit"></i></button><button onclick="deleteP('${doc.id}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-3 rounded-full transition" title="Delete"><i class="fas fa-trash"></i></button></td></tr>`;
                 });
             });
         }
 
-        // Updated Add Product Form with Base64 Support
+        // Add Product Submit
         document.getElementById('addForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -556,7 +600,6 @@
             let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('pUnit').value;
             
             try {
-                // Upload Product Images Directly to Firestore as Base64
                 let files = document.getElementById('pImageFiles').files;
                 let imagesArray = [];
                 if(files.length > 0) {
@@ -582,14 +625,93 @@
                 });
                 
                 document.getElementById('addForm').reset(); 
-                document.getElementById('pImageFiles').value = ""; // Clear file input
+                document.getElementById('pImageFiles').value = ""; 
                 document.querySelectorAll('.size-cb').forEach(cb => cb.checked = false); 
                 document.getElementById('unitContainer').style.display = 'block'; 
                 document.getElementById('modal').classList.add('hidden'); 
                 alert("প্রোডাক্ট সফলভাবে যুক্ত হয়েছে!");
 
             } catch (err) { 
-                alert("আপনার পারমিশন নেই বা ডকুমেন্ট সাইজ অনেক বড় হয়েছে: " + err.message); 
+                alert("দয়া করে একটু কম ছবি সিলেক্ট করুন, সাইজ বড় হয়ে গেছে: " + err.message); 
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Edit Product Function
+        async function editP(id) {
+            try {
+                const doc = await db.collection('products').doc(id).get();
+                if (doc.exists) {
+                    const p = doc.data();
+                    document.getElementById('eId').value = id;
+                    document.getElementById('eName').value = p.name || '';
+                    document.getElementById('ePurchasePrice').value = p.purchasePrice || '';
+                    document.getElementById('eOldPrice').value = p.oldPrice || '';
+                    document.getElementById('ePrice').value = p.price || '';
+                    document.getElementById('eCategory').value = p.category || '';
+                    document.getElementById('eUnit').value = p.unit || 'পিস';
+                    document.getElementById('eDesc').value = p.description || '';
+                    
+                    document.querySelectorAll('.e-size-cb').forEach(cb => {
+                        cb.checked = (p.sizes || []).includes(cb.value);
+                    });
+                    document.getElementById('eUnitContainer').style.display = (p.sizes && p.sizes.length > 0) ? 'none' : 'block';
+
+                    document.getElementById('eExistingImages').value = JSON.stringify(p.images || (p.image ? [p.image] : []));
+                    
+                    document.getElementById('editModal').classList.remove('hidden');
+                }
+            } catch (err) {
+                alert("প্রোডাক্ট ডাটা আনতে সমস্যা হয়েছে: " + err.message);
+            }
+        }
+
+        // Update Product Submit
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = "আপডেট হচ্ছে (অপেক্ষা করুন)...";
+            btn.disabled = true;
+
+            let selectedSizes = Array.from(document.querySelectorAll('.e-size-cb:checked')).map(cb => cb.value);
+            let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('eUnit').value;
+            let pId = document.getElementById('eId').value;
+
+            try {
+                let files = document.getElementById('eImageFiles').files;
+                let imagesArray = [];
+                let existingImages = JSON.parse(document.getElementById('eExistingImages').value || "[]");
+
+                if(files.length > 0) {
+                    imagesArray = await processImagesToBase64(files); // নতুন ছবি দিলে আগেরগুলো মুছে এগুলো সেভ হবে
+                } else {
+                    imagesArray = existingImages; // নতুন ছবি না দিলে আগেরগুলোই থাকবে
+                }
+
+                await db.collection('products').doc(pId).update({ 
+                    name: document.getElementById('eName').value, 
+                    purchasePrice: document.getElementById('ePurchasePrice').value || 0, 
+                    oldPrice: document.getElementById('eOldPrice').value || 0, 
+                    price: document.getElementById('ePrice').value, 
+                    category: document.getElementById('eCategory').value, 
+                    sizes: selectedSizes, 
+                    unit: finalUnit, 
+                    description: document.getElementById('eDesc').value, 
+                    images: imagesArray, 
+                    image: imagesArray.length > 0 ? imagesArray[0] : '',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                document.getElementById('editForm').reset(); 
+                document.getElementById('eImageFiles').value = "";
+                document.getElementById('editModal').classList.add('hidden'); 
+                alert("প্রোডাক্ট সফলভাবে আপডেট হয়েছে!");
+
+            } catch (err) { 
+                alert("ফাইল সাইজ খুব বড় হয়েছে, দয়া করে একটু কম ছবি দিন: " + err.message); 
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -703,15 +825,12 @@
                             </td>
                             <td class="p-4 text-center">
                                 <div class="flex flex-col items-center justify-center gap-2">
-                                    
                                     <button onclick="bookParcel(this, '${doc.id}', '${safeName}', '${safePhone}', '${safeAddress}', ${amount})" class="text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 p-2 rounded-full transition shadow-sm w-10 h-10 flex items-center justify-center" title="অটোমেটিক কুরিয়ার বুকিং">
                                         <i class="fas fa-truck-fast"></i>
                                     </button>
-
                                     <button onclick="printInvoice('${shortId}', '${safeName}', '${safePhone}', '${safeAddress}', '${safeProductName}', ${amount - dCharge}, ${dCharge}, ${amount}, '${dateStr}')" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded-full transition shadow-sm w-10 h-10 flex items-center justify-center" title="ইনভয়েস প্রিন্ট করুন">
                                         <i class="fas fa-print"></i>
                                     </button>
-                                    
                                     <button onclick="deleteOrder('${doc.id}')" class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-2 rounded-full transition shadow-sm w-10 h-10 flex items-center justify-center" title="অর্ডার ডিলিট করুন">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -725,7 +844,6 @@
 
         async function bookParcel(btnElement, orderId, name, phone, address, amount) {
             if(!confirm('আপনি কি এই অর্ডারটি অটোমেটিক কুরিয়ারে বুক করতে চান?')) return;
-            
             const originalHtml = btnElement.innerHTML;
             btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             btnElement.disabled = true;
@@ -743,61 +861,29 @@
                 }
 
                 const apiUrl = 'https://portal.packzy.com/api/v1/create_order'; 
-                
-                const payload = {
-                    invoice: orderId,
-                    recipient_name: name || "Customer",
-                    recipient_phone: phone || "00000000000",
-                    recipient_address: address || "N/A",
-                    cod_amount: parseFloat(amount) || 0,
-                    note: "Booked via ST Mart Admin Panel"
-                };
+                const payload = { invoice: orderId, recipient_name: name || "Customer", recipient_phone: phone || "00000000000", recipient_address: address || "N/A", cod_amount: parseFloat(amount) || 0, note: "Booked via ST Mart Admin Panel" };
 
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Api-Key': apiKey,
-                        'Secret-Key': secretKey
-                    },
-                    body: JSON.stringify(payload)
-                });
-
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Api-Key': apiKey, 'Secret-Key': secretKey }, body: JSON.stringify(payload) });
                 const responseText = await response.text();
                 let result;
-                
-                try {
-                    result = JSON.parse(responseText);
-                } catch (e) {
-                    throw new Error("Server Error! Status: " + response.status + ". Detail: " + responseText.substring(0, 80));
-                }
+                try { result = JSON.parse(responseText); } catch (e) { throw new Error("Server Error!"); }
 
                 if(result.status === 200 || result.status === 'success') {
-                    alert('পার্সেল সফলভাবে কুরিয়ারে বুকিং হয়েছে! Tracking Code: ' + (result?.data?.tracking_code || result?.tracking_code || 'N/A'));
-                    
-                    await db.collection('orders').doc(orderId).update({
-                        courierBooked: true,
-                        trackingCode: result?.data?.tracking_code || result?.tracking_code || ''
-                    });
+                    alert('পার্সেল সফলভাবে কুরিয়ারে বুকিং হয়েছে!');
+                    await db.collection('orders').doc(orderId).update({ courierBooked: true, trackingCode: result?.data?.tracking_code || result?.tracking_code || '' });
                 } else {
-                    alert('বুকিং ফেইল হয়েছে: ' + (result?.message || JSON.stringify(result)));
+                    alert('বুকিং ফেইল হয়েছে: ' + (result?.message || "Check settings."));
                 }
-
             } catch (error) {
-                console.error("Courier API Error Full: ", error);
-                alert("কানেকশন এরর: " + error.message + "\n\n(API Key, Secret Key অথবা সার্ভার সমস্যা চেক করুন)");
+                alert("কানেকশন এরর: " + error.message);
             } finally {
-                btnElement.innerHTML = originalHtml;
-                btnElement.disabled = false;
+                btnElement.innerHTML = originalHtml; btnElement.disabled = false;
             }
         }
 
         async function saveAdminNote(orderId) {
             const noteText = document.getElementById(`note-${orderId}`).value;
-            try { 
-                await db.collection('orders').doc(orderId).update({ adminNote: noteText }); 
-                alert("নোট সেভ করা হয়েছে!");
-            } 
+            try { await db.collection('orders').doc(orderId).update({ adminNote: noteText }); alert("নোট সেভ করা হয়েছে!"); } 
             catch (err) { alert("নোট সেভ করতে সমস্যা হয়েছে!"); }
         }
 
@@ -832,81 +918,42 @@
                         </div>
                         
                         <div class="info-section">
-                            <div>
-                                <strong>Billed To:</strong><br>
-                                Name: ${name}<br>
-                                Phone: ${phone}<br>
-                                Address: ${address}
-                            </div>
-                            <div style="text-align: right;">
-                                <strong>Order ID:</strong> #BGD-2024-${orderId}<br>
-                                <strong>Date:</strong> ${dateStr}
-                            </div>
+                            <div><strong>Billed To:</strong><br>Name: ${name}<br>Phone: ${phone}<br>Address: ${address}</div>
+                            <div style="text-align: right;"><strong>Order ID:</strong> #BGD-2024-${orderId}<br><strong>Date:</strong> ${dateStr}</div>
                         </div>
 
                         <table>
-                            <thead>
-                                <tr>
-                                    <th>Item Description</th>
-                                    <th style="text-align: right;">Amount (BDT)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>${productName}</td>
-                                    <td style="text-align: right;">${pPrice}</td>
-                                </tr>
-                                <tr>
-                                    <td>Delivery Charge</td>
-                                    <td style="text-align: right;">${charge}</td>
-                                </tr>
-                            </tbody>
+                            <thead><tr><th>Item Description</th><th style="text-align: right;">Amount (BDT)</th></tr></thead>
+                            <tbody><tr><td>${productName}</td><td style="text-align: right;">${pPrice}</td></tr><tr><td>Delivery Charge</td><td style="text-align: right;">${charge}</td></tr></tbody>
                         </table>
 
-                        <div class="totals">
-                            <p>Subtotal: ৳${pPrice}</p>
-                            <p>Delivery: ৳${charge}</p>
-                            <h3>Grand Total: ৳${total}</h3>
-                            <p style="font-weight:bold; margin-top:10px;">Payment Method: Cash On Delivery</p>
-                        </div>
-
-                        <div class="footer">
-                            <p>Thank you for your purchase!</p>
-                            <p>If you have any questions about this invoice, please contact us.</p>
-                        </div>
+                        <div class="totals"><p>Subtotal: ৳${pPrice}</p><p>Delivery: ৳${charge}</p><h3>Grand Total: ৳${total}</h3><p style="font-weight:bold; margin-top:10px;">Payment Method: Cash On Delivery</p></div>
+                        <div class="footer"><p>Thank you for your purchase!</p></div>
                     </div>
-                    <script>
-                        window.onload = function() { window.print(); window.close(); }
-                    <\/script>
+                    <script>window.onload = function() { window.print(); window.close(); }<\/script>
                 </body>
-                </html>
-            `;
-            printWindow.document.write(html);
-            printWindow.document.close();
+                </html>`;
+            printWindow.document.write(html); printWindow.document.close();
         }
 
         async function updateOrderStatus(orderId, newStatus) {
-            try { 
-                const timestamp = firebase.firestore.FieldValue.serverTimestamp();
-                await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); 
-            } catch (err) { alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message); }
+            try { const timestamp = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); } catch (err) { alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message); }
         }
 
         async function updatePaymentStatus(orderId, newStatus) {
-            try { await db.collection('orders').doc(orderId).update({ paymentStatus: newStatus }); } 
-            catch (err) { alert("পেমেন্ট স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message); }
+            try { await db.collection('orders').doc(orderId).update({ paymentStatus: newStatus }); } catch (err) { alert("পেমেন্ট স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message); }
         }
 
         async function deleteOrder(id) {
-            if(confirm('আপনি কি নিশ্চিত যে এই অর্ডারটি মুছে ফেলতে চান?')) {
-                try { await db.collection('orders').doc(id).delete(); } 
-                catch (err) { alert("আপনার পারমিশন নেই বা ডিলিট হতে সমস্যা হয়েছে!"); }
-            }
+            if(confirm('আপনি কি নিশ্চিত যে এই অর্ডারটি মুছে ফেলতে চান?')) { try { await db.collection('orders').doc(id).delete(); } catch (err) { alert("আপনার পারমিশন নেই বা ডিলিট হতে সমস্যা হয়েছে!"); } }
         }
 
         function loadCategories() {
             db.collection('categories').orderBy('createdAt', 'desc').onSnapshot(snap => {
-                const list = document.getElementById('admin-category-list'); const pCategoryDropdown = document.getElementById('pCategory'); const cParentDropdown = document.getElementById('cParent');
+                const list = document.getElementById('admin-category-list'); 
+                const pCategoryDropdown = document.getElementById('pCategory'); 
+                const eCategoryDropdown = document.getElementById('eCategory'); 
+                const cParentDropdown = document.getElementById('cParent');
                 list.innerHTML = ''; let catOptions = '<option value="">ক্যাটাগরি নির্বাচন করুন</option>'; let parentOptions = '<option value="">মূল ক্যাটাগরি (কোনটি নয়)</option>';
                 snap.forEach(doc => {
                     const c = doc.data(); let parentBadge = c.parent ? `<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-bold">${c.parent}</span>` : `<span class="bg-gray-200 text-gray-600 px-2 py-1 rounded text-xs">মূল ক্যাটাগরি</span>`;
@@ -914,7 +961,9 @@
                     let displayName = c.parent ? `${c.parent} > ${c.name}` : c.name; catOptions += `<option value="${c.name}">${displayName}</option>`;
                     if (!c.parent) parentOptions += `<option value="${c.name}">${c.name}</option>`;
                 });
-                if(pCategoryDropdown) pCategoryDropdown.innerHTML = catOptions; if(cParentDropdown) cParentDropdown.innerHTML = parentOptions;
+                if(pCategoryDropdown) pCategoryDropdown.innerHTML = catOptions; 
+                if(eCategoryDropdown) eCategoryDropdown.innerHTML = catOptions; 
+                if(cParentDropdown) cParentDropdown.innerHTML = parentOptions;
             });
         }
 
@@ -928,57 +977,17 @@
             db.collection('users').orderBy('createdAt', 'desc').onSnapshot(snap => {
                 const list = document.getElementById('admin-customer-list');
                 list.innerHTML = '';
-                
                 snap.forEach(doc => {
-                    const user = doc.data();
-                    const isBlocked = user.isBlocked === true;
-                    
-                    const statusBadge = isBlocked 
-                        ? `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-bold">Blocked</span>` 
-                        : `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">Active</span>`;
-                    
-                    const blockBtn = isBlocked 
-                        ? `<button onclick="toggleUserBlock('${doc.id}', false)" class="text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 p-2 rounded transition shadow-sm" title="Unblock User"><i class="fas fa-unlock"></i> Unblock</button>`
-                        : `<button onclick="toggleUserBlock('${doc.id}', true)" class="text-orange-600 hover:text-orange-800 bg-orange-50 hover:bg-orange-100 p-2 rounded transition shadow-sm" title="Block User"><i class="fas fa-ban"></i> Block</button>`;
-
-                    list.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50 transition">
-                        <td class="p-4 font-bold text-gray-800">${user.name || 'Unknown'}</td>
-                        <td class="p-4">
-                            <p class="text-emerald-600 font-bold">${user.phone || 'N/A'}</p>
-                            <p class="text-xs text-gray-500">${user.email || 'N/A'}</p>
-                        </td>
-                        <td class="p-4">${statusBadge}</td>
-                        <td class="p-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                ${blockBtn}
-                                <button onclick="deleteUser('${doc.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition ml-2 shadow-sm" title="Delete User"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>`;
+                    const user = doc.data(); const isBlocked = user.isBlocked === true;
+                    const statusBadge = isBlocked ? `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-bold">Blocked</span>` : `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">Active</span>`;
+                    const blockBtn = isBlocked ? `<button onclick="toggleUserBlock('${doc.id}', false)" class="text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 p-2 rounded transition shadow-sm" title="Unblock User"><i class="fas fa-unlock"></i> Unblock</button>` : `<button onclick="toggleUserBlock('${doc.id}', true)" class="text-orange-600 hover:text-orange-800 bg-orange-50 hover:bg-orange-100 p-2 rounded transition shadow-sm" title="Block User"><i class="fas fa-ban"></i> Block</button>`;
+                    list.innerHTML += `<tr class="border-b hover:bg-gray-50 transition"><td class="p-4 font-bold text-gray-800">${user.name || 'Unknown'}</td><td class="p-4"><p class="text-emerald-600 font-bold">${user.phone || 'N/A'}</p><p class="text-xs text-gray-500">${user.email || 'N/A'}</p></td><td class="p-4">${statusBadge}</td><td class="p-4 text-center"><div class="flex items-center justify-center gap-2">${blockBtn}<button onclick="deleteUser('${doc.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition ml-2 shadow-sm" title="Delete User"><i class="fas fa-trash"></i></button></div></td></tr>`;
                 });
             });
         }
 
-        async function toggleUserBlock(userId, blockStatus) {
-            if(confirm(`আপনি কি নিশ্চিত যে এই ইউজারকে ${blockStatus ? 'Block' : 'Unblock'} করতে চান?`)) {
-                try {
-                    await db.collection('users').doc(userId).update({ isBlocked: blockStatus });
-                } catch(e) {
-                    alert("এরর: " + e.message);
-                }
-            }
-        }
-
-        async function deleteUser(userId) {
-            if(confirm('আপনি কি নিশ্চিত যে এই ইউজারকে সম্পূর্ণ মুছে ফেলতে চান? (ডাটাবেস থেকে মুছে ফেলা হবে)')) {
-                try {
-                    await db.collection('users').doc(userId).delete();
-                } catch(e) {
-                    alert("এরর: " + e.message);
-                }
-            }
-        }
+        async function toggleUserBlock(userId, blockStatus) { if(confirm(`আপনি কি নিশ্চিত যে এই ইউজারকে ${blockStatus ? 'Block' : 'Unblock'} করতে চান?`)) { try { await db.collection('users').doc(userId).update({ isBlocked: blockStatus }); } catch(e) { alert("এরর: " + e.message); } } }
+        async function deleteUser(userId) { if(confirm('আপনি কি নিশ্চিত যে এই ইউজারকে সম্পূর্ণ মুছে ফেলতে চান?')) { try { await db.collection('users').doc(userId).delete(); } catch(e) { alert("এরর: " + e.message); } } }
     </script>
 </body>
 </html>
