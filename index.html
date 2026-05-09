@@ -33,11 +33,15 @@
 </head>
 <body class="bg-gray-50 overflow-x-hidden">
 
-    <!-- Header (Unchanged) -->
+    <!-- Header -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
             <div class="flex flex-wrap items-center justify-between gap-y-4">
                 <div class="flex items-center">
+                    <!-- Mobile Hamburger Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-gray-700 hover:text-orange-600 mr-4 text-2xl focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <div onclick="filterProducts('all'); showPage('home')" class="cursor-pointer flex items-center h-12 md:h-16 min-w-[120px]" id="header-logo-container">
                         <h1 class="text-2xl md:text-3xl font-bold text-orange-600 leading-none">ST<br><span class="text-xs md:text-base text-gray-500 tracking-[0.2em]">BAZAR</span></h1>
                     </div>
@@ -53,10 +57,23 @@
                 </div>
             </div>
         </div>
-        <nav class="bg-green-600 text-white relative z-40">
+        <!-- Desktop Category Nav -->
+        <nav class="hidden md:block bg-green-600 text-white relative z-40">
             <div id="header-category-nav" class="container mx-auto px-4 flex flex-wrap gap-6 text-sm font-medium items-center min-h-[44px]"></div>
         </nav>
     </header>
+
+    <!-- Mobile Category Drawer -->
+    <div id="mobile-menu-backdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[10010]" onclick="toggleMobileMenu()"></div>
+    <div id="mobile-menu-drawer" class="fixed top-0 left-0 h-full w-[280px] bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 z-[10011] flex flex-col">
+        <div class="p-4 flex justify-between items-center border-b border-gray-100 bg-green-600 text-white">
+            <h2 class="text-lg font-bold uppercase tracking-wide">ক্যাটাগরি সমূহ</h2>
+            <button onclick="toggleMobileMenu()" class="text-white text-2xl leading-none">&times;</button>
+        </div>
+        <div class="flex-1 overflow-y-auto">
+            <div id="mobile-category-nav" class="flex flex-col py-2"></div>
+        </div>
+    </div>
 
     <!-- Home Page -->
     <div id="home-page">
@@ -125,10 +142,11 @@
         </div>
     </div>
 
-    <!-- Login, Reg, Dashboard, Modals (Unchanged purely HTML parts, except order tracking remains same) -->
+    <!-- Login, Reg, Dashboard, Modals -->
     <div id="signin-page" class="hidden min-h-[80vh] flex items-center justify-center px-4 py-12"><div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100"><div class="text-center mb-8"><h2 class="text-3xl font-bold text-gray-800">স্বাগতম!</h2></div><form class="space-y-6" id="loginForm"><input type="email" id="loginEmail" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-orange-500 outline-none" placeholder="ইমেল" required><input type="password" id="loginPassword" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-orange-500 outline-none" placeholder="পাসওয়ার্ড" required><button type="submit" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold">সাইন ইন</button></form><p class="mt-6 text-center">নতুন? <a href="javascript:void(0)" onclick="showPage('registration')" class="text-emerald-600 font-bold">রেজিস্ট্রেশন করুন</a></p></div></div>
     <div id="registration-page" class="hidden min-h-[80vh] flex items-center justify-center px-4 py-12"><div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100"><h2 class="text-3xl font-bold text-center mb-8">নতুন একাউন্ট</h2><form id="registerForm" class="space-y-4"><input type="text" id="regName" placeholder="নাম" class="w-full px-4 py-3 border rounded-lg" required><input type="email" id="regEmail" placeholder="ইমেল" class="w-full px-4 py-3 border rounded-lg" required><input type="tel" id="regPhone" placeholder="মোবাইল নাম্বার (১১ ডিজিট)" pattern="^01[3-9]\d{8}$" class="w-full px-4 py-3 border rounded-lg" required><input type="password" id="regPassword" placeholder="পাসওয়ার্ড" class="w-full px-4 py-3 border rounded-lg" required><button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">রেজিস্ট্রেশন করুন</button></form><button onclick="showPage('signin')" class="w-full mt-4 text-gray-500">লগইন করুন</button></div></div>
-    <!-- ... (Account dashboard code remains unchanged) ... -->
+    
+    <!-- Account dashboard -->
     <div id="my-account-page" class="hidden min-h-[80vh] bg-gray-50 py-10">
         <div class="container mx-auto px-4"><div class="flex flex-col md:flex-row gap-6"><div class="w-full md:w-64 shrink-0"><div class="bg-[#313131] rounded-t-xl p-6 text-white text-center md:text-left shadow-md relative overflow-hidden"><h2 id="userDisplayName" class="text-xl font-bold relative z-10 truncate">User Name</h2><p id="userEmailDisplay" class="text-sm text-gray-300 relative z-10 truncate mt-1">user@email.com</p></div><div class="bg-white rounded-b-xl shadow-sm border border-gray-200"><nav class="flex flex-col py-2"><button onclick="switchAccountTab('dashboard')" id="nav-dashboard" class="account-nav-item flex items-center justify-between px-6 py-3 bg-[#313131] text-white font-medium transition"><span><i class="fas fa-th-large mr-3 w-5"></i> Dashboard</span><i class="fas fa-arrow-right text-sm"></i></button><button onclick="switchAccountTab('orders')" id="nav-orders" class="account-nav-item flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 font-medium transition"><i class="fas fa-shopping-cart mr-3 w-5"></i> My orders</button><button onclick="switchAccountTab('address')" id="nav-address" class="account-nav-item flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 font-medium transition"><i class="fas fa-map-marker-alt mr-3 w-5"></i> Address</button><button onclick="switchAccountTab('reviews')" id="nav-reviews" class="account-nav-item flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 font-medium transition"><i class="fas fa-star mr-3 w-5"></i> Product reviews</button><button onclick="switchAccountTab('password')" id="nav-password" class="account-nav-item flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 font-medium transition border-b border-gray-100"><i class="fas fa-key mr-3 w-5"></i> Change Password</button><button onclick="logout()" class="flex items-center px-6 py-3 text-red-500 hover:bg-red-50 font-bold transition mt-2"><i class="fas fa-sign-out-alt mr-3 w-5"></i> Logout</button></nav></div></div><div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-6"><div id="tab-dashboard" class="account-tab-content"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"><div class="bg-blue-50/50 border border-blue-100 rounded-xl p-6 flex items-center justify-between"><div><h3 class="text-3xl font-bold text-gray-800" id="dash-total-orders">0</h3><p class="text-sm text-gray-500 font-medium mt-1">Total order placed</p></div><div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-xl shadow-md"><i class="fas fa-shopping-bag"></i></div></div><div class="bg-yellow-50/50 border border-yellow-100 rounded-xl p-6 flex items-center justify-between"><div><h3 class="text-3xl font-bold text-gray-800" id="dash-running-orders">0</h3><p class="text-sm text-gray-500 font-medium mt-1">Running orders</p></div><div class="w-12 h-12 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xl shadow-md"><i class="fas fa-box-open"></i></div></div><div class="bg-green-50/50 border border-green-100 rounded-xl p-6 flex items-center justify-between"><div><h3 class="text-3xl font-bold text-gray-800" id="dash-completed-orders">0</h3><p class="text-sm text-gray-500 font-medium mt-1">Delivery Complete</p></div><div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center text-xl shadow-md"><i class="fas fa-check-circle"></i></div></div></div><div class="bg-[#313131] text-white px-4 py-3 rounded-t-lg font-bold flex justify-between items-center"><span>Recent orders</span><button onclick="switchAccountTab('orders')" class="bg-white text-gray-800 text-xs px-3 py-1.5 rounded hover:bg-gray-100">All orders</button></div><div class="border border-t-0 border-gray-200 rounded-b-lg p-6 text-center text-gray-500 font-medium" id="dash-recent-orders-empty">No Order Found</div></div><div id="tab-orders" class="account-tab-content hidden"><h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">My Orders</h2><div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[700px]"><thead><tr class="bg-gray-100 text-gray-600 text-sm"><th class="p-3 font-semibold rounded-tl-lg">Order ID</th><th class="p-3 font-semibold">Date & Time</th><th class="p-3 font-semibold">Status</th><th class="p-3 font-semibold">Items & Qty</th><th class="p-3 font-semibold">Amount</th><th class="p-3 font-semibold rounded-tr-lg">Action</th></tr></thead><tbody id="user-orders-tbody" class="text-sm text-gray-700"><tr><td colspan="6" class="p-6 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-orange-500 text-2xl"></i></td></tr></tbody></table></div></div><div id="tab-address" class="account-tab-content hidden"><div class="flex justify-between items-center mb-6 border-b pb-3"><h2 class="text-xl font-bold text-gray-800">Address Book</h2><button onclick="toggleAddressForm()" class="bg-orange-600 text-white px-4 py-2 rounded shadow hover:bg-orange-700 text-sm font-bold flex items-center gap-2"><i class="fas fa-plus"></i> Add New Address</button></div><div id="address-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div><div id="address-empty-msg" class="p-8 text-center text-gray-500 border-2 border-dashed rounded-lg hidden"><i class="fas fa-map-marker-alt text-4xl mb-3 text-gray-300"></i><p>No address saved yet.</p></div><div id="add-address-form-container" class="hidden bg-white border border-gray-200 p-6 rounded-lg shadow-sm"><form id="addAddressForm" class="space-y-4"><div><label class="block text-sm font-semibold text-gray-700 mb-1">Title</label><input type="text" id="newAddressTitle" class="w-full border border-gray-300 px-3 py-2 rounded outline-none" required></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Full Address</label><textarea id="newAddressDetails" rows="3" class="w-full border border-gray-300 px-3 py-2 rounded outline-none" required></textarea></div><div class="flex gap-3 pt-2"><button type="submit" class="bg-orange-600 text-white px-6 py-2 rounded font-bold shadow hover:bg-orange-700">Save</button><button type="button" onclick="toggleAddressForm()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded font-bold hover:bg-gray-300">Cancel</button></div></form></div></div><div id="tab-reviews" class="account-tab-content hidden"><h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Pending Reviews</h2><div id="pending-reviews-list" class="space-y-4"></div></div><div id="tab-password" class="account-tab-content hidden"><h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Change Password</h2><form id="changePasswordForm" class="max-w-md space-y-4"><div><label class="block text-sm font-semibold text-gray-700 mb-1">Current Password</label><input type="password" id="currentPassword" class="w-full border px-3 py-2 rounded outline-none" required></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">New Password</label><input type="password" id="newPassword" class="w-full border px-3 py-2 rounded outline-none" required minlength="6"></div><button type="submit" id="btnUpdatePassword" class="bg-[#313131] text-white px-6 py-2 rounded shadow font-bold w-full md:w-auto">Update Password</button></form></div></div></div></div>
     </div>
@@ -166,12 +184,9 @@
         </div>
     </div>
 
-    <!-- UPDATE 1: Confirmation Modal -> Dynamic Logo updated here -->
     <div id="step-confirmation-modal" class="hidden fixed inset-0 bg-[#1DBF60] flex items-center justify-center p-4" style="z-index: 10000;">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-6 text-center">
-            
             <img src="logo.png" id="confirmation-logo" alt="ST Mart" class="h-20 mx-auto mb-4 object-contain">
-            
             <div class="w-16 h-16 bg-[#e6f8ef] rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-check text-[#1DBF60] text-3xl"></i></div>
             <h3 class="text-xl font-bold text-gray-800 mb-1">Order Placed Successfully</h3>
             <p class="text-sm text-gray-500 mb-6">আপনার অর্ডার কনফার্ম করতে নিচে ক্লিক করুন</p>
@@ -188,7 +203,6 @@
         </div>
     </div>
 
-    <!-- UPDATE 2: Success Modal -> Track Order Button updated here -->
     <div id="step-success-modal" class="hidden fixed inset-0 bg-[#1DBF60] flex items-center justify-center p-4" style="z-index: 10001;">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-6 text-center">
             <div class="w-20 h-20 bg-[#e6f8ef] rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">🎉</div>
@@ -199,7 +213,6 @@
                 <p class="flex items-center gap-2 mb-2"><i class="fas fa-sack-dollar text-[#f5b82e]"></i> <strong>Price:</strong> <span id="success-modal-price"></span></p>
                 <p class="flex items-center gap-2"><i class="fas fa-truck text-[#d9534f]"></i> <strong>Status:</strong> Processing</p>
             </div>
-            
             <button onclick="goToTrackingFromSuccess()" class="w-full bg-[#1DBF60] hover:bg-[#18a251] text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-truck"></i> আপনার অর্ডার ট্রাকিং করুন</button>
         </div>
     </div>
@@ -209,9 +222,16 @@
     <div id="cart-sidebar-backdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[10000]" onclick="toggleCart()"></div>
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-[350px] max-w-[90vw] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[10001] flex flex-col"><div class="flex justify-between items-center p-4 border-b border-gray-100"><h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">SHOPPING CART</h2><button onclick="toggleCart()" class="text-sm text-gray-600 hover:text-black flex items-center gap-1 font-medium transition-colors">Close <i class="fas fa-arrow-right"></i></button></div><div id="cart-body" class="flex-1 overflow-y-auto p-4 flex flex-col bg-white"></div><div id="cart-footer" class="hidden p-4 border-t border-gray-100 bg-white"><div class="flex justify-between items-center text-lg mb-4"><span class="font-bold text-gray-800">Total:</span><span id="cart-total-price" class="font-bold text-[#ff5722]">৳0</span></div><button onclick="checkoutCart()" class="w-full btn-order-dynamic py-3.5 rounded flex items-center justify-center gap-2 font-bold transition-colors shadow-md">অর্ডার কনফার্ম করুন</button></div></div>
 
-    <!-- Footer Unchanged -->
+    <!-- Footer Updated Dynamic Logo Here -->
     <footer class="bg-[#042615] pt-16 pb-12 mt-20">
-        <div class="container mx-auto px-4"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"><div><div class="mb-6 flex items-center gap-3"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-leaf text-[#1DBF60] text-3xl"></i></div><h1 id="footer-brand" class="text-3xl font-bold text-[#1DBF60] leading-none tracking-wide">ST MART<br><span id="footer-tagline" class="text-[10px] text-white tracking-[0.2em] font-normal uppercase">Back to Nature</span></h1></div><h2 class="text-[#1DBF60] font-bold text-lg mb-6"><span id="footer-brand-title">ST Mart</span> - <span id="footer-tagline-title">BACK TO NATURE</span></h2><div class="space-y-4"><div class="flex items-start gap-4"><i class="fas fa-phone-alt text-[#1DBF60] text-lg mt-1"></i><div><p class="text-[#1DBF60] text-sm mb-1">Hotline 24/7:</p><p id="footer-phone" class="text-[#1DBF60] text-2xl font-bold">09678812525</p></div></div><div class="flex items-start gap-4"><i class="fas fa-home text-[#1DBF60] text-lg mt-1"></i><p id="footer-address" class="text-[#1DBF60] text-sm leading-relaxed">Level-5, Noor Tower, 110 Bir Uttam CR Dutta Rd,<br>Dhaka 1205</p></div><div class="flex items-center gap-4"><i class="far fa-envelope text-[#1DBF60] text-lg"></i><p id="footer-email" class="text-[#1DBF60] text-sm">stmart@gmail.com</p></div></div></div><div><h3 class="text-[#1DBF60] font-bold text-xl mb-6">Useful Links</h3><ul class="space-y-4"><li><a href="#" class="text-[#159A4C] hover:text-[#1DBF60] transition-colors text-base font-medium">About Us</a></li><li><a href="#" class="text-[#159A4C] hover:text-[#1DBF60] transition-colors text-base font-medium">Privacy Policy</a></li></ul></div><div><h3 class="text-[#1DBF60] font-bold text-xl mb-6">Help Center</h3><ul class="space-y-4"><li><a href="javascript:void(0)" onclick="showPage('track-order')" class="text-[#159A4C] hover:text-[#1DBF60] transition-colors text-base font-medium">Order Tracking</a></li><li><a href="#" class="text-[#159A4C] hover:text-[#1DBF60] transition-colors text-base font-medium">Contact Us</a></li></ul></div><div><h3 class="text-[#1DBF60] font-bold text-xl mb-6"><span id="footer-social-title">ST Mart</span> Social Media</h3><p class="text-[#159A4C] text-base mb-6 leading-relaxed pr-4 font-medium">Follow us on social media to stay updated with our latest offers.</p><div class="flex gap-4"><a id="footer-facebook" href="#" target="_blank" class="w-12 h-12 bg-[#3b5998] hover:bg-[#2d4373] rounded-full flex items-center justify-center transition-colors shadow-lg"><i class="fab fa-facebook-f text-white text-xl"></i></a><a id="footer-whatsapp" href="#" target="_blank" class="w-12 h-12 bg-[#25D366] hover:bg-[#1da851] rounded-full flex items-center justify-center transition-colors shadow-lg"><i class="fab fa-whatsapp text-white text-2xl"></i></a></div></div></div><div class="border-t border-[#0b4227] mt-12 pt-6 text-center"><p id="footer-copyright" class="text-[#159A4C] text-sm">© 2026 ST Mart. All Rights Reserved.</p></div></div>
+        <div class="container mx-auto px-4"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"><div><div class="mb-6 flex items-center gap-3">
+            
+            <!-- Update: Dynamic Footer Logo container -->
+            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden p-1">
+                <img id="footer-dynamic-logo" src="" alt="Logo" class="w-full h-full object-contain">
+            </div>
+            
+            <h1 id="footer-brand" class="text-3xl font-bold text-[#1DBF60] leading-none tracking-wide">ST MART<br><span id="footer-tagline" class="text-[10px] text-white tracking-[0.2em] font-normal uppercase">Back to Nature</span></h1></div><h2 class="text-[#1DBF60] font-bold text-lg mb-6"><span id="footer-brand-title">ST Mart</span> - <span id="footer-tagline-title">BACK TO NATURE</span></h2><div class="space-y-4"><div class="flex items-start gap-4"><i class="fas fa-phone-alt text-[#1DBF60] text-lg mt-1"></i><div><p class="text-[#1DBF60] text-sm mb-1">Hotline 24/7:</p><p id="footer-phone" class="text-[#1DBF60] text-2xl font-bold">09678812525</p></div></div><div class="flex items-start gap-4"><i class="fas fa-home text-[#1DBF60] text-lg mt-1"></i><p id="footer-address" class="text-[#1DBF60] text-sm leading-relaxed">Level-5, Noor Tower, 110 Bir Uttam CR Dutta Rd,<br>Dhaka 1205</p></div><div class="flex items-center gap-4"><i class="far fa-envelope text-[#1DBF60] text-lg"></i><p id="footer-email" class="text-[#1DBF60] text-sm">stmart@gmail.com</p></div></div></div><div><h3 class="text-[#1DBF60] font-bold text-xl mb-6">Useful Links</h3><ul class="space-y-4"><li><a href="#" class="text-[#159A4C] hover:text-[#1DBF60] transition-colors text-base font-medium">About Us</a></li><li><a href="#" class="text-[#159A4C] hover:text-[#1DBF60] transition-colors text-base font-medium">Privacy Policy</a></li></ul></div><div><h3 class="text-[#1DBF60] font-bold text-xl mb-6">Help Center</h3><ul class="space-y-4"><li><a href="javascript:void(0)" onclick="showPage('track-order')" class="text-[#159A4C] hover:text-[#1DBF60] transition-colors text-base font-medium">Order Tracking</a></li><li><a href="#" class="text-[#159A4C] hover:text-[#1DBF60] transition-colors text-base font-medium">Contact Us</a></li></ul></div><div><h3 class="text-[#1DBF60] font-bold text-xl mb-6"><span id="footer-social-title">ST Mart</span> Social Media</h3><p class="text-[#159A4C] text-base mb-6 leading-relaxed pr-4 font-medium">Follow us on social media to stay updated with our latest offers.</p><div class="flex gap-4"><a id="footer-facebook" href="#" target="_blank" class="w-12 h-12 bg-[#3b5998] hover:bg-[#2d4373] rounded-full flex items-center justify-center transition-colors shadow-lg"><i class="fab fa-facebook-f text-white text-xl"></i></a><a id="footer-whatsapp" href="#" target="_blank" class="w-12 h-12 bg-[#25D366] hover:bg-[#1da851] rounded-full flex items-center justify-center transition-colors shadow-lg"><i class="fab fa-whatsapp text-white text-2xl"></i></a></div></div></div><div class="border-t border-[#0b4227] mt-12 pt-6 text-center"><p id="footer-copyright" class="text-[#159A4C] text-sm">© 2026 ST Mart. All Rights Reserved.</p></div></div>
     </footer>
 
     <script>
@@ -227,7 +247,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Added purchasePrice and stock in default
         let currentSelectedProduct = { id: '', name: '', price: 0, purchasePrice: 0, stock: 0, qty: 1, image: '', selectedVariant: '' };
         let cartItems = []; 
         let currentCategoryFilter = 'all'; 
@@ -236,7 +255,25 @@
         let pendingOrderDataForConfirmation = null;
         let confirmationTimerInterval = null;
 
-        // Routing Functions (Unchanged)
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobile-menu-drawer');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            if (drawer.classList.contains('-translate-x-full')) {
+                drawer.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                drawer.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+        
+        function selectMobileCategory(categoryName, event) {
+            filterProducts(categoryName, event);
+            toggleMobileMenu();
+        }
+
+        // Routing Functions
         const knownPages = ['home', 'signin', 'registration', 'track-order', 'my-account', 'product-landing'];
         let spaBasePath = '/';
         function initBasePath() { let path = window.location.pathname; for (let page of knownPages) { if (path.endsWith('/' + page)) { path = path.replace('/' + page, '/'); } else if (path.endsWith('/' + page + '/')) { path = path.replace('/' + page + '/', '/'); } } if (!path.endsWith('/')) path += '/'; spaBasePath = path; }
@@ -258,12 +295,13 @@
         function startHeroSlideShow() { clearInterval(heroSlideInterval); heroSlideInterval = setInterval(() => { moveHeroSlide(1); }, 4000); }
         function resetHeroSlideShow() { startHeroSlideShow(); }
 
-        // UPDATE: Modified this function so confirmation modal automatically gets dynamic logo
+        // Updated Site Settings for Logo logic (includes mobile & footer dynamic logos)
         function loadSiteSettings() { 
             const cachedLogo = localStorage.getItem('stmart_logo'); 
             if(cachedLogo) {
                 document.getElementById('header-logo-container').innerHTML = `<img src="${cachedLogo}" alt="Logo" class="h-[64px] max-w-full object-contain">`;
                 if(document.getElementById('confirmation-logo')) document.getElementById('confirmation-logo').src = cachedLogo;
+                if(document.getElementById('footer-dynamic-logo')) document.getElementById('footer-dynamic-logo').src = cachedLogo;
             }
             db.collection('siteSettings').doc('global').onSnapshot(doc => { 
                 if(doc.exists) { 
@@ -272,10 +310,58 @@
                         document.getElementById('header-logo-container').innerHTML = `<img src="${data.logoUrl}" alt="Logo" class="h-[64px] max-w-full object-contain opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">`; 
                         localStorage.setItem('stmart_logo', data.logoUrl); 
                         if(document.getElementById('confirmation-logo')) document.getElementById('confirmation-logo').src = data.logoUrl;
+                        if(document.getElementById('footer-dynamic-logo')) document.getElementById('footer-dynamic-logo').src = data.logoUrl;
                     } 
                     if(data.heroImages) renderHeroSlider(data.heroImages, data.heroLinks); else if (data.heroImg1 || data.heroImg2) { let imgs = []; if(data.heroImg1) imgs.push(data.heroImg1); if(data.heroImg2) imgs.push(data.heroImg2); renderHeroSlider(imgs.join('||'), ''); } else renderHeroSlider('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop', ''); if(data.brandName) { document.getElementById('footer-brand').innerHTML = `${data.brandName}<br><span class="text-[10px] text-white tracking-[0.2em] font-normal uppercase">${data.tagline || 'Back to Nature'}</span>`; document.getElementById('footer-brand-title').innerText = data.brandName; document.getElementById('footer-social-title').innerText = data.brandName; } if(data.tagline) document.getElementById('footer-tagline-title').innerText = data.tagline.toUpperCase(); if(data.phone) { document.getElementById('footer-phone').innerText = data.phone; document.getElementById('call-order-btn').innerText = `কল অর্ডার: ${data.phone}`; } if(data.address) document.getElementById('footer-address').innerHTML = data.address.replace(/\n/g, '<br>'); if(data.email) document.getElementById('footer-email').innerText = data.email; if(data.facebook) document.getElementById('footer-facebook').href = data.facebook; if(data.whatsapp) document.getElementById('footer-whatsapp').href = data.whatsapp; if(data.copyright) document.getElementById('footer-copyright').innerText = data.copyright; if(data.insideDhaka) dynamicDeliveryCharges.insideDhaka = parseInt(data.insideDhaka); if(data.outsideDhaka) dynamicDeliveryCharges.outsideDhaka = parseInt(data.outsideDhaka); document.getElementById('lbl-inside-dhaka').innerText = dynamicDeliveryCharges.insideDhaka; document.getElementById('lbl-outside-dhaka').innerText = dynamicDeliveryCharges.outsideDhaka; } }); }
         
-        function loadHeaderCategories() { const navContainer = document.getElementById('header-category-nav'); const cachedCategories = localStorage.getItem('stmart_categories'); if(cachedCategories) navContainer.innerHTML = cachedCategories; db.collection('categories').orderBy('createdAt', 'asc').onSnapshot(snapshot => { let categories = []; snapshot.forEach(doc => categories.push(doc.data())); let mainCategories = categories.filter(c => !c.parent || c.parent === ""); let subCategories = categories.filter(c => c.parent && c.parent !== ""); let html = ''; if(categories.length === 0) html = `<p class="text-gray-100 text-sm py-3">কোনো ক্যাটাগরি নেই</p>`; else { mainCategories.forEach(main => { let children = subCategories.filter(sub => sub.parent === main.name); if(children.length > 0) { let childHtml = children.map(child => `<a href="#" onclick="filterProducts('${child.name.replace(/'/g, "\\'")}', event)" class="block px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-[#ff5722] transition-colors border-b border-gray-50 last:border-0">${child.name}</a>`).join(''); html += `<div class="relative group cursor-pointer py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-400 transition-colors flex items-center gap-1.5 uppercase tracking-wide">${main.name} <i class="fas fa-chevron-down text-[10px] mt-0.5 opacity-80"></i></a><div class="absolute left-0 top-full pt-1 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"><div class="bg-white shadow-xl rounded-md overflow-hidden border border-gray-100">${childHtml}</div></div></div>`; } else html += `<div class="py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-400 transition-colors uppercase tracking-wide">${main.name}</a></div>`; }); } if(cachedCategories !== html) { navContainer.innerHTML = html; localStorage.setItem('stmart_categories', html); } }); }
+        // Updated Category Nav loading logic for Desktop & Mobile menu
+        function loadHeaderCategories() { 
+            const navContainer = document.getElementById('header-category-nav'); 
+            const mobileNavContainer = document.getElementById('mobile-category-nav');
+            const cachedCategories = localStorage.getItem('stmart_categories'); 
+            const cachedMobileCategories = localStorage.getItem('stmart_mobile_categories'); 
+            
+            if(cachedCategories) navContainer.innerHTML = cachedCategories; 
+            if(cachedMobileCategories && mobileNavContainer) mobileNavContainer.innerHTML = cachedMobileCategories;
+            
+            db.collection('categories').orderBy('createdAt', 'asc').onSnapshot(snapshot => { 
+                let categories = []; 
+                snapshot.forEach(doc => categories.push(doc.data())); 
+                let mainCategories = categories.filter(c => !c.parent || c.parent === ""); 
+                let subCategories = categories.filter(c => c.parent && c.parent !== ""); 
+                let html = ''; 
+                let mobileHtml = '';
+                
+                if(categories.length === 0) {
+                    html = `<p class="text-gray-100 text-sm py-3">কোনো ক্যাটাগরি নেই</p>`; 
+                    mobileHtml = `<p class="text-gray-500 text-sm px-4 py-3 border-b border-gray-100">কোনো ক্যাটাগরি নেই</p>`;
+                } else { 
+                    mainCategories.forEach(main => { 
+                        let children = subCategories.filter(sub => sub.parent === main.name); 
+                        if(children.length > 0) { 
+                            let childHtml = children.map(child => `<a href="#" onclick="filterProducts('${child.name.replace(/'/g, "\\'")}', event)" class="block px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-[#ff5722] transition-colors border-b border-gray-50 last:border-0">${child.name}</a>`).join(''); 
+                            html += `<div class="relative group cursor-pointer py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-400 transition-colors flex items-center gap-1.5 uppercase tracking-wide">${main.name} <i class="fas fa-chevron-down text-[10px] mt-0.5 opacity-80"></i></a><div class="absolute left-0 top-full pt-1 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"><div class="bg-white shadow-xl rounded-md overflow-hidden border border-gray-100">${childHtml}</div></div></div>`; 
+                            
+                            let mobileChildHtml = children.map(child => `<a href="#" onclick="selectMobileCategory('${child.name.replace(/'/g, "\\'")}', event)" class="block px-8 py-3 text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 border-b border-gray-100 last:border-0">${child.name}</a>`).join('');
+                            mobileHtml += `<div class="border-b border-gray-100"><a href="#" onclick="selectMobileCategory('${main.name.replace(/'/g, "\\'")}', event)" class="block px-4 py-3.5 text-gray-800 font-bold hover:text-orange-500 uppercase">${main.name}</a><div class="bg-gray-50 border-t border-gray-100">${mobileChildHtml}</div></div>`;
+                        } else { 
+                            html += `<div class="py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-400 transition-colors uppercase tracking-wide">${main.name}</a></div>`; 
+                            mobileHtml += `<a href="#" onclick="selectMobileCategory('${main.name.replace(/'/g, "\\'")}', event)" class="block px-4 py-3.5 text-gray-800 font-bold hover:text-orange-500 uppercase border-b border-gray-100">${main.name}</a>`;
+                        } 
+                    }); 
+                } 
+                
+                if(cachedCategories !== html) { 
+                    navContainer.innerHTML = html; 
+                    localStorage.setItem('stmart_categories', html); 
+                } 
+                if(mobileNavContainer && cachedMobileCategories !== mobileHtml) {
+                    mobileNavContainer.innerHTML = mobileHtml;
+                    localStorage.setItem('stmart_mobile_categories', mobileHtml);
+                }
+            }); 
+        }
+        
         function filterProducts(categoryName, event) { if(event) event.preventDefault(); showPage('home'); const titleElem = document.getElementById('section-title'); if(titleElem) titleElem.innerText = categoryName === 'all' ? 'Our Products' : categoryName; document.getElementById('headerSearchBar').value = ''; loadProducts(categoryName); }
 
         async function loadProducts(categoryFilter = 'all') {
@@ -608,7 +694,6 @@
 
         function formatTime(timestamp) { if(!timestamp) return ''; const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp); return d.toLocaleString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' }); }
 
-        // UPDATE: Track Order Redirect function added
         function goToTrackingFromSuccess() {
             let phoneToTrack = document.getElementById('confirm-modal-phone').innerText;
             closeFinalModals();
@@ -617,7 +702,6 @@
             trackMyOrder();
         }
 
-        // UPDATE: Track Order logic (Added condition to hide 'Completed' deliveries)
         async function trackMyOrder() { 
             const phone = document.getElementById('trackPhoneNumber').value.trim(); 
             const resultDiv = document.getElementById('trackResultContainer'); 
@@ -637,8 +721,6 @@
 
                 snapshot.forEach(doc => { 
                     const order = doc.data(); 
-                    
-                    // এখানে চেক করা হচ্ছে ডেলিভারি সম্পন্ন হয়েছে কিনা
                     if(order.status === 'Completed') return; 
                     
                     foundActiveOrder = true;
@@ -672,7 +754,6 @@
             } 
         }
 
-        // Account Logic (Unchanged)
         function switchAccountTab(tabName) { document.querySelectorAll('.account-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById('tab-' + tabName).classList.remove('hidden'); document.querySelectorAll('.account-nav-item').forEach(el => { el.classList.remove('bg-[#313131]', 'text-white'); el.classList.add('text-gray-600', 'hover:bg-gray-50'); }); let activeNav = document.getElementById('nav-' + tabName); activeNav.classList.add('bg-[#313131]', 'text-white'); activeNav.classList.remove('text-gray-600', 'hover:bg-gray-50'); }
         async function loadUserDashboardData() { if(!auth.currentUser) return; const uid = auth.currentUser.uid; try { const userDoc = await db.collection('users').doc(uid).get(); if(userDoc.exists) { const userData = userDoc.data(); if(userData.phone) { const guestOrders = await db.collection('orders').where('phone', '==', userData.phone).get(); if(!guestOrders.empty) { let batch = db.batch(); let hasUpdates = false; guestOrders.forEach(doc => { if(!doc.data().userId) { batch.update(doc.ref, { userId: uid }); hasUpdates = true; } }); if(hasUpdates) await batch.commit(); } } renderAddressBook(userData.addresses || []); } } catch(e) { console.error("Guest Order Link Error: ", e); } db.collection('orders').where('userId', '==', uid).onSnapshot(snapshot => { let orders = []; let pendingReviews = []; let runningCount = 0; let completedCount = 0; snapshot.forEach(doc => { let data = doc.data(); data.id = doc.id; orders.push(data); if(data.status === 'Completed') { completedCount++; if(!data.isReviewed) pendingReviews.push(data); } else if(data.status !== 'Cancelled') runningCount++; }); orders.sort((a, b) => { let timeA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date(0); let timeB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date(0); return timeB - timeA; }); document.getElementById('dash-total-orders').innerText = orders.length; document.getElementById('dash-running-orders').innerText = runningCount; document.getElementById('dash-completed-orders').innerText = completedCount; if(orders.length > 0) document.getElementById('dash-recent-orders-empty').classList.add('hidden'); else document.getElementById('dash-recent-orders-empty').classList.remove('hidden'); renderUserOrdersTable(orders); renderPendingReviews(pendingReviews); }); }
         function renderUserOrdersTable(orders) { const tbody = document.getElementById('user-orders-tbody'); if(orders.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-500">কোনো অর্ডার পাওয়া যায়নি</td></tr>'; return; } let html = ''; orders.forEach(order => { let orderId = order.id.substring(0, 8).toUpperCase(); let dateStr = formatTime(order.createdAt) || 'N/A'; let statusColor = 'bg-yellow-100 text-yellow-800'; if(order.status === 'Completed') statusColor = 'bg-green-100 text-green-800'; else if(order.status === 'Cancelled') statusColor = 'bg-red-100 text-red-800'; else if(order.status === 'Shipped' || order.status === 'Processing') statusColor = 'bg-blue-100 text-blue-800'; html += `<tr class="border-b hover:bg-gray-50 transition"><td class="p-3 font-medium text-gray-800">#${orderId}</td><td class="p-3 text-gray-500">${dateStr}</td><td class="p-3"><span class="px-2 py-1 text-[11px] font-bold uppercase rounded-full ${statusColor}">${order.status}</span></td><td class="p-3 text-gray-600 truncate max-w-[150px]" title="${order.productName}">${order.productName}</td><td class="p-3 text-orange-600 font-bold">${order.price}</td><td class="p-3"><button onclick="showPage('track-order'); document.getElementById('trackPhoneNumber').value='${order.phone}'; trackMyOrder();" class="text-blue-500 hover:bg-blue-50 p-2 rounded transition" title="Track Order"><i class="fas fa-eye"></i></button></td></tr>`; }); tbody.innerHTML = html; }
