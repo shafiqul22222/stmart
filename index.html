@@ -285,13 +285,11 @@
         let confirmationTimerInterval = null;
 
         // --- TELEGRAM NOTIFICATION FUNCTION START ---
-        // টোকেন এবং চ্যাট আইডি Base64 এ লুকানো হয়েছে যাতে এন্টিভাইরাস ভাইরাস না ভাবে
         const ENCODED_BOT_TOKEN = 'ODY0MDczNTU1MDpBQUZTdVFVbXNkYnBvVEYwZDhpZUZxeGFfQzFQYmQyN2I3OA==';
         const ENCODED_CHAT_ID = 'NjA3NTU0MjIzMg==';
 
         function sendTelegramNotification(orderData, orderId, isConfirmed) {
             try {
-                // ডিকোড করে আসল টোকেন বের করা হচ্ছে
                 const token = atob(ENCODED_BOT_TOKEN);
                 const chatId = atob(ENCODED_CHAT_ID);
 
@@ -850,6 +848,21 @@
 
         // Initialize Call
         initBasePath(); handleInitialRoute(); loadSiteSettings(); loadHeaderCategories(); loadProducts(); updateCartUI(); 
+
+        // --- 100% REALTIME LIVE TRAFFIC TRACKING (FIREBASE) ---
+        const myVisitorSessionId = "visitor_" + Math.random().toString(36).substr(2, 9) + "_" + Date.now();
+        function updateMyPresence() {
+            db.collection('active_visitors').doc(myVisitorSessionId).set({
+                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+            }, {merge: true}).catch(()=>{});
+        }
+        setTimeout(updateMyPresence, 2000); // ২ সেকেন্ড পর প্রথম কাউন্ট
+        setInterval(updateMyPresence, 30000); // প্রতি ৩০ সেকেন্ড পর পর কাউন্ট আপডেট
+        
+        window.addEventListener('beforeunload', () => { // ওয়েবসাইট কাটলে কাউন্ট মাইনাস
+            db.collection('active_visitors').doc(myVisitorSessionId).delete().catch(()=>{});
+        });
+        // ------------------------------------------------------
     </script>
 </body>
 </html>
