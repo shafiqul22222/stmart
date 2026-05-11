@@ -16,41 +16,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <!-- Meta Pixel Code -->
-    <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '26631504249853005');
-    fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=26631504249853005&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Meta Pixel Code -->
-
-    <!-- 
-    ========================================================
-    🔥 GA4 INTEGRATION INSTRUCTIONS (For Admin Tracking) 🔥
-    ========================================================
-    To track Admin Panel activities via GA4, paste your Measurement ID (G-50YM8ES5ML) below.
-    Note: Realtime Visitors in the frontend dashboard are aggregated from Firebase logic, 
-    as Google does not allow direct fetching of GA4 Realtime API in the client-side without OAuth.
-    -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-50YM8ES5ML"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-50YM8ES5ML');
-    </script>
-
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -81,7 +46,7 @@
             <nav class="space-y-2">
                 <button onclick="showSection('dashboard')" id="nav-dashboard" class="w-full text-left p-3 rounded bg-orange-600 transition"><i class="fas fa-chart-line mr-2"></i> ড্যাসবোর্ড</button>
                 
-                <!-- NEW: Customer Analysis Module Nav Item -->
+                <!-- Customer Analysis Module Nav Item -->
                 <button onclick="showSection('analysis')" id="nav-analysis" class="w-full text-left p-3 rounded hover:bg-emerald-900 transition"><i class="fas fa-chart-pie mr-2"></i> কাস্টমার এনালাইসিস</button>
                 
                 <button onclick="showSection('orders')" id="nav-orders" class="w-full text-left p-3 rounded hover:bg-emerald-900 transition"><i class="fas fa-shopping-cart mr-2"></i> অর্ডারস</button>
@@ -155,7 +120,7 @@
             </div>
 
             <!-- ======================================================== -->
-            <!-- NEW MODULE: CUSTOMER ANALYSIS DASHBOARD -->
+            <!-- CUSTOMER ANALYSIS DASHBOARD -->
             <!-- ======================================================== -->
             <div id="analysis-section" class="hidden" id="analytics-export-wrapper">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -420,7 +385,11 @@
         let funnelChartInst = null;
         let sourceChartInst = null;
         let deviceChartInst = null;
-        let simRealtimeInterval = null;
+
+        // --- 100% REALTIME LIVE TRACKING GLOBALS ---
+        let activeVisitorsMap = {};
+        let isRealtimeListenerAttached = false;
+        // -------------------------------------------
 
         // Compress function
         function compressAndConvertToBase64(file) {
@@ -453,7 +422,6 @@
             return base64Urls;
         }
 
-        // Updated showSection to include Analysis
         function showSection(sectionName, pushState = true) {
             const sections = ['dashboard', 'analysis', 'orders', 'products', 'categories', 'customers', 'settings'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
@@ -483,6 +451,13 @@
                 document.getElementById('admin-content').classList.remove('hidden');
                 showSection(getPathSection(), false);
                 loadAdminProducts(); loadDashboardData(); loadOrders(); loadCategories(); loadCustomers(); loadSiteSettingsData();
+                
+                // START FIREBASE REALTIME LIVE TRACKING
+                if(!isRealtimeListenerAttached) {
+                    startRealtimeTracking();
+                    isRealtimeListenerAttached = true;
+                }
+
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('admin-content').classList.add('hidden');
@@ -498,6 +473,43 @@
         });
 
         function logout() { auth.signOut(); }
+
+        // ====================================================================
+        // 🔥 100% REALTIME LIVE TRACKING SYSTEM (FIREBASE FIRE-STORE) 🔥
+        // ====================================================================
+        function startRealtimeTracking() {
+            db.collection('active_visitors').onSnapshot(snap => {
+                snap.docChanges().forEach(change => {
+                    if (change.type === 'added' || change.type === 'modified') {
+                        activeVisitorsMap[change.doc.id] = change.doc.data().lastActive ? change.doc.data().lastActive.toDate().getTime() : Date.now();
+                    }
+                    if (change.type === 'removed') {
+                        delete activeVisitorsMap[change.doc.id];
+                    }
+                });
+                updateRealtimeUI();
+            });
+            // ডাটাবেস ফ্রেশ রাখার জন্য প্রতি ১০ সেকেন্ড পরপর চেক করবে
+            setInterval(updateRealtimeUI, 10000);
+        }
+
+        function updateRealtimeUI() {
+            let activeCount = 0;
+            let nowTime = Date.now();
+            for (let vid in activeVisitorsMap) {
+                if (nowTime - activeVisitorsMap[vid] < 45000) { // ৪৫ সেকেন্ড পর্যন্ত একটিভ ধরবে
+                    activeCount++;
+                } else {
+                    // কেউ যদি নেট অফ করে দেয়, তাহলে ডাটাবেস থেকে ডিলিট করে দিবে
+                    db.collection('active_visitors').doc(vid).delete().catch(()=>{});
+                    delete activeVisitorsMap[vid];
+                }
+            }
+            const realtimeEl = document.getElementById('aly-realtime');
+            if(realtimeEl) realtimeEl.innerText = activeCount;
+        }
+        // ====================================================================
+
 
         // ====================================================================
         // 🔥 NEW MODULE LOGIC: CUSTOMER ANALYSIS ENGINE 🔥
@@ -577,19 +589,7 @@
                 document.getElementById('aly-conversion').innerText = convRate + '%';
                 document.getElementById('aly-revenue').innerText = '৳' + completedRevenue;
 
-                // Simulated Realtime Users (For visual premium feel, typical in templates without server limits)
-                clearInterval(simRealtimeInterval);
-                let currentReal = Math.max(1, Math.floor(estTotalVisitors / 50));
-                document.getElementById('aly-realtime').innerText = currentReal;
-                simRealtimeInterval = setInterval(() => {
-                    let move = Math.floor(Math.random() * 3) - 1; 
-                    currentReal = Math.max(1, currentReal + move);
-                    document.getElementById('aly-realtime').innerText = currentReal;
-                }, 3500);
-
                 // Fetch simulated click tracking from global/settings if any, otherwise random realistic
-                // Normally you would save these in a firestore document tracking clicks. 
-                // For demonstration of UI logic requested:
                 document.getElementById('aly-messenger').innerText = Math.round(fConfirmed * 2.1);
                 document.getElementById('aly-whatsapp').innerText = Math.round(fConfirmed * 1.4);
 
