@@ -86,8 +86,8 @@
                 </div>
             </div>
         </div>
-        <!-- Desktop Category Nav -->
-        <nav class="hidden md:block bg-green-600 text-white relative z-40">
+        <!-- Desktop Category Nav (Fixed) -->
+        <nav class="max-md:hidden bg-green-600 text-white relative z-40">
             <div id="header-category-nav" class="container mx-auto px-4 flex flex-wrap gap-6 text-sm font-medium items-center min-h-[44px]"></div>
         </nav>
     </header>
@@ -944,8 +944,8 @@
                 lastActive: firebase.firestore.FieldValue.serverTimestamp()
             }, {merge: true}).catch(()=>{});
         }
-        setTimeout(updateMyPresence, 2000); // ২ সেকেন্ড পর প্রথম কাউন্ট
-        setInterval(updateMyPresence, 30000); // প্রতি ৩০ সেকেন্ড পর পর কাউন্ট আপডেট
+        setTimeout(updateMyPresence, 1000); // ১ সেকেন্ড পর প্রথম কাউন্ট
+        setInterval(updateMyPresence, 1000); // প্রতি ১ সেকেন্ড পর পর কাউন্ট আপডেট
         
         window.addEventListener('beforeunload', () => { // ওয়েবসাইট কাটলে কাউন্ট মাইনাস
             db.collection('active_visitors').doc(myVisitorSessionId).delete().catch(()=>{});
