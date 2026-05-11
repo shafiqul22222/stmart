@@ -273,7 +273,6 @@
     <footer class="bg-[#042615] pt-16 pb-12 mt-20">
         <div class="container mx-auto px-4"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"><div><div class="mb-6 flex items-center gap-3">
             
-            <!-- Update: Dynamic Footer Logo container -->
             <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden p-1">
                 <img id="footer-dynamic-logo" src="" alt="Logo" class="w-full h-full object-contain">
             </div>
@@ -381,18 +380,11 @@
         function resetHeroSlideShow() { startHeroSlideShow(); }
 
         function loadSiteSettings() { 
-            const cachedLogo = localStorage.getItem('stmart_logo'); 
-            if(cachedLogo) {
-                document.getElementById('header-logo-container').innerHTML = `<img src="${cachedLogo}" alt="Logo" class="h-[64px] max-w-full object-contain">`;
-                if(document.getElementById('confirmation-logo')) document.getElementById('confirmation-logo').src = cachedLogo;
-                if(document.getElementById('footer-dynamic-logo')) document.getElementById('footer-dynamic-logo').src = cachedLogo;
-            }
             db.collection('siteSettings').doc('global').onSnapshot(doc => { 
                 if(doc.exists) { 
                     const data = doc.data(); 
-                    if(data.logoUrl && cachedLogo !== data.logoUrl) { 
-                        document.getElementById('header-logo-container').innerHTML = `<img src="${data.logoUrl}" alt="Logo" class="h-[64px] max-w-full object-contain opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">`; 
-                        localStorage.setItem('stmart_logo', data.logoUrl); 
+                    if(data.logoUrl) { 
+                        document.getElementById('header-logo-container').innerHTML = `<img src="${data.logoUrl}" alt="Logo" class="h-[64px] max-w-full object-contain">`; 
                         if(document.getElementById('confirmation-logo')) document.getElementById('confirmation-logo').src = data.logoUrl;
                         if(document.getElementById('footer-dynamic-logo')) document.getElementById('footer-dynamic-logo').src = data.logoUrl;
                     } 
@@ -402,11 +394,6 @@
         function loadHeaderCategories() { 
             const navContainer = document.getElementById('header-category-nav'); 
             const mobileNavContainer = document.getElementById('mobile-category-nav');
-            const cachedCategories = localStorage.getItem('stmart_categories'); 
-            const cachedMobileCategories = localStorage.getItem('stmart_mobile_categories'); 
-            
-            if(cachedCategories) navContainer.innerHTML = cachedCategories; 
-            if(cachedMobileCategories && mobileNavContainer) mobileNavContainer.innerHTML = cachedMobileCategories;
             
             db.collection('categories').orderBy('createdAt', 'asc').onSnapshot(snapshot => { 
                 let categories = []; 
@@ -417,36 +404,32 @@
                 let mobileHtml = '';
                 
                 if(categories.length === 0) {
-                    html = `<p class="text-gray-100 text-sm py-3">কোনো ক্যাটাগরি নেই</p>`; 
+                    html = `<p class="text-white font-medium text-sm py-3">কোনো ক্যাটাগরি নেই</p>`; 
                     mobileHtml = `<p class="text-gray-500 text-sm px-4 py-3 border-b border-gray-100">কোনো ক্যাটাগরি নেই</p>`;
                 } else { 
                     mainCategories.forEach(main => { 
                         let children = subCategories.filter(sub => sub.parent === main.name); 
                         if(children.length > 0) { 
                             let childHtml = children.map(child => `<a href="#" onclick="filterProducts('${child.name.replace(/'/g, "\\'")}', event)" class="block px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-[#ff5722] transition-colors border-b border-gray-50 last:border-0">${child.name}</a>`).join(''); 
-                            // Changed to hidden group-hover:block for bulletproof hover behavior
-                            html += `<div class="relative group cursor-pointer py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-400 transition-colors flex items-center gap-1.5 uppercase tracking-wide">${main.name} <i class="fas fa-chevron-down text-[10px] mt-0.5 opacity-80"></i></a><div class="absolute left-0 top-full pt-1 w-52 hidden group-hover:block z-50"><div class="bg-white shadow-xl rounded-md overflow-hidden border border-gray-100">${childHtml}</div></div></div>`; 
                             
+                            // Desktop Dropdown
+                            html += `<div class="relative group cursor-pointer py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-200 transition-colors flex items-center gap-1.5 uppercase tracking-wide">${main.name} <i class="fas fa-chevron-down text-[10px] mt-0.5 opacity-80"></i></a><div class="absolute left-0 top-full pt-1 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"><div class="bg-white shadow-xl rounded-md overflow-hidden border border-gray-100">${childHtml}</div></div></div>`; 
+                            
+                            // Mobile Dropdown
                             let mobileChildHtml = children.map(child => `<a href="#" onclick="selectMobileCategory('${child.name.replace(/'/g, "\\'")}', event)" class="block px-8 py-3 text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 border-b border-gray-100 last:border-0">${child.name}</a>`).join('');
                             mobileHtml += `<div class="border-b border-gray-100"><a href="#" onclick="selectMobileCategory('${main.name.replace(/'/g, "\\'")}', event)" class="block px-4 py-3.5 text-gray-800 font-bold hover:text-orange-500 uppercase">${main.name}</a><div class="bg-gray-50 border-t border-gray-100">${mobileChildHtml}</div></div>`;
                         } else { 
-                            html += `<div class="py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-400 transition-colors uppercase tracking-wide">${main.name}</a></div>`; 
+                            html += `<div class="py-3"><a href="#" onclick="filterProducts('${main.name.replace(/'/g, "\\'")}', event)" class="hover:text-orange-200 transition-colors uppercase tracking-wide">${main.name}</a></div>`; 
                             mobileHtml += `<a href="#" onclick="selectMobileCategory('${main.name.replace(/'/g, "\\'")}', event)" class="block px-4 py-3.5 text-gray-800 font-bold hover:text-orange-500 uppercase border-b border-gray-100">${main.name}</a>`;
                         } 
                     }); 
                 } 
                 
-                if(cachedCategories !== html) { 
-                    navContainer.innerHTML = html; 
-                    localStorage.setItem('stmart_categories', html); 
-                } 
-                if(mobileNavContainer && cachedMobileCategories !== mobileHtml) {
-                    mobileNavContainer.innerHTML = mobileHtml;
-                    localStorage.setItem('stmart_mobile_categories', mobileHtml);
-                }
+                if(navContainer) navContainer.innerHTML = html; 
+                if(mobileNavContainer) mobileNavContainer.innerHTML = mobileHtml;
             }); 
         }
-        
+
         function filterProducts(categoryName, event) { if(event) event.preventDefault(); showPage('home'); const titleElem = document.getElementById('section-title'); if(titleElem) titleElem.innerText = categoryName === 'all' ? 'Our Products' : categoryName; document.getElementById('headerSearchBar').value = ''; loadProducts(categoryName); }
 
         // Product Card Generator (Reusable)
@@ -625,7 +608,7 @@
             } catch(e) {}
 
             loadProductReviews(currentSelectedProduct.id); 
-            loadRelatedProducts(currentSelectedProduct.category, currentSelectedProduct.id); // Load Related Products
+            loadRelatedProducts(currentSelectedProduct.category, currentSelectedProduct.id); 
 
             showPage('product-landing', false);
             const newUrl = spaBasePath + '?product=' + currentSelectedProduct.id;
@@ -961,8 +944,8 @@
                 lastActive: firebase.firestore.FieldValue.serverTimestamp()
             }, {merge: true}).catch(()=>{});
         }
-        setTimeout(updateMyPresence, 2000); // ১ সেকেন্ড পর প্রথম কাউন্ট
-        setInterval(updateMyPresence, 30000); // প্রতি ১ সেকেন্ড পর পর কাউন্ট আপডেট
+        setTimeout(updateMyPresence, 2000); // ২ সেকেন্ড পর প্রথম কাউন্ট
+        setInterval(updateMyPresence, 30000); // প্রতি ৩০ সেকেন্ড পর পর কাউন্ট আপডেট
         
         window.addEventListener('beforeunload', () => { // ওয়েবসাইট কাটলে কাউন্ট মাইনাস
             db.collection('active_visitors').doc(myVisitorSessionId).delete().catch(()=>{});
