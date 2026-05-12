@@ -256,9 +256,12 @@
 
             <!-- Products Section -->
             <div id="products-section" class="hidden">
-                <div class="flex justify-between items-center mb-8">
+                <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
                     <h2 class="text-3xl font-bold">প্রোডাক্ট ম্যানেজমেন্ট</h2>
-                    <button onclick="document.getElementById('modal').classList.remove('hidden')" class="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-orange-700 shadow-lg transition">+ নতুন প্রোডাক্ট</button>
+                    <div class="flex gap-3">
+                        <button onclick="generateFacebookCatalogCSV()" id="btnFbFeed" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-lg transition whitespace-nowrap"><i class="fab fa-facebook mr-2"></i> FB Catalog CSV</button>
+                        <button onclick="document.getElementById('modal').classList.remove('hidden')" class="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-orange-700 shadow-lg transition whitespace-nowrap">+ নতুন প্রোডাক্ট</button>
+                    </div>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden overflow-x-auto">
                     <table class="w-full text-left whitespace-nowrap">
@@ -510,6 +513,57 @@
         }
         // ====================================================================
 
+        // --- FACEBOOK CATALOG FEED GENERATOR ---
+        async function generateFacebookCatalogCSV() {
+            const btn = document.getElementById('btnFbFeed');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...';
+            btn.disabled = true;
+
+            try {
+                const snapshot = await db.collection('products').get();
+                // Facebook Catalog CSV Headers
+                let csvContent = "id,title,description,availability,condition,price,link,image_link,brand\n";
+
+                snapshot.forEach(doc => {
+                    const p = doc.data();
+                    const id = doc.id;
+                    // Clean text for CSV (escape quotes, remove newlines)
+                    const title = `"${(p.name || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+                    const description = `"${(p.description || p.name || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+                    const availability = (p.stock > 0) ? 'in stock' : 'out of stock';
+                    const condition = 'new';
+                    const price = `${p.price} BDT`;
+                    
+                    // Get main website URL
+                    const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '');
+                    const link = `${baseUrl}?product=${id}`;
+                    
+                    let image_link = p.image || (p.images && p.images.length > 0 ? p.images[0] : '');
+                    image_link = `"${image_link}"`; // Wrapped in quotes for safe CSV output
+
+                    csvContent += `${id},${title},${description},${availability},${condition},${price},${link},${image_link},ST Mart\n`;
+                });
+
+                // Create and download Blob
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const linkTag = document.createElement("a");
+                linkTag.setAttribute("href", url);
+                linkTag.setAttribute("download", `Facebook_Catalog_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(linkTag);
+                linkTag.click();
+                document.body.removeChild(linkTag);
+
+                alert("✅ Facebook Catalog CSV সফলভাবে ডাউনলোড হয়েছে!\n\nএটি Facebook Commerce Manager এ 'Data Feed' হিসেবে আপলোড করুন।\n\n(নোট: আপনার প্রোডাক্টের ছবি Base64 এ সেভ থাকলে ফেসবুক ক্যাটালগ তা গ্রহণ নাও করতে পারে।)");
+
+            } catch (err) {
+                alert("CSV তৈরি করতে সমস্যা হয়েছে: " + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
 
         // ====================================================================
         // 🔥 NEW MODULE LOGIC: CUSTOMER ANALYSIS ENGINE 🔥
