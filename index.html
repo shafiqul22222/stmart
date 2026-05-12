@@ -325,6 +325,51 @@
         }
         // --- TELEGRAM NOTIFICATION FUNCTION END ---
 
+        // --- FACEBOOK CATALOG AUTO SYNC FUNCTION ---
+        function syncToFacebookCatalog(product) {
+            // 1. Update Open Graph Meta Tags dynamically for Facebook Scraper
+            document.querySelectorAll('.fb-catalog-meta').forEach(el => el.remove());
+            
+            const head = document.head;
+            const currentUrl = window.location.origin + window.location.pathname + '?product=' + product.id;
+            const availability = product.stock > 0 ? 'in stock' : 'out of stock';
+            const imageUrl = product.image || 'https://via.placeholder.com/600';
+
+            const metaTags = [
+                { property: 'og:title', content: product.name },
+                { property: 'og:description', content: product.description || product.name },
+                { property: 'og:url', content: currentUrl },
+                { property: 'og:image', content: imageUrl },
+                { property: 'product:brand', content: globalBrandName || 'ST Mart' },
+                { property: 'product:availability', content: availability },
+                { property: 'product:condition', content: 'new' },
+                { property: 'product:price:amount', content: product.price },
+                { property: 'product:price:currency', content: 'BDT' },
+                { property: 'product:retailer_item_id', content: product.id }
+            ];
+
+            metaTags.forEach(tag => {
+                const meta = document.createElement('meta');
+                meta.setAttribute('property', tag.property);
+                meta.setAttribute('content', tag.content);
+                meta.className = 'fb-catalog-meta';
+                head.appendChild(meta);
+            });
+
+            // 2. Fire Facebook Pixel ViewContent Event (Syncs with Catalog)
+            if(typeof fbq === 'function') {
+                fbq('track', 'ViewContent', {
+                    content_ids: [product.id],
+                    content_type: 'product',
+                    value: product.price,
+                    currency: 'BDT',
+                    content_name: product.name,
+                    content_category: product.category || 'Shop'
+                });
+            }
+        }
+        // -------------------------------------------
+
         // Mobile Menu Functions
         function toggleMobileMenu() {
             const drawer = document.getElementById('mobile-menu-drawer');
@@ -610,6 +655,9 @@
             loadProductReviews(currentSelectedProduct.id); 
             loadRelatedProducts(currentSelectedProduct.category, currentSelectedProduct.id); 
 
+            // Fire FB Sync Call
+            syncToFacebookCatalog(currentSelectedProduct);
+
             showPage('product-landing', false);
             const newUrl = spaBasePath + '?product=' + currentSelectedProduct.id;
             history.pushState({ page: 'product-landing', product: currentSelectedProduct.id }, '', newUrl);
@@ -674,6 +722,9 @@
 
                     loadProductReviews(currentSelectedProduct.id);
                     loadRelatedProducts(currentSelectedProduct.category, currentSelectedProduct.id);
+
+                    // Fire FB Sync Call
+                    syncToFacebookCatalog(currentSelectedProduct);
 
                     showPage('product-landing', false);
                 }
