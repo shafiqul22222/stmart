@@ -162,7 +162,7 @@
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4" id="detail-action-buttons">
                         <button onclick="addToCart()" class="border-2 border-black text-black font-bold py-3.5 px-4 rounded hover:bg-gray-50 transition text-sm">কার্টে যোগ করুন</button>
-                        <button onclick="proceedToOrderModal()" class="text-white font-bold py-3.5 px-4 rounded flex items-center justify-center gap-2 transition text-sm btn-order-dynamic"><i class="fas fa-shopping-bag"></i> অর্ডার করুন</button>
+                        <button onclick="proceedToOrderModal()" class="text-white font-bold py-3.5 px-4 rounded flex items-center justify-center gap-2 transition text-sm btn-order-dynamic"><i class="fas fa-shopping-bag"></i> অর্ডার <span style="pointer-events:none">করুন</span></button>
                     </div>
                     
                     <!-- Updated WhatsApp Order Button -->
@@ -340,7 +340,7 @@
                 { property: 'og:description', content: product.description || product.name },
                 { property: 'og:url', content: currentUrl },
                 { property: 'og:image', content: imageUrl },
-                { property: 'product:brand', content: window.globalBrandName || 'ST Mart' },
+                { property: 'product:brand', content: globalBrandName || 'ST Mart' },
                 { property: 'product:availability', content: availability },
                 { property: 'product:condition', content: 'new' },
                 { property: 'product:price:amount', content: product.price },
@@ -494,7 +494,7 @@
             
             let orderBtn = parseInt(safeStock) <= 0 
                 ? `<button type="button" disabled class="w-full text-white py-2 rounded font-bold btn-out-of-stock mt-auto">স্টক নেই</button>`
-                : `<button type="button" onclick="openProductDetails(this)" ${dataAttributes} class="w-full text-white py-2 rounded font-bold transition btn-order-dynamic mt-auto">অর্ডার করুন</button>`;
+                : `<button type="button" onclick="openProductDetails(this)" ${dataAttributes} class="w-full text-white py-2 rounded font-bold transition btn-order-dynamic mt-auto">অর্ডার <span style="pointer-events:none">করুন</span></button>`;
 
             return `<div class="product-card flex flex-col bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition h-full" ${dataAttributes}>
                         <div class="h-48 mb-4 overflow-hidden rounded-lg cursor-pointer relative group bg-gray-50 flex items-center justify-center p-2" onclick="openProductDetails(this)" ${dataAttributes}>
@@ -740,6 +740,18 @@
             let existing = cartItems.find(item => item.id === currentSelectedProduct.id && item.name === name);
             if (existing) existing.qty += currentSelectedProduct.qty;
             else cartItems.push({ id: currentSelectedProduct.id, name: name, price: currentSelectedProduct.price, purchasePrice: currentSelectedProduct.purchasePrice, qty: currentSelectedProduct.qty, image: currentSelectedProduct.image });
+            
+            // Meta Pixel AddToCart
+            if(typeof fbq === 'function') {
+                fbq('track', 'AddToCart', {
+                    content_name: name,
+                    content_ids: [currentSelectedProduct.id],
+                    content_type: 'product',
+                    value: currentSelectedProduct.price * currentSelectedProduct.qty,
+                    currency: 'BDT'
+                });
+            }
+            
             updateCartUI(); toggleCart(); 
         }
 
@@ -773,6 +785,17 @@
             window.tempProfitCalculated = (currentSelectedProduct.price - currentSelectedProduct.purchasePrice) * currentSelectedProduct.qty;
             
             populateOrderSummary(subTotal);
+            
+            // Meta Pixel InitiateCheckout
+            if(typeof fbq === 'function') {
+                fbq('track', 'InitiateCheckout', {
+                    content_name: orderName,
+                    content_ids: [currentSelectedProduct.id],
+                    value: subTotal,
+                    currency: 'BDT'
+                });
+            }
+            
             let modal = document.getElementById('order-modal'); modal.classList.remove('hidden'); modal.style.display = 'flex';
         }
 
@@ -784,6 +807,16 @@
             // Calculate total cart profit
             let totalProfit = cartItems.reduce((sum, item) => sum + ((item.price - item.purchasePrice) * item.qty), 0);
             window.tempProfitCalculated = totalProfit;
+
+            // Meta Pixel InitiateCheckout
+            if(typeof fbq === 'function') {
+                fbq('track', 'InitiateCheckout', {
+                    content_name: productNames,
+                    content_ids: cartItems.map(item => item.id),
+                    value: subTotal,
+                    currency: 'BDT'
+                });
+            }
 
             toggleCart(); 
             document.getElementById('orderProductId').value = cartItems.map(item => item.id).join(',');
@@ -816,6 +849,18 @@
             const selectedArea = document.querySelector('input[name="deliveryArea"]:checked').value;
             const charge = selectedArea === 'inside' ? dynamicDeliveryCharges.insideDhaka : dynamicDeliveryCharges.outsideDhaka;
             const deliveryTypeName = selectedArea === 'inside' ? 'ঢাকার ভিতরে' : 'ঢাকার বাহিরে';
+
+            // ------------- FACEBOOK PIXEL PURCHASE EVENT TRACKING -------------
+            if(typeof fbq === 'function') {
+                fbq('track', 'Purchase', {
+                    content_name: document.getElementById('modal-product-name').innerText,
+                    content_ids: [document.getElementById('orderProductId').value],
+                    content_type: 'product',
+                    value: finalTotal,
+                    currency: 'BDT'
+                });
+            }
+            // ------------------------------------------------------------------
 
             pendingOrderDataForConfirmation = {
                 productId: document.getElementById('orderProductId').value,
