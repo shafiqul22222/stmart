@@ -865,11 +865,22 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            const isCSV = file.name.toLowerCase().endsWith('.csv');
             const reader = new FileReader();
+
             reader.onload = async function(event) {
                 try {
-                    const data = new Uint8Array(event.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
+                    let workbook;
+                    
+                    if (isCSV) {
+                        // CSV ফাইলের জন্য জোরপূর্বক UTF-8 এনকোডিং ব্যবহার করা হচ্ছে
+                        workbook = XLSX.read(event.target.result, {type: 'string'});
+                    } else {
+                        // Excel ফাইলের জন্য ArrayBuffer
+                        const data = new Uint8Array(event.target.result);
+                        workbook = XLSX.read(data, {type: 'array'});
+                    }
+
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     const json = XLSX.utils.sheet_to_json(worksheet);
@@ -884,7 +895,6 @@
                     let successCount = 0;
                     let errorCount = 0;
 
-                    // Flexible Column Mapping Helper
                     const getVal = (row, keys) => {
                         for(let k of Object.keys(row)) {
                             if(keys.includes(k.trim().toLowerCase())) return row[k];
@@ -895,11 +905,10 @@
                     for (let i = 0; i < json.length; i++) {
                         const row = json[i];
                         
-                        // Mapping common CSV Headers dynamically
                         const pName = String(getVal(row, ['name', 'title', 'প্রোডাক্টের নাম', 'product name']));
                         const pPrice = parseFloat(getVal(row, ['price', 'current price', 'মূল্য', 'sale price']));
                         
-                        if (!pName || isNaN(pPrice)) {
+                        if (!pName || pName === 'undefined' || isNaN(pPrice)) {
                             errorCount++;
                             continue;
                         }
@@ -933,7 +942,6 @@
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         };
 
-                        // Check if product exists by name for update or insert
                         const snapshot = await db.collection('products').where('name', '==', pName).get();
                         
                         if (!snapshot.empty) {
@@ -952,7 +960,13 @@
                     showToast("ফাইল পড়তে সমস্যা হয়েছে: " + err.message, "error");
                 }
             };
-            reader.readAsArrayBuffer(file);
+
+            // ফাইলের ধরন অনুযায়ী রিড করার মেথড পরিবর্তন
+            if (isCSV) {
+                reader.readAsText(file, 'UTF-8');
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
         });
 
         function loadDashboardData() {
