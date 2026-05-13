@@ -71,8 +71,8 @@
                     <button onclick="toggleMobileMenu()" class="md:hidden text-gray-700 hover:text-orange-600 mr-4 text-2xl focus:outline-none">
                         <i class="fas fa-bars"></i>
                     </button>
+                    <!-- UPDATED: Removed the hardcoded ST BAZAR text to prevent awkward loading glitch. Firebase will dynamically load the image here -->
                     <div onclick="filterProducts('all'); showPage('home')" class="cursor-pointer flex items-center h-12 md:h-16 min-w-[120px]" id="header-logo-container">
-                        <h1 class="text-2xl md:text-3xl font-bold text-orange-600 leading-none">ST<br><span class="text-xs md:text-base text-gray-500 tracking-[0.2em]">BAZAR</span></h1>
                     </div>
                 </div>
                 <div class="flex items-center gap-4 md:gap-6 text-gray-600 order-2 md:order-3">
