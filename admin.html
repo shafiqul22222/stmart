@@ -264,8 +264,13 @@
             <!-- Products Section -->
             <div id="products-section" class="hidden">
                 <div class="flex flex-wrap justify-between items-center mb-6 lg:mb-8 gap-4">
-                    <h2 class="text-2xl lg:text-3xl font-bold">প্রোডাক্ট ম্যানেজমেন্ট</h2>
+                    <h2 class="text-2xl lg:text-3xl font-bold flex items-center">
+                        প্রোডাক্ট ম্যানেজমেন্ট 
+                        <span id="total-product-count" class="text-sm font-bold text-orange-700 ml-3 border border-orange-200 bg-orange-100 px-3 py-1 rounded-full shadow-sm hidden">মোট পন্য: ০ টি</span>
+                    </h2>
                     <div class="flex flex-wrap gap-3 w-full lg:w-auto">
+                        <input type="file" id="csvFileInput" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden">
+                        <button onclick="document.getElementById('csvFileInput').click()" class="flex-1 lg:flex-none bg-emerald-600 text-white px-4 lg:px-6 py-2 rounded-lg font-bold hover:bg-emerald-700 shadow-lg transition whitespace-nowrap text-sm lg:text-base"><i class="fas fa-file-import mr-2"></i> CSV আপলোড</button>
                         <button onclick="generateFacebookCatalogCSV()" id="btnFbFeed" class="flex-1 lg:flex-none bg-blue-600 text-white px-4 lg:px-6 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-lg transition whitespace-nowrap text-sm lg:text-base"><i class="fab fa-facebook mr-2"></i> FB CSV</button>
                         <button onclick="document.getElementById('modal').classList.remove('hidden')" class="flex-1 lg:flex-none bg-orange-600 text-white px-4 lg:px-6 py-2 rounded-lg font-bold hover:bg-orange-700 shadow-lg transition whitespace-nowrap text-sm lg:text-base">+ নতুন প্রোডাক্ট</button>
                     </div>
@@ -751,6 +756,14 @@
         function loadAdminProducts() {
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snap => {
                 const list = document.getElementById('admin-product-list'); list.innerHTML = '';
+                
+                // প্রোডাক্ট কাউন্ট আপডেট লজিক
+                const countEl = document.getElementById('total-product-count');
+                if(countEl) {
+                    countEl.innerText = `মোট পন্য: ${snap.size} টি`;
+                    countEl.classList.remove('hidden');
+                }
+
                 snap.forEach(doc => {
                     const p = doc.data();
                     let sizesArr = p.sizes || []; let mainImg = (p.images && p.images.length > 0) ? p.images[0] : p.image;
@@ -828,12 +841,9 @@
                 let imagesArray = [];
                 let existingImages = JSON.parse(document.getElementById('eExistingImages').value || "[]");
 
-                // ==========================================
-                // 🔥 NEW LOGIC: Merge New Images with Old 🔥
-                // ==========================================
                 if(files.length > 0) { 
                     let newImages = await processImagesToBase64(files);
-                    imagesArray = existingImages.concat(newImages); // আগের ইমেজের সাথে নতুন গুলো যুক্ত হবে
+                    imagesArray = existingImages.concat(newImages);
                 } 
                 else { 
                     imagesArray = existingImages; 
@@ -848,6 +858,101 @@
 
             } catch (err) { showToast("আপডেট সমস্যা: " + err.message, "error"); } 
             finally { btn.innerText = originalText; btn.disabled = false; }
+        });
+
+        // ================= CSV Bulk Upload Logic =================
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (json.length === 0) {
+                        showToast("ফাইলটি খালি বা সঠিক ফরম্যাটে নেই!", "error");
+                        return;
+                    }
+
+                    showToast(`প্রোডাক্ট আপলোড শুরু হয়েছে (${json.length} টি)... অনুগ্রহ করে অপেক্ষা করুন।`, "info");
+
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    // Flexible Column Mapping Helper
+                    const getVal = (row, keys) => {
+                        for(let k of Object.keys(row)) {
+                            if(keys.includes(k.trim().toLowerCase())) return row[k];
+                        }
+                        return '';
+                    };
+
+                    for (let i = 0; i < json.length; i++) {
+                        const row = json[i];
+                        
+                        // Mapping common CSV Headers dynamically
+                        const pName = String(getVal(row, ['name', 'title', 'প্রোডাক্টের নাম', 'product name']));
+                        const pPrice = parseFloat(getVal(row, ['price', 'current price', 'মূল্য', 'sale price']));
+                        
+                        if (!pName || isNaN(pPrice)) {
+                            errorCount++;
+                            continue;
+                        }
+
+                        const pPurchasePrice = parseFloat(getVal(row, ['purchase price', 'purchaseprice', 'কেনা দাম'])) || 0;
+                        const pOldPrice = parseFloat(getVal(row, ['old price', 'oldprice', 'পূর্বের মূল্য'])) || 0;
+                        const pStock = parseInt(getVal(row, ['stock', 'qty', 'স্টক', 'quantity', 'availability'])) || 0;
+                        const pCategory = String(getVal(row, ['category', 'ক্যাটাগরি'])) || '';
+                        const pUnit = String(getVal(row, ['unit', 'একক'])) || 'পিস';
+                        const pDesc = String(getVal(row, ['description', 'details', 'ডেসক্রিপশন'])) || '';
+                        
+                        let pSizesRaw = String(getVal(row, ['sizes', 'size', 'সাইজ']));
+                        let pSizes = pSizesRaw && pSizesRaw !== 'undefined' ? pSizesRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+                        
+                        let pImage = String(getVal(row, ['image', 'image_link', 'image url', 'ছবি']));
+                        if(pImage === 'undefined') pImage = '';
+                        let pImages = pImage ? [pImage] : [];
+
+                        const productData = {
+                            name: pName,
+                            purchasePrice: pPurchasePrice,
+                            oldPrice: pOldPrice,
+                            price: pPrice,
+                            stock: pStock,
+                            category: pCategory,
+                            sizes: pSizes,
+                            unit: pUnit,
+                            description: pDesc,
+                            image: pImage,
+                            images: pImages,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+
+                        // Check if product exists by name for update or insert
+                        const snapshot = await db.collection('products').where('name', '==', pName).get();
+                        
+                        if (!snapshot.empty) {
+                            const docId = snapshot.docs[0].id;
+                            await db.collection('products').doc(docId).update(productData);
+                        } else {
+                            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                            await db.collection('products').add(productData);
+                        }
+                        successCount++;
+                    }
+
+                    document.getElementById('csvFileInput').value = ''; 
+                    showToast(`সফলভাবে ${successCount} টি প্রোডাক্ট আপলোড/আপডেট হয়েছে! (ব্যর্থ: ${errorCount})`, "success");
+                } catch (err) {
+                    showToast("ফাইল পড়তে সমস্যা হয়েছে: " + err.message, "error");
+                }
+            };
+            reader.readAsArrayBuffer(file);
         });
 
         function loadDashboardData() {
