@@ -162,7 +162,8 @@
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4" id="detail-action-buttons">
                         <button onclick="addToCart()" class="border-2 border-black text-black font-bold py-3.5 px-4 rounded hover:bg-gray-50 transition text-sm">কার্টে যোগ করুন</button>
-                        <button onclick="proceedToOrderModal()" class="text-white font-bold py-3.5 px-4 rounded flex items-center justify-center gap-2 transition text-sm btn-order-dynamic"><i class="fas fa-shopping-bag"></i> অর্ডার <span style="pointer-events:none">করুন</span></button>
+                        <!-- Button text changed to prevent pixel confusion -->
+                        <button onclick="proceedToOrderModal()" class="text-white font-bold py-3.5 px-4 rounded flex items-center justify-center gap-2 transition text-sm btn-order-dynamic"><i class="fas fa-shopping-bag"></i> এখনই অর্ডার করুন</button>
                     </div>
                     
                     <!-- Updated WhatsApp Order Button -->
@@ -225,7 +226,7 @@
                         <div class="flex justify-between border-t border-gray-300 pt-2 mt-2 font-bold text-lg text-gray-900"><span>সর্বমোট:</span><span id="summary-final-total">৳0</span></div>
                     </div>
                     <div class="mt-4"><label class="flex items-start gap-2 cursor-pointer text-xs text-gray-600"><input type="checkbox" id="agreeTerms" class="mt-1" required><span>I agree to the Terms and Conditions.</span></label></div>
-                    <button type="submit" class="w-full btn-order-dynamic py-3 rounded-lg font-bold text-lg transition shadow-md mt-4">অর্ডার করুন</button>
+                    <button type="submit" class="w-full btn-order-dynamic py-3 rounded-lg font-bold text-lg transition shadow-md mt-4">অর্ডার কনফার্ম করুন</button>
                 </form>
             </div>
         </div>
@@ -267,7 +268,7 @@
     <div id="step-cancelled-modal" class="hidden fixed inset-0 bg-red-500 flex items-center justify-center p-4" style="z-index: 10001;"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-8 text-center"><div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-times text-red-500 text-4xl"></i></div><h3 class="text-2xl font-bold text-red-500 mb-2">Order Cancelled</h3><p class="text-sm text-gray-500 mb-8">আপনার অর্ডারটি বাতিল করা হয়েছে।</p><button onclick="closeFinalModals()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"><i class="fas fa-arrow-left"></i> Back to Home</button></div></div>
 
     <div id="cart-sidebar-backdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[10000]" onclick="toggleCart()"></div>
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-[350px] max-w-[90vw] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[10001] flex flex-col"><div class="flex justify-between items-center p-4 border-b border-gray-100"><h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">SHOPPING CART</h2><button onclick="toggleCart()" class="text-sm text-gray-600 hover:text-black flex items-center gap-1 font-medium transition-colors">Close <i class="fas fa-arrow-right"></i></button></div><div id="cart-body" class="flex-1 overflow-y-auto p-4 flex flex-col bg-white"></div><div id="cart-footer" class="hidden p-4 border-t border-gray-100 bg-white"><div class="flex justify-between items-center text-lg mb-4"><span class="font-bold text-gray-800">Total:</span><span id="cart-total-price" class="font-bold text-[#ff5722]">৳0</span></div><button onclick="checkoutCart()" class="w-full btn-order-dynamic py-3.5 rounded flex items-center justify-center gap-2 font-bold transition-colors shadow-md">অর্ডার কনফার্ম করুন</button></div></div>
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-[350px] max-w-[90vw] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[10001] flex flex-col"><div class="flex justify-between items-center p-4 border-b border-gray-100"><h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">SHOPPING CART</h2><button onclick="toggleCart()" class="text-sm text-gray-600 hover:text-black flex items-center gap-1 font-medium transition-colors">Close <i class="fas fa-arrow-right"></i></button></div><div id="cart-body" class="flex-1 overflow-y-auto p-4 flex flex-col bg-white"></div><div id="cart-footer" class="hidden p-4 border-t border-gray-100 bg-white"><div class="flex justify-between items-center text-lg mb-4"><span class="font-bold text-gray-800">Total:</span><span id="cart-total-price" class="font-bold text-[#ff5722]">৳0</span></div><button onclick="checkoutCart()" class="w-full btn-order-dynamic py-3.5 rounded flex items-center justify-center gap-2 font-bold transition-colors shadow-md">চেকআউট করুন</button></div></div>
 
     <!-- Footer Updated Dynamic Logo Here -->
     <footer class="bg-[#042615] pt-16 pb-12 mt-20">
@@ -492,9 +493,10 @@
             
             const dataAttributes = `data-id="${docId}" data-name="${safeName}" data-price="${safePrice}" data-purchaseprice="${safePurchasePrice}" data-stock="${safeStock}" data-image="${safeImg}" data-oldprice="${p.oldPrice || ''}" data-category="${safeCategory}" data-unit="${p.unit || ''}" data-images="${encodeURIComponent(JSON.stringify(p.images || [safeImg]))}" data-sizes="${encodeURIComponent(JSON.stringify(p.sizes || []))}" data-desc="${safeDesc}"`;
             
+            // হোম পেইজের কার্ডে বাটন টেক্সট হবে শুধু "অর্ডার করুন"
             let orderBtn = parseInt(safeStock) <= 0 
                 ? `<button type="button" disabled class="w-full text-white py-2 rounded font-bold btn-out-of-stock mt-auto">স্টক নেই</button>`
-                : `<button type="button" onclick="openProductDetails(this)" ${dataAttributes} class="w-full text-white py-2 rounded font-bold transition btn-order-dynamic mt-auto">অর্ডার <span style="pointer-events:none">করুন</span></button>`;
+                : `<button type="button" onclick="openProductDetails(this)" ${dataAttributes} class="w-full text-white py-2 rounded font-bold transition btn-order-dynamic mt-auto">অর্ডার করুন</button>`;
 
             return `<div class="product-card flex flex-col bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition h-full" ${dataAttributes}>
                         <div class="h-48 mb-4 overflow-hidden rounded-lg cursor-pointer relative group bg-gray-50 flex items-center justify-center p-2" onclick="openProductDetails(this)" ${dataAttributes}>
@@ -741,7 +743,7 @@
             if (existing) existing.qty += currentSelectedProduct.qty;
             else cartItems.push({ id: currentSelectedProduct.id, name: name, price: currentSelectedProduct.price, purchasePrice: currentSelectedProduct.purchasePrice, qty: currentSelectedProduct.qty, image: currentSelectedProduct.image });
             
-            // Meta Pixel AddToCart
+            // Meta Pixel AddToCart Tracking
             if(typeof fbq === 'function') {
                 fbq('track', 'AddToCart', {
                     content_name: name,
@@ -786,7 +788,7 @@
             
             populateOrderSummary(subTotal);
             
-            // Meta Pixel InitiateCheckout
+            // Meta Pixel InitiateCheckout Tracking
             if(typeof fbq === 'function') {
                 fbq('track', 'InitiateCheckout', {
                     content_name: orderName,
@@ -808,7 +810,7 @@
             let totalProfit = cartItems.reduce((sum, item) => sum + ((item.price - item.purchasePrice) * item.qty), 0);
             window.tempProfitCalculated = totalProfit;
 
-            // Meta Pixel InitiateCheckout
+            // Meta Pixel InitiateCheckout Tracking
             if(typeof fbq === 'function') {
                 fbq('track', 'InitiateCheckout', {
                     content_name: productNames,
@@ -842,7 +844,7 @@
             try {
                 const userCheck = await db.collection('users').where('phone', '==', phoneVal).get();
                 let isBlocked = false; userCheck.forEach(doc => { if(doc.data().isBlocked === true) isBlocked = true; });
-                if(isBlocked) { alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে। আপনি কোনো অর্ডার করতে পারবেন কান। যোগাযোগ করুন।"); submitBtn.innerText = "অর্ডার করুন"; submitBtn.disabled = false; return; }
+                if(isBlocked) { alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে। আপনি কোনো অর্ডার করতে পারবেন কান। যোগাযোগ করুন।"); submitBtn.innerText = "অর্ডার কনফার্ম করুন"; submitBtn.disabled = false; return; }
             } catch(error) { console.error("Block check error", error); }
 
             const finalTotal = parseFloat(document.getElementById('orderTotalPrice').value) || 0;
@@ -882,7 +884,7 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            submitBtn.innerText = "অর্ডার করুন"; submitBtn.disabled = false; closeOrderModal();
+            submitBtn.innerText = "অর্ডার কনফার্ম করুন"; submitBtn.disabled = false; closeOrderModal();
             document.getElementById('confirm-modal-product').innerText = pendingOrderDataForConfirmation.productName;
             document.getElementById('confirm-modal-price').innerText = pendingOrderDataForConfirmation.price;
             document.getElementById('confirm-modal-phone').innerText = pendingOrderDataForConfirmation.phone;
