@@ -327,6 +327,16 @@
                             <div><label class="block text-sm font-semibold text-gray-600 mb-1">Secret Key</label><input type="text" id="setCourierSecretKey" class="w-full border p-3 rounded focus:ring-2 focus:ring-teal-500 outline-none" placeholder="Enter Courier Secret Key"></div>
                         </div>
                     </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-100">
+                        <h3 class="text-xl font-bold mb-4 text-indigo-600 border-b pb-2"><i class="fas fa-credit-card mr-2"></i> পেমেন্ট গেটওয়ে সেটিংস (Online Payment)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div><label class="block text-sm font-semibold text-gray-600 mb-1">Gateway API URL</label><input type="text" id="setPaymentUrl" class="w-full border p-3 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://sandbox.aamarpay.com/jsonpost.php"></div>
+                            <div><label class="block text-sm font-semibold text-gray-600 mb-1">Store ID</label><input type="text" id="setPaymentStoreId" class="w-full border p-3 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="aamarpaytest"></div>
+                            <div><label class="block text-sm font-semibold text-gray-600 mb-1">Signature/Secret Key</label><input type="text" id="setPaymentSecretKey" class="w-full border p-3 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="dbb74894e82415a2f7ff0ec3a97e4183"></div>
+                        </div>
+                    </div>
+
                     <div class="bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="text-xl font-bold mb-4 text-purple-600 border-b pb-2">ডেলিভারি চার্জ সেটিংস</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -714,6 +724,9 @@
                     const data = doc.data();
                     document.getElementById('setInsideDhaka').value = data.insideDhaka || 60; document.getElementById('setOutsideDhaka').value = data.outsideDhaka || 120;
                     document.getElementById('setCourierApiKey').value = data.courierApiKey || ''; document.getElementById('setCourierSecretKey').value = data.courierSecretKey || '';
+                    document.getElementById('setPaymentUrl').value = data.paymentUrl || '';
+                    document.getElementById('setPaymentStoreId').value = data.paymentStoreId || '';
+                    document.getElementById('setPaymentSecretKey').value = data.paymentSecretKey || '';
                     document.getElementById('setLogoUrl').value = data.logoUrl || ''; 
                     document.getElementById('setHeroImages').value = data.heroImages || (data.heroImg1 ? data.heroImg1 + (data.heroImg2 ? '||' + data.heroImg2 : '') : '');
                     document.getElementById('setHeroLinks').value = data.heroLinks || ''; document.getElementById('setBrandName').value = data.brandName || '';
@@ -743,6 +756,9 @@
                 const settingsData = {
                     insideDhaka: parseInt(document.getElementById('setInsideDhaka').value) || 60, outsideDhaka: parseInt(document.getElementById('setOutsideDhaka').value) || 120,
                     courierApiKey: document.getElementById('setCourierApiKey').value.trim(), courierSecretKey: document.getElementById('setCourierSecretKey').value.trim(),
+                    paymentUrl: document.getElementById('setPaymentUrl').value.trim(),
+                    paymentStoreId: document.getElementById('setPaymentStoreId').value.trim(),
+                    paymentSecretKey: document.getElementById('setPaymentSecretKey').value.trim(),
                     logoUrl: document.getElementById('setLogoUrl').value.trim(), heroImages: document.getElementById('setHeroImages').value.trim(),
                     heroLinks: document.getElementById('setHeroLinks').value.trim(), brandName: document.getElementById('setBrandName').value.trim(), tagline: document.getElementById('setTagline').value.trim(), phone: document.getElementById('setPhone').value.trim(), email: document.getElementById('setEmail').value.trim(), address: document.getElementById('setAddress').value.trim(), facebook: document.getElementById('setFacebook').value.trim(), whatsapp: document.getElementById('setWhatsapp').value.trim(), copyright: document.getElementById('setCopyright').value.trim(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
