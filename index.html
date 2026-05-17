@@ -392,7 +392,7 @@
         function syncToFacebookCatalog(product) {
             document.querySelectorAll('.fb-catalog-meta').forEach(el => el.remove());
             const head = document.head;
-            const currentUrl = window.location.origin + spaBasePath + 'product/' + product.id; // Clean URL logic
+            const currentUrl = window.location.origin + spaBasePath + '?p=' + product.id; // PRO URL Format Fixed
             const availability = product.stock > 0 ? 'in stock' : 'out of stock';
             const imageUrl = product.image || 'https://via.placeholder.com/600';
             const metaTags = [
@@ -421,10 +421,16 @@
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
         }
 
-        // Updated Routing to Support Clean Product URL (/product/ID) and Full Checkout
+        // --- NEW SPA ROUTING SYSTEM FOR 100% DIRECT SHARE COMPATIBILITY (?p=ID) ---
         const knownPages = ['home', 'signin', 'registration', 'track-order', 'my-account', 'product-landing', 'checkout'];
         let spaBasePath = '/';
-        function initBasePath() { let path = window.location.pathname; for (let page of knownPages) { if (path.includes('/' + page)) { path = path.split('/' + page)[0] + '/'; break; } } if(path.includes('/product/')) { path = path.split('/product/')[0] + '/'; } if (!path.endsWith('/')) path += '/'; spaBasePath = path; }
+        
+        function initBasePath() { 
+            let path = window.location.pathname; 
+            for (let page of knownPages) { if (path.includes('/' + page)) { path = path.split('/' + page)[0] + '/'; break; } } 
+            if (!path.endsWith('/')) path += '/'; 
+            spaBasePath = path; 
+        }
         
         function showPage(page, pushToHistory = true) { 
             if (!knownPages.includes(page)) page = 'home'; 
@@ -432,38 +438,40 @@
                 let el = document.getElementById(p + '-page'); 
                 if (el) { if (p === page) el.classList.remove('hidden'); else el.classList.add('hidden'); } 
             }); 
-            if (pushToHistory) { const newUrl = spaBasePath + (page === 'home' ? '' : page); history.pushState({ page: page }, '', newUrl); } 
+            if (pushToHistory) { 
+                const newUrl = spaBasePath + (page === 'home' ? '' : '?page=' + page); 
+                history.pushState({ page: page }, '', newUrl); 
+            } 
             window.scrollTo(0, 0); 
         }
 
         window.addEventListener('popstate', (event) => { 
-            const pathParts = window.location.pathname.split('/');
-            const productIndex = pathParts.indexOf('product');
-            let productId = (productIndex !== -1 && pathParts.length > productIndex + 1) ? pathParts[productIndex + 1] : new URLSearchParams(window.location.search).get('product'); // Support old param just in case
+            const urlParams = new URLSearchParams(window.location.search);
+            let productId = urlParams.get('p') || urlParams.get('product');
+            let pageName = urlParams.get('page');
             
             if(productId) { openProductById(productId); } 
-            else { if (event.state && event.state.page) { showPage(event.state.page, false); } else { handleInitialRoute(); } } 
+            else if (pageName && knownPages.includes(pageName)) { showPage(pageName, false); }
+            else { showPage('home', false); }
         });
 
         function handleInitialRoute() { 
-            let currentUrl = window.location.href; 
-            if (sessionStorage.redirect) { currentUrl = sessionStorage.redirect; delete sessionStorage.redirect; history.replaceState(null, null, currentUrl); } 
-            
-            const urlObj = new URL(currentUrl);
-            const pathParts = urlObj.pathname.split('/');
-            const productIndex = pathParts.indexOf('product');
-            let productId = (productIndex !== -1 && pathParts.length > productIndex + 1) ? pathParts[productIndex + 1] : urlObj.searchParams.get('product');
+            const urlParams = new URLSearchParams(window.location.search);
+            let productId = urlParams.get('p') || urlParams.get('product');
+            let pageName = urlParams.get('page');
             
             if(productId) { 
-                history.replaceState({ page: 'product-landing', product: productId }, '', spaBasePath + 'product/' + productId); 
+                history.replaceState({ page: 'product-landing', product: productId }, '', spaBasePath + '?p=' + productId); 
                 openProductById(productId); 
-            } else { 
-                let targetPage = 'home'; 
-                for (let p of knownPages) { if (currentUrl.endsWith('/' + p) || currentUrl.includes('/' + p + '/')) { targetPage = p; break; } } 
-                history.replaceState({ page: targetPage }, '', spaBasePath + (targetPage === 'home' ? '' : targetPage)); 
-                showPage(targetPage, false); 
-            } 
+            } else if (pageName && knownPages.includes(pageName)) { 
+                history.replaceState({ page: pageName }, '', spaBasePath + '?page=' + pageName); 
+                showPage(pageName, false); 
+            } else {
+                history.replaceState({ page: 'home' }, '', spaBasePath); 
+                showPage('home', false);
+            }
         }
+        // --------------------------------------------------------------------------
 
         function showDynamicToast(title, message, callback) { document.getElementById('toast-title').innerText = title; document.getElementById('toast-message').innerText = message; let modal = document.getElementById('dynamic-toast-modal'); let content = document.getElementById('toast-modal-content'); modal.classList.remove('hidden'); setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10); window.dynamicToastCallback = callback; }
         function closeDynamicToast() { let modal = document.getElementById('dynamic-toast-modal'); let content = document.getElementById('toast-modal-content'); content.classList.remove('scale-100'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); if(window.dynamicToastCallback) window.dynamicToastCallback(); }, 200); }
@@ -548,7 +556,6 @@
                     </div>`;
         }
 
-        // PERFOMANCE FIX: Write DOM Once
         async function loadProducts(categoryFilter = 'all') {
             currentCategoryFilter = categoryFilter;
             const productDiv = document.getElementById('user-product-list');
@@ -650,12 +657,18 @@
             syncToFacebookCatalog(currentSelectedProduct);
 
             showPage('product-landing', false);
-            // Professional URL Logic
-            const newUrl = spaBasePath + 'product/' + currentSelectedProduct.id;
+            const newUrl = spaBasePath + '?p=' + currentSelectedProduct.id;
             history.pushState({ page: 'product-landing', product: currentSelectedProduct.id }, '', newUrl);
         }
         
         async function openProductById(productId) {
+            // INSTANT LOADING SKELETON
+            showPage('product-landing', false);
+            document.getElementById('detail-name').innerHTML = '<span class="animate-pulse text-gray-400">প্রোডাক্ট লোড হচ্ছে...</span>';
+            document.getElementById('detail-price').innerText = '...';
+            document.getElementById('detail-image').src = 'https://via.placeholder.com/600x600?text=Loading...';
+            document.getElementById('detail-action-buttons').classList.add('hidden');
+
             try {
                 const doc = await db.collection('products').doc(productId).get();
                 if(doc.exists) {
@@ -672,7 +685,8 @@
                     let variantsContainer = document.getElementById('detail-variants'); if (p.sizes && p.sizes.length > 0) { currentSelectedProduct.selectedVariant = p.sizes[0]; variantsContainer.innerHTML = p.sizes.map((s, idx) => `<button onclick="selectSize(this, '${s}')" class="size-btn border-2 ${idx===0?'border-[#ff5722] text-[#ff5722] bg-orange-50':'border-gray-300 text-gray-700 bg-white'} px-4 py-1.5 rounded font-bold text-sm transition">${s}</button>`).join(''); document.getElementById('detail-variants-container').classList.remove('hidden'); } else if (p.unit && p.unit !== 'null') { currentSelectedProduct.selectedVariant = p.unit; variantsContainer.innerHTML = `<span class="border-2 border-gray-200 text-gray-800 px-4 py-1.5 rounded bg-gray-50 font-bold text-sm cursor-default inline-block">${p.unit}</span>`; document.getElementById('detail-variants-container').classList.remove('hidden'); } else document.getElementById('detail-variants-container').classList.add('hidden');
 
                     loadProductReviews(currentSelectedProduct.id); loadRelatedProducts(currentSelectedProduct.category, currentSelectedProduct.id); syncToFacebookCatalog(currentSelectedProduct);
-                    showPage('product-landing', false);
+                } else {
+                    document.getElementById('detail-name').innerHTML = '<span class="text-red-500">প্রোডাক্ট পাওয়া যায়নি!</span>';
                 }
             } catch(e) { console.error("Error loading product", e); }
         }
@@ -723,7 +737,6 @@
                 
                 if(typeof fbq === 'function') { fbq('track', 'InitiateCheckout', { content_name: orderName, content_ids: [ids], value: subTotal, currency: 'BDT' }); }
             } else {
-                // Cart
                 if(cartItems.length === 0) return;
                 toggleCart();
                 orderName = cartItems.map(item => `${item.name} (Qty: ${item.qty})`).join(', ');
@@ -786,7 +799,6 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            // Handling Online Payment simulation
             if(paymentMethod === 'Online Payment') {
                 alert("পেমেন্ট গেটওয়ের (bKash/Nagad/SSLCommerz) কানেকশন এই মুহূর্তে ডেভেলপমেন্টে আছে। আপনার অর্ডারটি ক্যাশ অন ডেলিভারিতে প্রসেস করা হচ্ছে।");
                 pendingOrderDataForConfirmation.paymentMethod = "Cash On Delivery (Online Fail)";
@@ -854,7 +866,7 @@
             } catch (error) { resultDiv.innerHTML = '<p class="text-red-500 mt-4">সার্ভার এরর: ' + error.message + '</p>'; } 
         }
 
-        // Account Logic & User Flow (Untouched mostly, just condensed)
+        // Account Logic & User Flow
         function switchAccountTab(tabName) { document.querySelectorAll('.account-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById('tab-' + tabName).classList.remove('hidden'); document.querySelectorAll('.account-nav-item').forEach(el => { el.classList.remove('bg-[#313131]', 'text-white'); el.classList.add('text-gray-600', 'hover:bg-gray-50'); }); let activeNav = document.getElementById('nav-' + tabName); activeNav.classList.add('bg-[#313131]', 'text-white'); activeNav.classList.remove('text-gray-600', 'hover:bg-gray-50'); }
         async function loadUserDashboardData() { if(!auth.currentUser) return; const uid = auth.currentUser.uid; try { const userDoc = await db.collection('users').doc(uid).get(); if(userDoc.exists) { const userData = userDoc.data(); if(userData.phone) { const guestOrders = await db.collection('orders').where('phone', '==', userData.phone).get(); if(!guestOrders.empty) { let batch = db.batch(); let hasUpdates = false; guestOrders.forEach(doc => { if(!doc.data().userId) { batch.update(doc.ref, { userId: uid }); hasUpdates = true; } }); if(hasUpdates) await batch.commit(); } } renderAddressBook(userData.addresses || []); } } catch(e) { console.error("Guest Order Link Error: ", e); } db.collection('orders').where('userId', '==', uid).onSnapshot(snapshot => { let orders = []; let pendingReviews = []; let runningCount = 0; let completedCount = 0; snapshot.forEach(doc => { let data = doc.data(); data.id = doc.id; orders.push(data); if(data.status === 'Completed') { completedCount++; if(!data.isReviewed) pendingReviews.push(data); } else if(data.status !== 'Cancelled') runningCount++; }); orders.sort((a, b) => { let timeA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date(0); let timeB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date(0); return timeB - timeA; }); document.getElementById('dash-total-orders').innerText = orders.length; document.getElementById('dash-running-orders').innerText = runningCount; document.getElementById('dash-completed-orders').innerText = completedCount; if(orders.length > 0) document.getElementById('dash-recent-orders-empty').classList.add('hidden'); else document.getElementById('dash-recent-orders-empty').classList.remove('hidden'); renderUserOrdersTable(orders); renderPendingReviews(pendingReviews); }); }
         function renderUserOrdersTable(orders) { const tbody = document.getElementById('user-orders-tbody'); if(orders.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-500">কোনো অর্ডার পাওয়া যায়নি</td></tr>'; return; } let html = ''; orders.forEach(order => { let orderId = order.id.substring(0, 8).toUpperCase(); let dateStr = formatTime(order.createdAt) || 'N/A'; let statusColor = 'bg-yellow-100 text-yellow-800'; if(order.status === 'Completed') statusColor = 'bg-green-100 text-green-800'; else if(order.status === 'Cancelled') statusColor = 'bg-red-100 text-red-800'; else if(order.status === 'Shipped' || order.status === 'Processing') statusColor = 'bg-blue-100 text-blue-800'; html += `<tr class="border-b hover:bg-gray-50 transition"><td class="p-3 font-medium text-gray-800">#${orderId}</td><td class="p-3 text-gray-500">${dateStr}</td><td class="p-3"><span class="px-2 py-1 text-[11px] font-bold uppercase rounded-full ${statusColor}">${order.status}</span></td><td class="p-3 text-gray-600 truncate max-w-[150px]" title="${order.productName}">${order.productName}</td><td class="p-3 text-orange-600 font-bold">${order.price}</td><td class="p-3"><button onclick="showPage('track-order'); document.getElementById('trackPhoneNumber').value='${order.phone}'; trackMyOrder();" class="text-blue-500 hover:bg-blue-50 p-2 rounded transition" title="Track Order"><i class="fas fa-eye"></i></button></td></tr>`; }); tbody.innerHTML = html; }
@@ -892,7 +904,6 @@
         // Initialize Call
         initBasePath(); handleInitialRoute(); loadSiteSettings(); loadHeaderCategories(); loadProducts(); updateCartUI(); 
 
-        // PERFORMANCE FIX: Tracker Interval reduced to 30 Seconds
         const myVisitorSessionId = "visitor_" + Math.random().toString(36).substr(2, 9) + "_" + Date.now();
         function updateMyPresence() { db.collection('active_visitors').doc(myVisitorSessionId).set({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true}).catch(()=>{}); }
         setTimeout(updateMyPresence, 1000); setInterval(updateMyPresence, 30000); // 30 sec
