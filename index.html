@@ -288,7 +288,7 @@
         </div>
     </div>
 
-    <!-- Login, Reg, Dashboard, Modals (Unchanged structure) -->
+    <!-- Login, Reg, Dashboard, Modals -->
     <div id="signin-page" class="hidden min-h-[80vh] flex items-center justify-center px-4 py-12"><div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100"><div class="text-center mb-8"><h2 class="text-3xl font-bold text-gray-800">স্বাগতম!</h2></div><form class="space-y-6" id="loginForm"><input type="email" id="loginEmail" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-orange-500 outline-none" placeholder="ইমেল" required><input type="password" id="loginPassword" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-orange-500 outline-none" placeholder="পাসওয়ার্ড" required><button type="submit" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold">সাইন ইন</button></form><p class="mt-6 text-center">নতুন? <a href="javascript:void(0)" onclick="showPage('registration')" class="text-emerald-600 font-bold">রেজিস্ট্রেশন করুন</a></p></div></div>
     <div id="registration-page" class="hidden min-h-[80vh] flex items-center justify-center px-4 py-12"><div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100"><h2 class="text-3xl font-bold text-center mb-8">নতুন একাউন্ট</h2><form id="registerForm" class="space-y-4"><input type="text" id="regName" placeholder="নাম" class="w-full px-4 py-3 border rounded-lg" required><input type="email" id="regEmail" placeholder="ইমেল" class="w-full px-4 py-3 border rounded-lg" required><input type="tel" id="regPhone" placeholder="মোবাইল নাম্বার (১১ ডিজিট)" pattern="^01[3-9]\d{8}$" class="w-full px-4 py-3 border rounded-lg" required><input type="password" id="regPassword" placeholder="পাসওয়ার্ড" class="w-full px-4 py-3 border rounded-lg" required><button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">রেজিস্ট্রেশন করুন</button></form><button onclick="showPage('signin')" class="w-full mt-4 text-gray-500">লগইন করুন</button></div></div>
     
@@ -373,6 +373,11 @@
         let currentSubTotal = 0;
         let pendingOrderDataForConfirmation = null;
         let confirmationTimerInterval = null;
+
+        // Payment Gateway Settings Variables
+        let globalPaymentUrl = '';
+        let globalPaymentStoreId = '';
+        let globalPaymentSecretKey = '';
 
         const ENCODED_BOT_TOKEN = 'ODY0MDczNTU1MDpBQUZTdVFVbXNkYnBvVEYwZDhpZUZxeGFfQzFQYmQyN2I3OA==';
         const ENCODED_CHAT_ID = 'NjA3NTU0MjIzMg==';
@@ -496,7 +501,14 @@
                         if(document.getElementById('confirmation-logo')) document.getElementById('confirmation-logo').src = data.logoUrl;
                         if(document.getElementById('footer-dynamic-logo')) document.getElementById('footer-dynamic-logo').src = data.logoUrl;
                     } 
-                    if(data.heroImages) renderHeroSlider(data.heroImages, data.heroLinks); else if (data.heroImg1 || data.heroImg2) { let imgs = []; if(data.heroImg1) imgs.push(data.heroImg1); if(data.heroImg2) imgs.push(data.heroImg2); renderHeroSlider(imgs.join('||'), ''); } else renderHeroSlider('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop', ''); if(data.brandName) { document.getElementById('footer-brand').innerHTML = `${data.brandName}<br><span class="text-[10px] text-white tracking-[0.2em] font-normal uppercase">${data.tagline || 'Back to Nature'}</span>`; document.getElementById('footer-brand-title').innerText = data.brandName; document.getElementById('footer-social-title').innerText = data.brandName; } if(data.tagline) document.getElementById('footer-tagline-title').innerText = data.tagline.toUpperCase(); if(data.phone) { document.getElementById('footer-phone').innerText = data.phone; } if(data.address) document.getElementById('footer-address').innerHTML = data.address.replace(/\n/g, '<br>'); if(data.email) document.getElementById('footer-email').innerText = data.email; if(data.facebook) document.getElementById('footer-facebook').href = data.facebook; if(data.whatsapp) document.getElementById('footer-whatsapp').href = data.whatsapp; if(data.copyright) document.getElementById('footer-copyright').innerText = data.copyright; if(data.insideDhaka) dynamicDeliveryCharges.insideDhaka = parseInt(data.insideDhaka); if(data.outsideDhaka) dynamicDeliveryCharges.outsideDhaka = parseInt(data.outsideDhaka); document.getElementById('lbl-inside-dhaka').innerText = dynamicDeliveryCharges.insideDhaka; document.getElementById('lbl-outside-dhaka').innerText = dynamicDeliveryCharges.outsideDhaka; } }); }
+                    if(data.heroImages) renderHeroSlider(data.heroImages, data.heroLinks); else if (data.heroImg1 || data.heroImg2) { let imgs = []; if(data.heroImg1) imgs.push(data.heroImg1); if(data.heroImg2) imgs.push(data.heroImg2); renderHeroSlider(imgs.join('||'), ''); } else renderHeroSlider('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop', ''); if(data.brandName) { document.getElementById('footer-brand').innerHTML = `${data.brandName}<br><span class="text-[10px] text-white tracking-[0.2em] font-normal uppercase">${data.tagline || 'Back to Nature'}</span>`; document.getElementById('footer-brand-title').innerText = data.brandName; document.getElementById('footer-social-title').innerText = data.brandName; } if(data.tagline) document.getElementById('footer-tagline-title').innerText = data.tagline.toUpperCase(); if(data.phone) { document.getElementById('footer-phone').innerText = data.phone; } if(data.address) document.getElementById('footer-address').innerHTML = data.address.replace(/\n/g, '<br>'); if(data.email) document.getElementById('footer-email').innerText = data.email; if(data.facebook) document.getElementById('footer-facebook').href = data.facebook; if(data.whatsapp) document.getElementById('footer-whatsapp').href = data.whatsapp; if(data.copyright) document.getElementById('footer-copyright').innerText = data.copyright; if(data.insideDhaka) dynamicDeliveryCharges.insideDhaka = parseInt(data.insideDhaka); if(data.outsideDhaka) dynamicDeliveryCharges.outsideDhaka = parseInt(data.outsideDhaka); document.getElementById('lbl-inside-dhaka').innerText = dynamicDeliveryCharges.insideDhaka; document.getElementById('lbl-outside-dhaka').innerText = dynamicDeliveryCharges.outsideDhaka; 
+                    
+                    if(data.paymentUrl) globalPaymentUrl = data.paymentUrl;
+                    if(data.paymentStoreId) globalPaymentStoreId = data.paymentStoreId;
+                    if(data.paymentSecretKey) globalPaymentSecretKey = data.paymentSecretKey;
+                } 
+            }); 
+        }
         
         function loadHeaderCategories() { 
             const navContainer = document.getElementById('header-category-nav'); 
@@ -800,8 +812,60 @@
             };
 
             if(paymentMethod === 'Online Payment') {
-                alert("পেমেন্ট গেটওয়ের (bKash/Nagad/SSLCommerz) কানেকশন এই মুহূর্তে ডেভেলপমেন্টে আছে। আপনার অর্ডারটি ক্যাশ অন ডেলিভারিতে প্রসেস করা হচ্ছে।");
-                pendingOrderDataForConfirmation.paymentMethod = "Cash On Delivery (Online Fail)";
+                if(globalPaymentUrl && globalPaymentStoreId) {
+                    let tranId = "TRN" + new Date().getTime();
+                    pendingOrderDataForConfirmation.status = 'Pending Payment';
+                    pendingOrderDataForConfirmation.transactionId = tranId;
+                    
+                    try {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
+                        
+                        // Save Order to Firebase First
+                        await db.collection('orders').add(pendingOrderDataForConfirmation);
+                        
+                        // Create Hidden Form to redirect to Gateway
+                        let form = document.createElement("form");
+                        form.setAttribute("method", "POST");
+                        form.setAttribute("action", globalPaymentUrl);
+                        
+                        let params = {
+                            store_id: globalPaymentStoreId,
+                            signature_key: globalPaymentSecretKey,
+                            tran_id: tranId,
+                            amount: finalTotal,
+                            currency: "BDT",
+                            cus_name: pendingOrderDataForConfirmation.name,
+                            cus_email: "customer@stmart.com",
+                            cus_phone: pendingOrderDataForConfirmation.phone,
+                            cus_add1: pendingOrderDataForConfirmation.address,
+                            cus_city: "Dhaka",
+                            cus_country: "Bangladesh",
+                            success_url: window.location.href,
+                            fail_url: window.location.href,
+                            cancel_url: window.location.href,
+                            desc: "Online Payment Order"
+                        };
+                        
+                        for (let key in params) {
+                            let hiddenField = document.createElement("input");
+                            hiddenField.setAttribute("type", "hidden");
+                            hiddenField.setAttribute("name", key);
+                            hiddenField.setAttribute("value", params[key]);
+                            form.appendChild(hiddenField);
+                        }
+                        
+                        document.body.appendChild(form);
+                        form.submit();
+                        return; // Stop execution here for redirect
+                    } catch (err) {
+                        console.error(err);
+                        alert("পেমেন্ট গেটওয়েতে সমস্যা হয়েছে। আপনার অর্ডারটি ক্যাশ অন ডেলিভারিতে প্রসেস করা হচ্ছে।");
+                        pendingOrderDataForConfirmation.paymentMethod = "Cash On Delivery (Online Fail)";
+                    }
+                } else {
+                    alert("এডমিন প্যানেল থেকে পেমেন্ট গেটওয়ে সেটআপ করা হয়নি। আপনার অর্ডারটি ক্যাশ অন ডেলিভারিতে প্রসেস করা হচ্ছে।");
+                    pendingOrderDataForConfirmation.paymentMethod = "Cash On Delivery (Setup Pending)";
+                }
             }
 
             submitBtn.innerHTML = 'অর্ডার কনফার্ম করুন <i class="fas fa-arrow-right ml-2"></i>'; submitBtn.disabled = false;
