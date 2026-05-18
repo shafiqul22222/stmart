@@ -625,6 +625,12 @@
         }
 
         function openProductDetails(btn) {
+            // Unhide UI elements in case they were hidden by direct link skeleton
+            let qtyWrapper = document.getElementById('detail-qty').closest('.mb-8');
+            if(qtyWrapper) qtyWrapper.classList.remove('hidden');
+            let waBtn = document.querySelector('button[onclick="orderViaWhatsApp()"]');
+            if(waBtn) waBtn.classList.remove('hidden');
+
             currentSelectedProduct.id = btn.getAttribute('data-id');
             currentSelectedProduct.name = btn.getAttribute('data-name');
             currentSelectedProduct.price = parseFloat(btn.getAttribute('data-price')) || 0;
@@ -674,16 +680,35 @@
         }
         
         async function openProductById(productId) {
-            // INSTANT LOADING SKELETON
+            // INSTANT LOADING SKELETON (MODERN UI)
             showPage('product-landing', false);
-            document.getElementById('detail-name').innerHTML = '<span class="animate-pulse text-gray-400">প্রোডাক্ট লোড হচ্ছে...</span>';
-            document.getElementById('detail-price').innerText = '...';
-            document.getElementById('detail-image').src = 'https://via.placeholder.com/600x600?text=Loading...';
+            
+            // Set modern skeleton boxes instead of ugly text
+            document.getElementById('detail-name').innerHTML = '<div class="h-8 bg-gray-200 rounded w-3/4 animate-pulse"></div>';
+            document.getElementById('detail-price').innerHTML = '<div class="h-10 bg-gray-200 rounded w-1/3 animate-pulse mt-2"></div>';
+            document.getElementById('detail-image').src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Transparent placeholder
             document.getElementById('detail-action-buttons').classList.add('hidden');
+            
+            // Hide messy UI elements to prevent breaking layout before data load
+            document.getElementById('detail-variants-container').classList.add('hidden');
+            document.getElementById('detail-old-price').innerText = '';
+            document.getElementById('detail-discount-tag').classList.add('hidden');
+            document.getElementById('detail-stock-out-msg').classList.add('hidden');
+            document.getElementById('detail-thumbnails').classList.add('hidden');
+            
+            // Hide Quantity & WhatsApp button safely
+            let qtyWrapper = document.getElementById('detail-qty').closest('.mb-8');
+            if(qtyWrapper) qtyWrapper.classList.add('hidden');
+            let waBtn = document.querySelector('button[onclick="orderViaWhatsApp()"]');
+            if(waBtn) waBtn.classList.add('hidden');
 
             try {
                 const doc = await db.collection('products').doc(productId).get();
                 if(doc.exists) {
+                    // Unhide the UI elements
+                    if(qtyWrapper) qtyWrapper.classList.remove('hidden');
+                    if(waBtn) waBtn.classList.remove('hidden');
+
                     const p = doc.data();
                     currentSelectedProduct.id = doc.id; currentSelectedProduct.name = p.name || ''; currentSelectedProduct.price = parseFloat(p.price) || 0; currentSelectedProduct.purchasePrice = parseFloat(p.purchasePrice) || 0; currentSelectedProduct.stock = parseInt(p.stock) || 0; currentSelectedProduct.qty = 1; currentSelectedProduct.image = p.image || (p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400'); currentSelectedProduct.selectedVariant = ''; currentSelectedProduct.category = p.category || 'সাধারণ';
                     
@@ -698,7 +723,9 @@
 
                     loadProductReviews(currentSelectedProduct.id); loadRelatedProducts(currentSelectedProduct.category, currentSelectedProduct.id); syncToFacebookCatalog(currentSelectedProduct);
                 } else {
-                    document.getElementById('detail-name').innerHTML = '<span class="text-red-500">প্রোডাক্ট পাওয়া যায়নি!</span>';
+                    document.getElementById('detail-name').innerHTML = '<span class="text-red-500 font-bold">প্রোডাক্ট পাওয়া যায়নি!</span>';
+                    document.getElementById('detail-price').innerHTML = '';
+                    // Keep quantity wrapper and WA button hidden since product is not found
                 }
             } catch(e) { console.error("Error loading product", e); }
         }
