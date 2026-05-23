@@ -623,7 +623,6 @@
             document.getElementById('bkash-payment-modal').classList.remove('hidden');
         }
 
-        // New Input Validation
         function validateBkashNumber() {
             const accNo = document.getElementById('bkash-account-number').value.trim();
             const btn = document.getElementById('btn-bkash-confirm');
@@ -655,7 +654,7 @@
             
             pendingOrderDataForConfirmation.bkashNumber = accNo;
             
-            // Hide first modal, show the instruction screen (simulate new page transition)
+            // Hide first modal, show the instruction screen
             document.getElementById('bkash-payment-modal').classList.add('hidden');
             
             const inv = document.getElementById('bkash-invoice-no').innerText;
@@ -688,30 +687,66 @@
             }
         }
 
-        function verifyAndSubmitBkashOrder() {
-            const trxId = document.getElementById('bkash-trx-id').value.trim();
+        // --- UPDATED VERIFY FUNCTION HERE ---
+        async function verifyAndSubmitBkashOrder() {
+            const trxId = document.getElementById('bkash-trx-id').value.trim().toUpperCase();
             if(!trxId) {
                 alert("দয়া করে পেমেন্ট করার পর Transaction ID (TrxID) দিন।");
                 return;
             }
-            
+
             const btn = document.getElementById('btn-verify-bkash');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
             btn.disabled = true;
 
-            // Update order data with Send Money confirmation
-            pendingOrderDataForConfirmation.paymentMethod = "bKash (Send Money)";
-            pendingOrderDataForConfirmation.paymentStatus = "Paid (Pending Verify)";
-            pendingOrderDataForConfirmation.transactionId = trxId;
+            try {
+                // ১. চেক করা হবে যে এই TrxID অন্য কোনো অর্ডারে ইতিমধ্যে ব্যবহার হয়েছে কিনা
+                const usedCheck = await db.collection('orders').where('transactionId', '==', trxId).get();
+                if (!usedCheck.empty) {
+                    alert("এই Transaction ID টি ইতিমধ্যে অন্য একটি অর্ডারে ব্যবহার করা হয়েছে! দয়া করে সঠিক TrxID দিন।");
+                    btn.innerHTML = 'Verify Payment';
+                    btn.disabled = false;
+                    return;
+                }
 
-            setTimeout(() => {
-                document.getElementById('bkash-instruction-modal').classList.add('hidden');
+                // ২. চেক করা হবে যে এই TrxID আমাদের ডাটাবেজে (যেটি মোবাইল থেকে অটো এসেছে) আছে কিনা
+                const smsDoc = await db.collection('bkash_transactions').doc(trxId).get();
+
+                if (smsDoc.exists) {
+                    const requiredAmount = parseFloat(document.getElementById('orderTotalPrice').value);
+                    const paidAmount = parseFloat(smsDoc.data().amount);
+
+                    // ৩. এমাউন্ট মিলিয়ে দেখা
+                    if (paidAmount >= requiredAmount) {
+                        // পেমেন্ট সফলভাবে মিলেছে
+                        pendingOrderDataForConfirmation.paymentMethod = "bKash (Auto Verified)";
+                        pendingOrderDataForConfirmation.paymentStatus = "Paid";
+                        pendingOrderDataForConfirmation.transactionId = trxId;
+
+                        document.getElementById('bkash-instruction-modal').classList.add('hidden');
+                        btn.innerHTML = 'Verify Payment';
+                        btn.disabled = false;
+
+                        // অর্ডার কনফার্ম করা
+                        actionConfirmOrder();
+                    } else {
+                        // এমাউন্ট কম থাকলে
+                        alert(`পেমেন্ট এমাউন্ট মিলছে না! আপনার অর্ডার বিল ৳${requiredAmount} কিন্তু বিকাশে পাওয়া গেছে ৳${paidAmount}`);
+                        btn.innerHTML = 'Verify Payment';
+                        btn.disabled = false;
+                    }
+                } else {
+                    // ডাটাবেজে না পাওয়া গেলে
+                    alert("ট্রানজেকশন আইডিটি এখনো আমাদের সিস্টেমে আপডেট হয়নি অথবা ভুল দিয়েছেন। আপনি যদি এইমাত্র পেমেন্ট করে থাকেন, তবে ১ মিনিট অপেক্ষা করে আবার 'Verify Payment' এ ক্লিক করুন।");
+                    btn.innerHTML = 'Verify Payment';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Error verifying payment:", error);
+                alert("ভেরিফিকেশন সিস্টেমে এরর হয়েছে: " + error.message);
                 btn.innerHTML = 'Verify Payment';
                 btn.disabled = false;
-
-                // Directly confirm order since payment is marked done
-                actionConfirmOrder();
-            }, 1000);
+            }
         }
         // ------------------------------------------------------------
 
@@ -724,12 +759,10 @@
             
             pendingOrderDataForConfirmation = { productId: document.getElementById('orderProductId').value, productName: document.getElementById('checkout-product-name').innerText, productImage: document.getElementById('orderProductImage').value, name: document.getElementById('orderCustomerName').value, phone: phoneVal, address: document.getElementById('orderCustomerAddress').value, paymentMethod: paymentMethod, paymentStatus: paymentMethod === 'Cash On Delivery' ? "Unpaid" : "Pending API", deliveryArea: deliveryTypeName, deliveryCharge: charge, totalPrice: finalTotal, price: '৳ ' + finalTotal, totalProfit: window.tempProfitCalculated || 0, adminNote: '', isReviewed: false, userId: auth.currentUser ? auth.currentUser.uid : null, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
             
-            // --- UPDATED ONLINE PAYMENT LOGIC START ---
             if(paymentMethod === 'Online Payment') {
                 openBkashModal(finalTotal);
-                return; // Stop here, wait for bkash modal action
+                return; 
             }
-            // --- UPDATED ONLINE PAYMENT LOGIC END ---
 
             submitBtn.innerHTML = 'অর্ডার কনফার্ম করুন <i class="fas fa-arrow-right ml-2"></i>'; submitBtn.disabled = false;
             document.getElementById('confirm-modal-product').innerText = pendingOrderDataForConfirmation.productName; document.getElementById('confirm-modal-price').innerText = pendingOrderDataForConfirmation.price; document.getElementById('confirm-modal-phone').innerText = pendingOrderDataForConfirmation.phone; document.getElementById('step-confirmation-modal').classList.remove('hidden'); startConfirmationTimer();
@@ -743,13 +776,11 @@
                 pendingOrderDataForConfirmation.statusTimestamps = { 'Pending': firebase.firestore.FieldValue.serverTimestamp() }; 
                 let docRef = await db.collection('orders').add(pendingOrderDataForConfirmation); 
                 
-                // --- ABANDONED CART CLEANUP ---
                 let cartSessionId = localStorage.getItem('abandonedCartId');
                 if (cartSessionId) {
                     db.collection('abandoned_carts').doc(cartSessionId).delete().catch(()=>{});
                     localStorage.removeItem('abandonedCartId');
                 }
-                // ------------------------------
                 
                 sendTelegramNotification(pendingOrderDataForConfirmation, docRef.id, true); 
                 if(pendingOrderDataForConfirmation.productId.includes(',') || cartItems.length > 0) { 
