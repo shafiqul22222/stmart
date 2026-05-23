@@ -64,6 +64,9 @@
         
         .section-title-premium { position: relative; display: inline-block; font-weight: 700; color: #1e293b; }
         .section-title-premium::after { content: ''; position: absolute; bottom: -6px; left: 0; width: 40%; height: 4px; background: #1DBF60; border-radius: 4px; }
+        
+        /* bKash Specific CSS */
+        .bkash-input:focus { border: none !important; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4) !important; }
     </style>
 
     <!-- Meta Pixel Code -->
@@ -222,7 +225,7 @@
                         <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-[#FFF0ED] text-[#FF6B35] flex items-center justify-center text-sm">2</span> পেমেন্ট মেথড</h3>
                         <div class="space-y-4">
                             <label class="relative block cursor-pointer"><input type="radio" name="paymentMethod" value="Cash On Delivery" checked class="peer sr-only payment-radio"><div class="border-2 border-gray-200 rounded-xl p-5 flex items-center gap-4 transition-all hover:border-orange-200 hover:bg-orange-50/30"><div class="w-6 h-6 rounded-full border-2 border-gray-300 flex flex-shrink-0 items-center justify-center check-icon transition-colors"><i class="fas fa-check text-[12px] text-transparent opacity-0"></i></div><div class="flex-1"><p class="font-bold text-gray-800">Cash On Delivery (COD)</p><p class="text-xs text-gray-500 mt-1">পণ্য হাতে পেয়ে পেমেন্ট করুন</p></div><div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600"><i class="fas fa-hand-holding-usd text-2xl"></i></div></div></label>
-                            <label class="relative block cursor-pointer"><input type="radio" name="paymentMethod" value="Online Payment" class="peer sr-only payment-radio"><div class="border-2 border-gray-200 rounded-xl p-5 flex items-center gap-4 transition-all hover:border-orange-200 hover:bg-orange-50/30"><div class="w-6 h-6 rounded-full border-2 border-gray-300 flex flex-shrink-0 items-center justify-center check-icon transition-colors"><i class="fas fa-check text-[12px] text-transparent opacity-0"></i></div><div class="flex-1"><p class="font-bold text-gray-800">Online Payment</p><p class="text-xs text-gray-500 mt-1">বিকাশ, নগদ বা কার্ডের মাধ্যমে পেমেন্ট</p></div><div class="flex gap-2"><img src="https://scripts.sandbox.bka.sh/resources/img/bkash_logo.png" class="h-8 object-contain"></div></div></label>
+                            <label class="relative block cursor-pointer"><input type="radio" name="paymentMethod" value="Online Payment" class="peer sr-only payment-radio"><div class="border-2 border-gray-200 rounded-xl p-5 flex items-center gap-4 transition-all hover:border-orange-200 hover:bg-orange-50/30"><div class="w-6 h-6 rounded-full border-2 border-gray-300 flex flex-shrink-0 items-center justify-center check-icon transition-colors"><i class="fas fa-check text-[12px] text-transparent opacity-0"></i></div><div class="flex-1"><p class="font-bold text-gray-800">bKash Payment</p><p class="text-xs text-gray-500 mt-1">বিকাশের মাধ্যমে নিরাপদ পেমেন্ট করুন</p></div><div class="flex gap-2"><img src="https://scripts.sandbox.bka.sh/resources/img/bkash_logo.png" class="h-8 object-contain"></div></div></label>
                         </div>
                     </div>
                 </div>
@@ -233,7 +236,7 @@
                         <div class="space-y-4 text-sm text-gray-600 mb-6"><div class="flex justify-between items-center"><span class="font-medium">সাব টোটাল:</span><span id="summary-sub-total" class="font-bold text-gray-800">৳0</span></div><div class="flex justify-between items-center"><span class="font-medium">ডেলিভারি খরচ:</span><span id="summary-delivery-charge" class="font-bold text-[#FF6B35]">+ ৳60</span></div></div>
                         <div class="flex justify-between items-center border-t-2 border-gray-100 pt-6 mb-8 bg-gray-50 -mx-8 px-8 pb-4 mt-6"><span class="font-bold text-gray-900 text-lg">সর্বমোট:</span><span id="summary-final-total" class="font-bold text-3xl text-[#1DBF60]">৳0</span></div>
                         <div class="mb-6"><label class="flex items-start gap-3 cursor-pointer text-xs text-gray-500 hover:text-gray-700 transition"><input type="checkbox" id="agreeTerms" class="mt-0.5 flex-shrink-0 w-4 h-4 text-[#1DBF60] rounded focus:ring-[#1DBF60]" required><span>আমি ওয়েবসাইটের <a href="#" class="text-[#1DBF60] font-semibold hover:underline">শর্তাবলীর</a> সাথে একমত।</span></label></div>
-                        <button type="submit" class="w-full btn-order-dynamic py-4 rounded-xl text-base shadow-[0_8px_20px_rgba(255,107,53,0.3)] hover:shadow-[0_12px_25px_rgba(255,107,53,0.4)]">অর্ডার কনফার্ম করুন <i class="fas fa-arrow-right ml-2"></i></button>
+                        <button type="submit" id="btn-submit-checkout" class="w-full btn-order-dynamic py-4 rounded-xl text-base shadow-[0_8px_20px_rgba(255,107,53,0.3)] hover:shadow-[0_12px_25px_rgba(255,107,53,0.4)]">অর্ডার কনফার্ম করুন <i class="fas fa-arrow-right ml-2"></i></button>
                         <div class="mt-6 flex items-center justify-center gap-2 text-xs text-gray-400 font-medium"><i class="fas fa-lock"></i> ১০০% নিরাপদ চেকআউট</div>
                     </div>
                 </div>
@@ -246,6 +249,59 @@
     <div id="registration-page" class="hidden min-h-[80vh] flex items-center justify-center px-4 py-12"><div class="max-w-md w-full bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] p-10 border border-gray-100"><div class="text-center mb-8"><h2 class="text-3xl font-bold text-gray-800">নতুন একাউন্ট</h2></div><form id="registerForm" class="space-y-5"><input type="text" id="regName" placeholder="আপনার নাম" class="w-full px-5 py-3.5 border-2 border-gray-100 bg-gray-50 focus:bg-white rounded-xl outline-none transition-all" required><input type="email" id="regEmail" placeholder="ইমেইল এড্রেস" class="w-full px-5 py-3.5 border-2 border-gray-100 bg-gray-50 focus:bg-white rounded-xl outline-none transition-all" required><input type="tel" id="regPhone" placeholder="মোবাইল নাম্বার (১১ ডিজিট)" pattern="^01[3-9]\d{8}$" class="w-full px-5 py-3.5 border-2 border-gray-100 bg-gray-50 focus:bg-white rounded-xl outline-none transition-all" required><input type="password" id="regPassword" placeholder="পাসওয়ার্ড" class="w-full px-5 py-3.5 border-2 border-gray-100 bg-gray-50 focus:bg-white rounded-xl outline-none transition-all" required><button type="submit" class="w-full bg-[#1DBF60] hover:bg-[#159A4C] text-white py-4 rounded-xl font-bold shadow-lg transition-colors">রেজিস্ট্রেশন সম্পূর্ণ করুন</button></form><button onclick="showPage('signin')" class="w-full mt-6 text-gray-500 text-sm hover:text-gray-800">ইতিমধ্যেই একাউন্ট আছে? লগইন করুন</button></div></div>
     
     <div id="my-account-page" class="hidden min-h-[80vh] bg-[#F8FAFC] py-10"><div class="container mx-auto px-4 max-w-6xl"><div class="flex flex-col md:flex-row gap-8"><div class="w-full md:w-72 shrink-0"><div class="bg-[#0B4F2D] rounded-t-3xl p-8 text-white text-center shadow-lg relative overflow-hidden"><div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl backdrop-blur-sm"><i class="fas fa-user"></i></div><h2 id="userDisplayName" class="text-xl font-bold relative z-10 truncate tracking-wide">User Name</h2><p id="userEmailDisplay" class="text-sm text-green-200 relative z-10 truncate mt-1">user@email.com</p></div><div class="bg-white rounded-b-3xl shadow-sm border border-gray-100 overflow-hidden"><nav class="flex flex-col py-3"><button onclick="switchAccountTab('dashboard')" id="nav-dashboard" class="account-nav-item flex items-center justify-between px-8 py-3.5 bg-[#F0FDF4] text-[#1DBF60] font-bold border-l-4 border-[#1DBF60] transition-all"><span class="flex items-center"><i class="fas fa-th-large mr-4 w-5"></i> ড্যাশবোর্ড</span><i class="fas fa-chevron-right text-[10px]"></i></button><button onclick="switchAccountTab('orders')" id="nav-orders" class="account-nav-item flex items-center px-8 py-3.5 text-gray-600 hover:bg-gray-50 font-medium border-l-4 border-transparent hover:border-gray-300 transition-all"><i class="fas fa-shopping-bag mr-4 w-5"></i> আমার অর্ডার</button><button onclick="switchAccountTab('address')" id="nav-address" class="account-nav-item flex items-center px-8 py-3.5 text-gray-600 hover:bg-gray-50 font-medium border-l-4 border-transparent hover:border-gray-300 transition-all"><i class="fas fa-map-marker-alt mr-4 w-5"></i> ঠিকানা</button><button onclick="switchAccountTab('reviews')" id="nav-reviews" class="account-nav-item flex items-center px-8 py-3.5 text-gray-600 hover:bg-gray-50 font-medium border-l-4 border-transparent hover:border-gray-300 transition-all"><i class="fas fa-star mr-4 w-5"></i> রিভিউ</button><button onclick="switchAccountTab('password')" id="nav-password" class="account-nav-item flex items-center px-8 py-3.5 text-gray-600 hover:bg-gray-50 font-medium border-l-4 border-transparent hover:border-gray-300 transition-all border-b border-gray-50"><i class="fas fa-key mr-4 w-5"></i> পাসওয়ার্ড পরিবর্তন</button><button onclick="logout()" class="flex items-center px-8 py-4 text-red-500 hover:bg-red-50 font-bold transition-all mt-2"><i class="fas fa-sign-out-alt mr-4 w-5"></i> লগআউট</button></nav></div></div><div class="flex-1 bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-gray-100 p-8 md:p-10"><div id="tab-dashboard" class="account-tab-content"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10"><div class="bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-100 rounded-2xl p-6 flex items-center justify-between premium-shadow"><div class="z-10"><p class="text-sm text-blue-600 font-bold uppercase tracking-wider mb-1">মোট অর্ডার</p><h3 class="text-4xl font-black text-gray-800" id="dash-total-orders">0</h3></div><div class="w-14 h-14 bg-white text-blue-500 rounded-full flex items-center justify-center text-2xl shadow-sm z-10"><i class="fas fa-shopping-bag"></i></div></div><div class="bg-gradient-to-br from-orange-50 to-orange-100/50 border border-orange-100 rounded-2xl p-6 flex items-center justify-between premium-shadow"><div class="z-10"><p class="text-sm text-orange-600 font-bold uppercase tracking-wider mb-1">চলমান অর্ডার</p><h3 class="text-4xl font-black text-gray-800" id="dash-running-orders">0</h3></div><div class="w-14 h-14 bg-white text-orange-500 rounded-full flex items-center justify-center text-2xl shadow-sm z-10"><i class="fas fa-box-open"></i></div></div><div class="bg-gradient-to-br from-green-50 to-green-100/50 border border-green-100 rounded-2xl p-6 flex items-center justify-between premium-shadow"><div class="z-10"><p class="text-sm text-green-600 font-bold uppercase tracking-wider mb-1">ডেলিভারি সম্পন্ন</p><h3 class="text-4xl font-black text-gray-800" id="dash-completed-orders">0</h3></div><div class="w-14 h-14 bg-white text-green-500 rounded-full flex items-center justify-center text-2xl shadow-sm z-10"><i class="fas fa-check-circle"></i></div></div></div><div class="bg-[#0B4F2D] text-white px-6 py-4 rounded-t-2xl font-bold flex justify-between items-center tracking-wide"><span>সাম্প্রতিক অর্ডারসমূহ</span><button onclick="switchAccountTab('orders')" class="bg-white/20 text-white text-xs px-4 py-2 rounded-full hover:bg-white/30 transition-colors">সব দেখুন</button></div><div class="border border-t-0 border-gray-100 rounded-b-2xl p-8 text-center text-gray-400 font-medium bg-gray-50" id="dash-recent-orders-empty">কোনো অর্ডার পাওয়া যায়নি</div></div><div id="tab-orders" class="account-tab-content hidden"><h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">আমার অর্ডারসমূহ</h2><div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[700px]"><thead><tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider"><th class="p-4 font-bold rounded-tl-xl">Order ID</th><th class="p-4 font-bold">Date</th><th class="p-4 font-bold">Status</th><th class="p-4 font-bold">Items</th><th class="p-4 font-bold">Total</th><th class="p-4 font-bold rounded-tr-xl">Action</th></tr></thead><tbody id="user-orders-tbody" class="text-sm text-gray-700"><tr><td colspan="6" class="p-8 text-center text-gray-400"><i class="fas fa-circle-notch fa-spin text-[#1DBF60] text-3xl mb-3 block"></i> লোড হচ্ছে...</td></tr></tbody></table></div></div><div id="tab-address" class="account-tab-content hidden"><div class="flex justify-between items-center mb-8 border-b pb-4"><h2 class="text-2xl font-bold text-gray-800">ঠিকানা সমূহ</h2><button onclick="toggleAddressForm()" class="bg-[#1DBF60] text-white px-5 py-2.5 rounded-full shadow hover:bg-[#159A4C] text-sm font-bold flex items-center gap-2 transition-colors"><i class="fas fa-plus"></i> নতুন যোগ করুন</button></div><div id="address-list" class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6"></div><div id="address-empty-msg" class="p-10 text-center text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl hidden bg-gray-50"><i class="fas fa-map-marker-alt text-5xl mb-4 text-gray-300"></i><p class="font-medium">কোনো ঠিকানা সেভ করা নেই</p></div><div id="add-address-form-container" class="hidden bg-gray-50 border border-gray-100 p-8 rounded-2xl"><form id="addAddressForm" class="space-y-5"><div><label class="block text-sm font-bold text-gray-700 mb-2">টাইটেল (যেমন: বাসা, অফিস)</label><input type="text" id="newAddressTitle" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl outline-none focus:border-[#1DBF60] bg-white" required></div><div><label class="block text-sm font-bold text-gray-700 mb-2">সম্পূর্ণ ঠিকানা</label><textarea id="newAddressDetails" rows="3" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl outline-none focus:border-[#1DBF60] bg-white resize-none" required></textarea></div><div class="flex gap-3 pt-2"><button type="submit" class="bg-[#1DBF60] text-white px-8 py-3 rounded-xl font-bold shadow hover:bg-[#159A4C] transition-colors">সেভ করুন</button><button type="button" onclick="toggleAddressForm()" class="bg-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors">বাতিল</button></div></form></div></div><div id="tab-reviews" class="account-tab-content hidden"><h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">পেন্ডিং রিভিউ</h2><div id="pending-reviews-list" class="space-y-4"></div></div><div id="tab-password" class="account-tab-content hidden"><h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">পাসওয়ার্ড পরিবর্তন</h2><form id="changePasswordForm" class="max-w-md space-y-5 bg-gray-50 p-8 rounded-2xl border border-gray-100"><div><label class="block text-sm font-bold text-gray-700 mb-2">বর্তমান পাসওয়ার্ড</label><input type="password" id="currentPassword" class="w-full border-2 border-gray-200 px-4 py-3 bg-white rounded-xl outline-none focus:border-[#1DBF60]" required></div><div><label class="block text-sm font-bold text-gray-700 mb-2">নতুন পাসওয়ার্ড</label><input type="password" id="newPassword" class="w-full border-2 border-gray-200 px-4 py-3 bg-white rounded-xl outline-none focus:border-[#1DBF60]" required minlength="6"></div><button type="submit" id="btnUpdatePassword" class="bg-[#0B4F2D] text-white px-8 py-3.5 rounded-xl shadow font-bold w-full mt-2 hover:bg-[#07361f] transition-colors">আপডেট করুন</button></form></div></div></div></div></div>
+
+    <!-- Custom bKash Payment Modal -->
+    <div id="bkash-payment-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 10005;">
+        <div class="w-full max-w-[420px] bg-white rounded-md flex flex-col shadow-[0_10px_40px_rgba(0,0,0,0.2)] overflow-hidden transition-all transform scale-100">
+            
+            <!-- Header: bKash Logo -->
+            <div class="flex justify-center items-center py-4 border-b border-gray-100 bg-white">
+                <img src="https://scripts.sandbox.bka.sh/resources/img/bkash_logo.png" alt="bKash" class="h-10 object-contain">
+            </div>
+            
+            <!-- Merchant Info Bar -->
+            <div class="flex justify-between items-center px-6 py-4 bg-white border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    <img id="bkash-merchant-logo" src="https://via.placeholder.com/50" alt="ST Mart Logo" class="w-10 h-10 object-contain rounded-md border border-gray-200 p-1 bg-white">
+                    <div class="flex flex-col">
+                        <p class="text-[13px] font-bold text-gray-800 tracking-tight">M/S ST Mart BD</p>
+                        <p id="bkash-invoice-no" class="text-[10px] text-gray-500 uppercase tracking-wide">Inv No: ST-</p>
+                    </div>
+                </div>
+                <div class="text-right flex-shrink-0 pl-2">
+                    <p id="bkash-amount" class="text-base font-bold text-gray-800">৳0.00</p>
+                </div>
+            </div>
+            
+            <!-- Main bKash Body (Pink Area) -->
+            <div class="bg-[#E2136E] px-6 py-10 flex flex-col items-center">
+                <p class="text-white mb-5 text-center text-sm md:text-base font-medium">Your bKash Account Number</p>
+                
+                <input type="tel" id="bkash-account-number" placeholder="e.g 01XXXXXXXXX" 
+                    class="bkash-input w-full max-w-[320px] h-12 text-center text-lg md:text-xl rounded shadow-inner bg-white text-gray-800 mb-4 outline-none transition-all" 
+                    maxlength="11" pattern="^01[3-9]\d{8}$" autocomplete="off">
+                
+                <p class="text-white/80 text-[11px] text-center mt-2 leading-relaxed max-w-[280px]">
+                    By proceeding, you agree to the <a href="#" class="underline hover:text-white">terms & conditions</a>
+                </p>
+            </div>
+            
+            <!-- Footer Buttons -->
+            <div class="bg-gray-50 px-6 py-4 flex gap-4 border-b border-gray-200">
+                <button type="button" onclick="closeBkashModal()" class="flex-1 py-3.5 bg-white text-gray-600 font-bold rounded shadow-sm border border-gray-200 uppercase text-xs hover:bg-gray-100 transition-colors">Close</button>
+                <button type="button" onclick="processBkashPayment()" id="btn-bkash-confirm" class="flex-1 py-3.5 bg-[#E2136E] text-white font-bold rounded shadow-md uppercase text-xs hover:bg-[#c90f60] transition-colors tracking-wider">Confirm</button>
+            </div>
+            
+            <!-- Hotline Footer -->
+            <div class="py-3 text-center bg-gray-100 flex items-center justify-center gap-1">
+                <div class="w-4 h-4 bg-[#E2136E] rounded-full flex items-center justify-center">
+                    <i class="fas fa-phone-alt text-[8px] text-white"></i>
+                </div>
+                <p class="text-[#E2136E] text-xs font-bold tracking-widest">16247</p>
+            </div>
+        </div>
+    </div>
+    <!-- Custom bKash Payment Modal Ends -->
 
     <!-- Modals -->
     <div id="dynamic-toast-modal" class="hidden fixed inset-0 bg-slate-900 bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 10005;"><div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-10 text-center transform transition-all duration-300 scale-95" id="toast-modal-content"><div class="w-24 h-24 bg-[#E6F8EF] rounded-full flex items-center justify-center mx-auto mb-6 text-[#1DBF60] text-5xl"><i class="fas fa-check-circle"></i></div><h3 id="toast-title" class="text-2xl font-bold text-gray-900 mb-3 tracking-tight"></h3><p id="toast-message" class="text-gray-500 mb-8 font-medium"></p><button onclick="closeDynamicToast()" class="w-full bg-[#1DBF60] hover:bg-[#159A4C] text-white font-bold py-4 rounded-xl transition-colors shadow-lg text-lg">ওকে</button></div></div>
@@ -450,14 +506,79 @@
             setTimeout(syncAbandonedCart, 500);
         }
         
+        // ------------- Custom bKash Payment Modal Logic -------------
+        function openBkashModal(amount) {
+            // Generate dynamic invoice
+            const inv = "ST-" + Math.floor(Math.random() * 100000000);
+            document.getElementById('bkash-invoice-no').innerText = "Inv No: " + inv;
+            document.getElementById('bkash-amount').innerText = "৳" + parseFloat(amount).toFixed(2);
+            document.getElementById('bkash-account-number').value = "";
+            
+            // Fetch logo dynamically from header
+            const logoImg = document.querySelector('#header-logo-container img');
+            if(logoImg) {
+                document.getElementById('bkash-merchant-logo').src = logoImg.src;
+            }
+
+            document.getElementById('bkash-payment-modal').classList.remove('hidden');
+        }
+
+        function closeBkashModal() {
+            document.getElementById('bkash-payment-modal').classList.add('hidden');
+            const submitBtn = document.getElementById('btn-submit-checkout');
+            if(submitBtn) {
+                submitBtn.innerHTML = 'অর্ডার কনফার্ম করুন <i class="fas fa-arrow-right ml-2"></i>';
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function processBkashPayment() {
+            const accNo = document.getElementById('bkash-account-number').value.trim();
+            if(!/^01[3-9]\d{8}$/.test(accNo)) {
+                alert("দয়া করে সঠিক ১১ ডিজিটের বিকাশ নাম্বার দিন।");
+                return;
+            }
+            
+            const btn = document.getElementById('btn-bkash-confirm');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            // Simulate Gateway Processing Delay
+            setTimeout(() => {
+                const trxId = "BKA" + Date.now().toString().slice(-8).toUpperCase();
+                
+                // Set paid statuses and fields for database
+                pendingOrderDataForConfirmation.paymentMethod = "bKash (Online)";
+                pendingOrderDataForConfirmation.paymentStatus = "Paid";
+                pendingOrderDataForConfirmation.transactionId = trxId;
+                pendingOrderDataForConfirmation.bkashNumber = accNo;
+                
+                document.getElementById('bkash-payment-modal').classList.add('hidden');
+                btn.innerHTML = 'Confirm';
+                btn.disabled = false;
+
+                // Directly confirm order since payment is done
+                actionConfirmOrder();
+            }, 1500);
+        }
+        // ------------------------------------------------------------
+
         document.getElementById('submitOrderForm')?.addEventListener('submit', async (e) => {
             e.preventDefault(); const phoneVal = document.getElementById('orderCustomerPhone').value.trim(); if(!/^01[3-9]\d{8}$/.test(phoneVal)) { alert("দয়া করে সঠিক ১১ ডিজিটের বাংলাদেশী মোবাইল নাম্বার দিন।"); return; }
             const submitBtn = e.target.querySelector('button[type="submit"]'); submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> প্রসেসিং...'; submitBtn.disabled = true;
             try { const userCheck = await db.collection('users').where('phone', '==', phoneVal).get(); let isBlocked = false; userCheck.forEach(doc => { if(doc.data().isBlocked === true) isBlocked = true; }); if(isBlocked) { alert("দুঃখিত! এই মোবাইল নাম্বারটি ব্লক করা হয়েছে।"); submitBtn.innerHTML = 'অর্ডার কনফার্ম করুন <i class="fas fa-arrow-right ml-2"></i>'; submitBtn.disabled = false; return; } } catch(error) { console.error(error); }
             const finalTotal = parseFloat(document.getElementById('orderTotalPrice').value) || 0; const selectedArea = document.querySelector('input[name="deliveryArea"]:checked').value; const charge = selectedArea === 'inside' ? dynamicDeliveryCharges.insideDhaka : dynamicDeliveryCharges.outsideDhaka; const deliveryTypeName = selectedArea === 'inside' ? 'ঢাকার ভিতরে' : 'ঢাকার বাহিরে'; const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             if(typeof fbq === 'function') { fbq('track', 'Purchase', { content_name: document.getElementById('checkout-product-name').innerText, content_ids: [document.getElementById('orderProductId').value], content_type: 'product', value: finalTotal, currency: 'BDT' }); }
+            
             pendingOrderDataForConfirmation = { productId: document.getElementById('orderProductId').value, productName: document.getElementById('checkout-product-name').innerText, productImage: document.getElementById('orderProductImage').value, name: document.getElementById('orderCustomerName').value, phone: phoneVal, address: document.getElementById('orderCustomerAddress').value, paymentMethod: paymentMethod, paymentStatus: paymentMethod === 'Cash On Delivery' ? "Unpaid" : "Pending API", deliveryArea: deliveryTypeName, deliveryCharge: charge, totalPrice: finalTotal, price: '৳ ' + finalTotal, totalProfit: window.tempProfitCalculated || 0, adminNote: '', isReviewed: false, userId: auth.currentUser ? auth.currentUser.uid : null, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
-            if(paymentMethod === 'Online Payment') { if(globalPaymentUrl && globalPaymentStoreId) { let tranId = "TRN" + new Date().getTime(); pendingOrderDataForConfirmation.status = 'Pending Payment'; pendingOrderDataForConfirmation.transactionId = tranId; try { submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...'; await db.collection('orders').add(pendingOrderDataForConfirmation); let form = document.createElement("form"); form.setAttribute("method", "POST"); form.setAttribute("action", globalPaymentUrl); let params = { store_id: globalPaymentStoreId, signature_key: globalPaymentSecretKey, tran_id: tranId, amount: finalTotal, currency: "BDT", cus_name: pendingOrderDataForConfirmation.name, cus_email: "customer@stmart.com", cus_phone: pendingOrderDataForConfirmation.phone, cus_add1: pendingOrderDataForConfirmation.address, cus_city: "Dhaka", cus_country: "Bangladesh", success_url: window.location.href, fail_url: window.location.href, cancel_url: window.location.href, desc: "Online Payment Order" }; for (let key in params) { let hiddenField = document.createElement("input"); hiddenField.setAttribute("type", "hidden"); hiddenField.setAttribute("name", key); hiddenField.setAttribute("value", params[key]); form.appendChild(hiddenField); } document.body.appendChild(form); form.submit(); return; } catch (err) { console.error(err); alert("পেমেন্ট গেটওয়েতে সমস্যা হয়েছে।"); pendingOrderDataForConfirmation.paymentMethod = "Cash On Delivery (Online Fail)"; } } else { alert("গেটেওয়ে সেটআপ নেই। ক্যাশ অন ডেলিভারিতে প্রসেস হচ্ছে।"); pendingOrderDataForConfirmation.paymentMethod = "Cash On Delivery (Setup Pending)"; } }
+            
+            // --- UPDATED ONLINE PAYMENT LOGIC START ---
+            if(paymentMethod === 'Online Payment') {
+                openBkashModal(finalTotal);
+                return; // Stop here, wait for bkash modal action
+            }
+            // --- UPDATED ONLINE PAYMENT LOGIC END ---
+
             submitBtn.innerHTML = 'অর্ডার কনফার্ম করুন <i class="fas fa-arrow-right ml-2"></i>'; submitBtn.disabled = false;
             document.getElementById('confirm-modal-product').innerText = pendingOrderDataForConfirmation.productName; document.getElementById('confirm-modal-price').innerText = pendingOrderDataForConfirmation.price; document.getElementById('confirm-modal-phone').innerText = pendingOrderDataForConfirmation.phone; document.getElementById('step-confirmation-modal').classList.remove('hidden'); startConfirmationTimer();
         });
@@ -497,7 +618,7 @@
         function closeFinalModals() { document.getElementById('step-success-modal').classList.add('hidden'); document.getElementById('step-cancelled-modal').classList.add('hidden'); pendingOrderDataForConfirmation = null; }
         function formatTime(timestamp) { if(!timestamp) return ''; const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp); return d.toLocaleString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' }); }
 
-        function goToTrackingFromSuccess() { let phoneToTrack = document.getElementById('confirm-modal-phone').innerText; closeFinalModals(); showPage('track-order'); document.getElementById('trackPhoneNumber').value = phoneToTrack; trackMyOrder(); }
+        function goToTrackingFromSuccess() { let phoneToTrack = document.getElementById('confirm-modal-phone').innerText || (pendingOrderDataForConfirmation && pendingOrderDataForConfirmation.phone); closeFinalModals(); showPage('track-order'); document.getElementById('trackPhoneNumber').value = phoneToTrack; trackMyOrder(); }
         async function trackMyOrder() { const phone = document.getElementById('trackPhoneNumber').value.trim(); const resultDiv = document.getElementById('trackResultContainer'); if(!phone) { alert("দয়া করে আপনার মোবাইল নাম্বার দিন।"); return; } resultDiv.innerHTML = '<p class="text-gray-500 mt-4"><i class="fas fa-circle-notch fa-spin"></i> আপনার অর্ডার খোঁজা হচ্ছে...</p>'; try { const snapshot = await db.collection('orders').where('phone', '==', phone).get(); if(snapshot.empty) { resultDiv.innerHTML = '<p class="text-[#FF6B35] font-bold mt-4 bg-[#FFF0ED] py-3 rounded-lg border border-[#FFD8C9]">এই নাম্বারে কোনো অর্ডার পাওয়া যায়নি!</p>'; return; } let html = '<div class="max-w-2xl mx-auto space-y-6 text-left">'; let foundActiveOrder = false; snapshot.forEach(doc => { const order = doc.data(); if(order.status === 'Completed') return; foundActiveOrder = true; const orderId = doc.id.substring(0, 8).toUpperCase(); html += `<div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100"><div class="mb-8 border-b border-gray-100 pb-6"><h3 class="text-xl font-bold text-gray-800 mb-1 flex items-center gap-2"><i class="fas fa-box text-[#1DBF60]"></i> পার্সেল ট্র্যাকিং</h3><p class="text-gray-500 font-medium text-sm">ID: #BGD-2024-${orderId}</p><p class="text-sm text-gray-700 mt-4 font-medium bg-gray-50 p-4 rounded-xl border border-gray-100"><strong>প্রোডাক্ট:</strong> ${order.productName}</p></div><div class="relative border-l-2 border-gray-200 ml-5 space-y-10 pb-4">`; const steps = [{ key: 'Pending', title: 'অর্ডার কনফার্ম', desc: 'আপনার অর্ডারটি গ্রহণ করা হয়েছে।' }, { key: 'Processing', title: 'প্রস্তুত করা হচ্ছে', desc: 'পণ্যটি প্যাক করে কুরিয়ারে পাঠানো হচ্ছে।' }, { key: 'Shipped', title: 'শিপমেন্টে আছে', desc: 'আপনার শহরের ডেলিভারি সেন্টারে আসছে।' }, { key: 'Completed', title: 'ডেলিভারি সম্পন্ন', desc: 'পণ্যটি গ্রাহকের কাছে পৌঁছে দেওয়া হয়েছে।' }]; let isCancelled = order.status === 'Cancelled'; let currentStatusIndex = steps.findIndex(s => s.key === order.status); if(currentStatusIndex === -1) currentStatusIndex = 0; if(isCancelled) { html += `<div class="relative pl-8"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-white bg-red-500 shadow-sm"></div><h4 class="font-bold text-red-600 text-lg">অর্ডার বাতিল</h4><p class="text-gray-500 text-sm mt-1">আপনার অর্ডারটি বাতিল করা হয়েছে।</p>${order.statusTimestamps && order.statusTimestamps.Cancelled ? `<p class="text-xs text-red-400 mt-2 font-medium">${formatTime(order.statusTimestamps.Cancelled)}</p>` : ''}</div>`; } else { steps.forEach((step, index) => { let isActive = index <= currentStatusIndex; let dotColor = isActive ? 'bg-[#1DBF60]' : 'bg-gray-200'; let textColor = isActive ? 'text-gray-900' : 'text-gray-400'; let timeStr = (order.statusTimestamps && order.statusTimestamps[step.key]) ? formatTime(order.statusTimestamps[step.key]) : (step.key === 'Pending' && order.createdAt ? formatTime(order.createdAt) : ''); html += `<div class="relative pl-8"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-white ${dotColor} shadow-sm"></div><h4 class="font-bold ${textColor} text-lg">${step.title}</h4><p class="text-gray-500 text-sm mt-1">${step.desc}</p>${timeStr ? `<p class="text-[#1DBF60] text-xs mt-2 font-medium bg-[#E6F8EF] inline-block px-2 py-1 rounded">${timeStr}</p>` : ''}</div>`; }); } html += `</div></div>`; }); if(!foundActiveOrder) { resultDiv.innerHTML = '<p class="text-[#1DBF60] font-bold mt-4 bg-[#E6F8EF] py-3 rounded-lg">এই নাম্বারে কোনো চলমান অর্ডার পাওয়া যায়নি! (ডেলিভারি সম্পন্ন হয়ে গেছে)</p>'; } else { resultDiv.innerHTML = html + '</div>'; } } catch (error) { resultDiv.innerHTML = '<p class="text-red-500 mt-4">সার্ভার এরর: ' + error.message + '</p>'; } }
 
         function switchAccountTab(tabName) { document.querySelectorAll('.account-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById('tab-' + tabName).classList.remove('hidden'); document.querySelectorAll('.account-nav-item').forEach(el => { el.classList.remove('bg-[#F0FDF4]', 'text-[#1DBF60]', 'border-[#1DBF60]'); el.classList.add('text-gray-600', 'border-transparent'); }); let activeNav = document.getElementById('nav-' + tabName); activeNav.classList.add('bg-[#F0FDF4]', 'text-[#1DBF60]', 'border-[#1DBF60]'); activeNav.classList.remove('text-gray-600', 'border-transparent'); }
