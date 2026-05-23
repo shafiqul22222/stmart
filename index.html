@@ -225,7 +225,7 @@
                         <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-[#FFF0ED] text-[#FF6B35] flex items-center justify-center text-sm">2</span> পেমেন্ট মেথড</h3>
                         <div class="space-y-4">
                             <label class="relative block cursor-pointer"><input type="radio" name="paymentMethod" value="Cash On Delivery" checked class="peer sr-only payment-radio"><div class="border-2 border-gray-200 rounded-xl p-5 flex items-center gap-4 transition-all hover:border-orange-200 hover:bg-orange-50/30"><div class="w-6 h-6 rounded-full border-2 border-gray-300 flex flex-shrink-0 items-center justify-center check-icon transition-colors"><i class="fas fa-check text-[12px] text-transparent opacity-0"></i></div><div class="flex-1"><p class="font-bold text-gray-800">Cash On Delivery (COD)</p><p class="text-xs text-gray-500 mt-1">পণ্য হাতে পেয়ে পেমেন্ট করুন</p></div><div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600"><i class="fas fa-hand-holding-usd text-2xl"></i></div></div></label>
-                            <label class="relative block cursor-pointer"><input type="radio" name="paymentMethod" value="Online Payment" class="peer sr-only payment-radio"><div class="border-2 border-gray-200 rounded-xl p-5 flex items-center gap-4 transition-all hover:border-orange-200 hover:bg-orange-50/30"><div class="w-6 h-6 rounded-full border-2 border-gray-300 flex flex-shrink-0 items-center justify-center check-icon transition-colors"><i class="fas fa-check text-[12px] text-transparent opacity-0"></i></div><div class="flex-1"><p class="font-bold text-gray-800">bKash Payment</p><p class="text-xs text-gray-500 mt-1">বিকাশের মাধ্যমে নিরাপদ পেমেন্ট করুন</p></div><div class="flex gap-2"><img src="https://scripts.sandbox.bka.sh/resources/img/bkash_logo.png" class="h-8 object-contain"></div></div></label>
+                            <label class="relative block cursor-pointer"><input type="radio" name="paymentMethod" value="Online Payment" class="peer sr-only payment-radio"><div class="border-2 border-gray-200 rounded-xl p-5 flex items-center gap-4 transition-all hover:border-orange-200 hover:bg-orange-50/30"><div class="w-6 h-6 rounded-full border-2 border-gray-300 flex flex-shrink-0 items-center justify-center check-icon transition-colors"><i class="fas fa-check text-[12px] text-transparent opacity-0"></i></div><div class="flex-1"><p class="font-bold text-gray-800">bKash Payment</p><p class="text-xs text-gray-500 mt-1">বিকাশের মাধ্যমে নিরাপদ পেমেন্ট করুন</p></div><div class="flex gap-2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/BKash_Corporate_Logo.svg/1024px-BKash_Corporate_Logo.svg.png" class="h-8 object-contain"></div></div></label>
                         </div>
                     </div>
                 </div>
@@ -255,7 +255,7 @@
         <div class="w-full max-w-[420px] bg-white rounded-md flex flex-col shadow-[0_10px_40px_rgba(0,0,0,0.2)] overflow-hidden transition-all transform scale-100">
             <!-- Header: bKash Logo -->
             <div class="flex justify-center items-center py-4 border-b border-gray-100 bg-white">
-                <img src="https://scripts.sandbox.bka.sh/resources/img/bkash_logo.png" alt="bKash" class="h-10 object-contain">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/BKash_Corporate_Logo.svg/1024px-BKash_Corporate_Logo.svg.png" alt="bKash" class="h-10 object-contain">
             </div>
             
             <!-- Merchant Info Bar -->
@@ -352,7 +352,7 @@
                             <div class="bg-white/10 p-3 rounded-lg border border-white/20 backdrop-blur-sm relative">
                                 <div class="flex justify-between items-center mb-4">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-full bg-gray-300"></div>
+                                        <div class="w-8 h-8 rounded-full bg-white overflow-hidden p-1 flex justify-center items-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/BKash_Corporate_Logo.svg/1024px-BKash_Corporate_Logo.svg.png" class="w-full h-full object-contain"></div>
                                         <div><p class="text-[10px]">SIAM</p><div class="bg-white text-[#E2136E] text-[10px] px-2 py-0.5 rounded-full font-bold">৳ ব্যালেন্স দেখুন</div></div>
                                     </div>
                                     <div class="flex gap-2">
@@ -397,6 +397,33 @@
             <div class="text-center py-4 bg-black/10">
                 <p class="text-white/80 font-bold text-sm animate-pulse">Waiting for payment...</p>
                 <button onclick="closeBkashInstructionModal()" class="text-white/60 text-xs underline mt-2 hover:text-white">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- bKash Success Modal -->
+    <div id="bkash-success-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10010] flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-sm overflow-hidden flex flex-col relative transform scale-100 transition-all">
+            <!-- Header -->
+            <div class="bg-[#E2136E] px-4 py-4 flex items-center justify-center shadow-sm">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/BKash_Corporate_Logo.svg/1024px-BKash_Corporate_Logo.svg.png" alt="bKash" class="h-8 object-contain filter brightness-0 invert">
+            </div>
+            <!-- Body -->
+            <div class="p-8 flex flex-col items-center justify-center text-center bg-gray-50">
+                <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center shadow-lg mb-5 border-4 border-green-100">
+                    <i class="fas fa-check text-4xl text-white"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-1">পেমেন্ট সফল হয়েছে</h3>
+                <p class="text-gray-500 text-sm mb-6">আপনার ট্রানজেকশনটি ভেরিফাই করা হয়েছে</p>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-3 w-full mb-6">
+                    <p class="text-[11px] text-gray-400 uppercase font-bold tracking-wider mb-1">Transaction ID</p>
+                    <p id="bkash-success-trx" class="text-lg font-bold text-[#E2136E]"></p>
+                </div>
+                
+                <div class="flex items-center justify-center gap-2 text-xs text-gray-500 animate-pulse">
+                    <i class="fas fa-circle-notch fa-spin text-[#E2136E]"></i> অর্ডার কনফার্ম করা হচ্ছে...
+                </div>
             </div>
         </div>
     </div>
@@ -691,7 +718,7 @@
         async function verifyAndSubmitBkashOrder() {
             const trxId = document.getElementById('bkash-trx-id').value.trim().toUpperCase();
             if(!trxId) {
-                alert("দয়া করে পেমেন্ট করার পর Transaction ID (TrxID) দিন।");
+                showErrorToast("Error!", "দয়া করে Transaction ID (TrxID) দিন।");
                 return;
             }
 
@@ -703,7 +730,7 @@
                 // ১. চেক করা হবে যে এই TrxID অন্য কোনো অর্ডারে ইতিমধ্যে ব্যবহার হয়েছে কিনা
                 const usedCheck = await db.collection('orders').where('transactionId', '==', trxId).get();
                 if (!usedCheck.empty) {
-                    alert("এই Transaction ID টি ইতিমধ্যে অন্য একটি অর্ডারে ব্যবহার করা হয়েছে! দয়া করে সঠিক TrxID দিন।");
+                    showErrorToast("Error!", "এই Transaction ID টি ইতিমধ্যে ব্যবহার করা হয়েছে!");
                     btn.innerHTML = 'Verify Payment';
                     btn.disabled = false;
                     return;
@@ -727,23 +754,31 @@
                         btn.innerHTML = 'Verify Payment';
                         btn.disabled = false;
 
-                        // অর্ডার কনফার্ম করা
-                        actionConfirmOrder();
+                        // Show bKash Success Modal
+                        document.getElementById('bkash-success-trx').innerText = trxId;
+                        document.getElementById('bkash-success-modal').classList.remove('hidden');
+
+                        // Wait 2.5 seconds, then auto confirm order
+                        setTimeout(() => {
+                            document.getElementById('bkash-success-modal').classList.add('hidden');
+                            actionConfirmOrder();
+                        }, 2500);
+
                     } else {
                         // এমাউন্ট কম থাকলে
-                        alert(`পেমেন্ট এমাউন্ট মিলছে না! আপনার অর্ডার বিল ৳${requiredAmount} কিন্তু বিকাশে পাওয়া গেছে ৳${paidAmount}`);
+                        showErrorToast("Error!", `পেমেন্ট এমাউন্ট মিলছে না! প্রয়োজন ৳${requiredAmount}, পাওয়া গেছে ৳${paidAmount}`);
                         btn.innerHTML = 'Verify Payment';
                         btn.disabled = false;
                     }
                 } else {
-                    // ডাটাবেজে না পাওয়া গেলে
-                    alert("ট্রানজেকশন আইডিটি এখনো আমাদের সিস্টেমে আপডেট হয়নি অথবা ভুল দিয়েছেন। আপনি যদি এইমাত্র পেমেন্ট করে থাকেন, তবে ১ মিনিট অপেক্ষা করে আবার 'Verify Payment' এ ক্লিক করুন।");
+                    // ডাটাবেজে না পাওয়া গেলে Error Toast
+                    showErrorToast("Error!", "আপনার TrxID টি ভুল!");
                     btn.innerHTML = 'Verify Payment';
                     btn.disabled = false;
                 }
             } catch (error) {
                 console.error("Error verifying payment:", error);
-                alert("ভেরিফিকেশন সিস্টেমে এরর হয়েছে: " + error.message);
+                showErrorToast("Error!", "ভেরিফিকেশন সিস্টেমে এরর হয়েছে!");
                 btn.innerHTML = 'Verify Payment';
                 btn.disabled = false;
             }
