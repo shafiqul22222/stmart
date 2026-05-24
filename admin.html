@@ -702,7 +702,6 @@
             });
         }
 
-        // NEW ENHANCED FUNCTION FOR FETCHING STATS WITH CORS FALLBACK
         async function fetchCourierStats(phone, elementId, btnElement) {
             if (!globalCourierApiKey || !globalCourierSecretKey) {
                 showToast('Configure Courier API keys in Site Settings first!', 'error');
@@ -715,43 +714,34 @@
             btnElement.disabled = true;
 
             const targetUrl = `https://portal.packzy.com/api/v1/customer_delivery_record/${phone}`;
-            let responseText = "";
 
             try {
-                let response;
+                // Direct Fetch - No Proxy
+                const response = await fetch(targetUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Api-Key': globalCourierApiKey,
+                        'Secret-Key': globalCourierSecretKey,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const text = await response.text();
+                let result;
                 try {
-                    // Try direct request first
-                    response = await fetch(targetUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Api-Key': globalCourierApiKey,
-                            'Secret-Key': globalCourierSecretKey,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                } catch (netErr) {
-                    // CORS error -> Fallback to proxy
-                    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-                    response = await fetch(proxyUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Api-Key': globalCourierApiKey,
-                            'Secret-Key': globalCourierSecretKey,
-                            'Content-Type': 'application/json'
-                        }
-                    });
+                    result = JSON.parse(text);
+                } catch(e) {
+                    showToast("Invalid Server Response (Status " + response.status + ")", "error");
+                    btnElement.innerHTML = originalHtml;
+                    btnElement.disabled = false;
+                    return;
                 }
-
-                if (!response.ok) {
-                    throw new Error("API Status: " + response.status);
-                }
-
-                responseText = await response.text();
-                const result = JSON.parse(responseText);
                 
-                if (result.status === 200 || result.status === 'success') {
-                    let delivered = result.data?.delivered_count || result.data?.delivered || result.delivered || 0;
-                    let cancelled = result.data?.returned_count || result.data?.cancelled || result.data?.returned || result.returned || 0;
+                if (response.ok && (result.status === 200 || result.status === 'success' || result.status === true)) {
+                    // Extract data dynamically based on standard structure
+                    let data = result.data || result;
+                    let delivered = data.delivered_count || data.delivered || data.success || 0;
+                    let cancelled = data.returned_count || data.cancelled || data.returned || data.failed || 0;
                     
                     container.innerHTML = `
                         <div class="bg-indigo-50 border border-indigo-100 rounded px-2 py-1.5 text-[11px] font-bold flex flex-wrap gap-2 items-center justify-between shadow-sm">
@@ -762,13 +752,12 @@
                     container.classList.remove('hidden');
                     btnElement.style.display = 'none'; 
                 } else {
-                    showToast(result.message || 'No data found for this number', 'info');
+                    showToast(result.message || result.error || 'No data or invalid endpoint.', 'error');
                     btnElement.innerHTML = originalHtml;
                     btnElement.disabled = false;
                 }
             } catch (error) {
-                showToast('Failed to connect or verify API Key!', 'error');
-                console.error('Fetch Error:', error, responseText);
+                showToast('API / Network Error: ' + error.message, 'error');
                 btnElement.innerHTML = originalHtml;
                 btnElement.disabled = false;
             }
