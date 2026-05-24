@@ -116,7 +116,6 @@
             
             <!-- Dashboard Section -->
             <div id="dashboard-section" class="block">
-                <!-- Dashboard content remains same as your code... -->
                 <div class="mb-8">
                     <h2 class="text-2xl lg:text-3xl font-bold text-slate-800">Business Overview</h2>
                     <p class="text-slate-500 mt-1">Real-time statistics and store metrics</p>
@@ -229,7 +228,7 @@
                 </div>
             </div>
 
-            <!-- INCOMPLETE ORDERS SECTION (NEW) -->
+            <!-- INCOMPLETE ORDERS SECTION -->
             <div id="incomplete-section" class="hidden">
                 <div class="flex justify-between items-center mb-6 lg:mb-8 gap-4">
                     <div>
@@ -272,7 +271,6 @@
 
             <!-- Settings Section -->
             <div id="settings-section" class="hidden">
-                <!-- Settings content remains same as your code... -->
                 <div class="mb-6 lg:mb-8"><h2 class="text-2xl lg:text-3xl font-bold text-slate-800">Site Configuration</h2><p class="text-slate-500 mt-1">Manage global settings, API keys, and delivery options</p></div>
                 <form id="siteSettingsForm" class="space-y-6">
                     <div class="card-stat border-t-4 border-t-teal-500"><h3 class="text-lg font-bold mb-4 text-slate-800 flex items-center"><i class="fas fa-truck-fast text-teal-500 w-6"></i> Auto Courier API (Packzy)</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="form-label">API Key</label><input type="text" id="setCourierApiKey" class="form-input" placeholder="Enter Courier API Key"></div><div><label class="form-label">Secret Key</label><input type="text" id="setCourierSecretKey" class="form-input" placeholder="Enter Courier Secret Key"></div></div></div>
@@ -287,7 +285,6 @@
     </div>
 
     <!-- Modals (Add/Edit Product, Reviews) -->
-    <!-- (Your Modals HTML remains untouched...) -->
     <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-6 lg:p-8 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"><h3 class="text-xl lg:text-2xl font-bold mb-6 text-slate-800 border-b border-slate-100 pb-3">Add New Product</h3><form id="addForm" class="space-y-5"><div><label class="form-label">Product Name *</label><input type="text" id="pName" class="form-input" required></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"><div><label class="form-label">Purchase Price</label><input type="number" id="pPurchasePrice" class="form-input"></div><div><label class="form-label">Old Price</label><input type="number" id="pOldPrice" class="form-input"></div><div><label class="form-label">Sale Price *</label><input type="number" id="pPrice" class="form-input" required></div><div><label class="form-label text-rose-600">Stock Qty *</label><input type="number" id="pStock" class="form-input border-rose-200 focus:border-rose-500 focus:ring-rose-500 bg-rose-50/30" required></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label class="form-label">Category *</label><select id="pCategory" class="form-input" required><option value="">Select Category</option></select></div><div class="md:col-span-2"><label class="form-label">Size Variants (Optional)</label><div class="w-full border border-slate-300 p-3 rounded-lg bg-slate-50 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 text-sm"><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="S" class="size-cb w-4 h-4 text-blue-600 rounded"> S</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="M" class="size-cb w-4 h-4 text-blue-600 rounded"> M</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="L" class="size-cb w-4 h-4 text-blue-600 rounded"> L</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XL" class="size-cb w-4 h-4 text-blue-600 rounded"> XL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XXL" class="size-cb w-4 h-4 text-blue-600 rounded"> XXL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XXXL" class="size-cb w-4 h-4 text-blue-600 rounded"> XXXL</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="38" class="size-cb w-4 h-4 text-blue-600 rounded"> 38</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="40" class="size-cb w-4 h-4 text-blue-600 rounded"> 40</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="42" class="size-cb w-4 h-4 text-blue-600 rounded"> 42</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="44" class="size-cb w-4 h-4 text-blue-600 rounded"> 44</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="46" class="size-cb w-4 h-4 text-blue-600 rounded"> 46</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="48" class="size-cb w-4 h-4 text-blue-600 rounded"> 48</label></div></div></div><div id="unitContainer"><label class="form-label">Unit Measure *</label><select id="pUnit" class="form-input"><option value="Piece">Piece</option><option value="KG">KG</option><option value="Gram">Gram</option></select></div><div><label class="form-label">Product Images *</label><input type="file" id="pImageFiles" accept="image/*" multiple class="form-input bg-white p-2" required></div><div><label class="form-label">Description</label><textarea id="pDesc" rows="3" class="form-input"></textarea></div><div class="flex gap-4 pt-4 border-t border-slate-100"><button type="button" onclick="document.getElementById('modal').classList.add('hidden')" class="w-1/2 bg-slate-100 text-slate-700 py-3 rounded-lg font-semibold hover:bg-slate-200 transition">Cancel</button><button type="submit" class="w-1/2 btn-primary !py-3">Save Product</button></div></form></div></div>
     <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-6 lg:p-8 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"><h3 class="text-xl lg:text-2xl font-bold mb-6 text-slate-800 border-b border-slate-100 pb-3">Edit Product</h3><form id="editForm" class="space-y-5"><input type="hidden" id="eId"><div><label class="form-label">Product Name *</label><input type="text" id="eName" class="form-input" required></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"><div><label class="form-label">Purchase Price</label><input type="number" id="ePurchasePrice" class="form-input"></div><div><label class="form-label">Old Price</label><input type="number" id="eOldPrice" class="form-input"></div><div><label class="form-label">Sale Price *</label><input type="number" id="ePrice" class="form-input" required></div><div><label class="form-label text-rose-600">Stock Qty *</label><input type="number" id="eStock" class="form-input border-rose-200 focus:border-rose-500 focus:ring-rose-500 bg-rose-50/30" required></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label class="form-label">Category *</label><select id="eCategory" class="form-input" required><option value="">Select</option></select></div><div class="md:col-span-2"><label class="form-label">Size Variants</label><div class="w-full border border-slate-300 p-3 rounded-lg bg-slate-50 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 text-sm"><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="S" class="e-size-cb w-4 h-4"> S</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="M" class="e-size-cb w-4 h-4"> M</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="L" class="e-size-cb w-4 h-4"> L</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XL" class="e-size-cb w-4 h-4"> XL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XXL" class="e-size-cb w-4 h-4"> XXL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XXXL" class="e-size-cb w-4 h-4"> XXXL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="38" class="e-size-cb w-4 h-4"> 38</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="40" class="e-size-cb w-4 h-4"> 40</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="42" class="e-size-cb w-4 h-4"> 42</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="44" class="e-size-cb w-4 h-4"> 44</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="46" class="e-size-cb w-4 h-4"> 46</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="48" class="e-size-cb w-4 h-4"> 48</label></div></div></div><div id="eUnitContainer"><label class="form-label">Unit Measure</label><select id="eUnit" class="form-input"><option value="Piece">Piece</option><option value="KG">KG</option><option value="Gram">Gram</option></select></div><div><label class="form-label">Add New Images (Appends to existing)</label><input type="file" id="eImageFiles" accept="image/*" multiple class="form-input bg-white p-2"><textarea id="eExistingImages" class="hidden"></textarea></div><div><label class="form-label">Description</label><textarea id="eDesc" rows="3" class="form-input"></textarea></div><div class="flex gap-4 pt-4 border-t border-slate-100"><button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="w-1/2 bg-slate-100 text-slate-700 py-3 rounded-lg font-semibold hover:bg-slate-200 transition">Cancel</button><button type="submit" class="w-1/2 btn-primary !bg-indigo-600 hover:!bg-indigo-700 !py-3">Update Product</button></div></form></div></div>
     <div id="adminReviewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl"><h3 class="text-xl font-bold mb-4 text-slate-800 border-b border-slate-100 pb-2">Add Manual Review</h3><form id="adminReviewForm" class="space-y-4"><input type="hidden" id="arProductId"><div><label class="form-label">Customer Name</label><input type="text" id="arCustomerName" class="form-input" placeholder="e.g. John Doe" required></div><div><label class="form-label">Rating (1-5)</label><select id="arRating" class="form-input"><option value="5">⭐⭐⭐⭐⭐ (5 Star)</option><option value="4">⭐⭐⭐⭐ (4 Star)</option><option value="3">⭐⭐⭐ (3 Star)</option><option value="2">⭐⭐ (2 Star)</option><option value="1">⭐ (1 Star)</option></select></div><div><label class="form-label">Review Text</label><textarea id="arComment" rows="3" class="form-input" placeholder="Great product..." required></textarea></div><div><label class="form-label">Upload Image (Optional)</label><input type="file" id="arImageFile" accept="image/*" class="form-input p-2 bg-white"></div><div class="flex gap-3 pt-4 border-t border-slate-100"><button type="button" onclick="document.getElementById('adminReviewModal').classList.add('hidden')" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-lg font-semibold hover:bg-slate-200">Cancel</button><button type="submit" class="flex-1 btn-primary py-2.5">Submit Review</button></div></form></div></div>
@@ -313,6 +310,8 @@
 
         let globalBrandName = 'ST Mart';
         let globalPhone = '';
+        let globalCourierApiKey = '';
+        let globalCourierSecretKey = '';
 
         // Chart instances
         let salesChartInst = null;
@@ -365,7 +364,6 @@
             overlay.classList.toggle('hidden');
         }
 
-        // --- NEW: Added 'incomplete' to sections array ---
         function showSection(sectionName, pushState = true) {
             const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
@@ -400,7 +398,7 @@
                 document.getElementById('admin-content').classList.remove('hidden');
                 showSection(getPathSection(), false);
                 loadAdminProducts(); loadDashboardData(); loadOrders(); loadCategories(); loadCustomers(); loadSiteSettingsData();
-                loadIncompleteOrders(); // NEW: Load incomplete orders
+                loadIncompleteOrders();
                 if(!isRealtimeListenerAttached) { startRealtimeTracking(); isRealtimeListenerAttached = true; }
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -418,7 +416,6 @@
 
         function logout() { auth.signOut(); }
 
-        // --- NEW: LOAD INCOMPLETE ORDERS (ABANDONED CARTS) ---
         function loadIncompleteOrders() {
             db.collection('abandoned_carts').orderBy('updatedAt', 'desc').onSnapshot(snap => {
                 const list = document.getElementById('admin-incomplete-list');
@@ -479,7 +476,6 @@
                 }
             }
         }
-        // -----------------------------------------------------------
 
         function startRealtimeTracking() {
             db.collection('active_visitors').onSnapshot(snap => {
@@ -496,8 +492,6 @@
             const realtimeEl = document.getElementById('aly-realtime'); if(realtimeEl) realtimeEl.innerText = activeCount;
         }
 
-        // [The rest of the JS functions: generateFacebookCatalogCSV, loadAnalyticsData, compressAndConvertToBase64, processImagesToBase64, etc. exactly the same as previous code...]
-        
         function compressAndConvertToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader(); reader.readAsDataURL(file);
@@ -587,7 +581,30 @@
         function loadSiteSettingsData() {
             db.collection('siteSettings').doc('global').onSnapshot(doc => {
                 if(doc.exists) {
-                    const data = doc.data(); document.getElementById('setInsideDhaka').value = data.insideDhaka || 60; document.getElementById('setOutsideDhaka').value = data.outsideDhaka || 120; document.getElementById('setCourierApiKey').value = data.courierApiKey || ''; document.getElementById('setCourierSecretKey').value = data.courierSecretKey || ''; document.getElementById('setPaymentUrl').value = data.paymentUrl || ''; document.getElementById('setPaymentStoreId').value = data.paymentStoreId || ''; document.getElementById('setPaymentSecretKey').value = data.paymentSecretKey || ''; document.getElementById('setLogoUrl').value = data.logoUrl || ''; document.getElementById('setHeroImages').value = data.heroImages || (data.heroImg1 ? data.heroImg1 + (data.heroImg2 ? '||' + data.heroImg2 : '') : ''); document.getElementById('setHeroLinks').value = data.heroLinks || ''; document.getElementById('setBrandName').value = data.brandName || ''; document.getElementById('setTagline').value = data.tagline || ''; document.getElementById('setPhone').value = data.phone || ''; document.getElementById('setEmail').value = data.email || ''; document.getElementById('setAddress').value = data.address || ''; document.getElementById('setFacebook').value = data.facebook || ''; document.getElementById('setWhatsapp').value = data.whatsapp || ''; document.getElementById('setCopyright').value = data.copyright || ''; if(data.brandName) globalBrandName = data.brandName; if(data.phone) globalPhone = data.phone;
+                    const data = doc.data(); 
+                    document.getElementById('setInsideDhaka').value = data.insideDhaka || 60; 
+                    document.getElementById('setOutsideDhaka').value = data.outsideDhaka || 120; 
+                    document.getElementById('setCourierApiKey').value = data.courierApiKey || ''; 
+                    document.getElementById('setCourierSecretKey').value = data.courierSecretKey || ''; 
+                    document.getElementById('setPaymentUrl').value = data.paymentUrl || ''; 
+                    document.getElementById('setPaymentStoreId').value = data.paymentStoreId || ''; 
+                    document.getElementById('setPaymentSecretKey').value = data.paymentSecretKey || ''; 
+                    document.getElementById('setLogoUrl').value = data.logoUrl || ''; 
+                    document.getElementById('setHeroImages').value = data.heroImages || (data.heroImg1 ? data.heroImg1 + (data.heroImg2 ? '||' + data.heroImg2 : '') : ''); 
+                    document.getElementById('setHeroLinks').value = data.heroLinks || ''; 
+                    document.getElementById('setBrandName').value = data.brandName || ''; 
+                    document.getElementById('setTagline').value = data.tagline || ''; 
+                    document.getElementById('setPhone').value = data.phone || ''; 
+                    document.getElementById('setEmail').value = data.email || ''; 
+                    document.getElementById('setAddress').value = data.address || ''; 
+                    document.getElementById('setFacebook').value = data.facebook || ''; 
+                    document.getElementById('setWhatsapp').value = data.whatsapp || ''; 
+                    document.getElementById('setCopyright').value = data.copyright || ''; 
+                    
+                    if(data.brandName) globalBrandName = data.brandName; 
+                    if(data.phone) globalPhone = data.phone;
+                    globalCourierApiKey = data.courierApiKey || ''; 
+                    globalCourierSecretKey = data.courierSecretKey || '';
                 }
             });
         }
@@ -642,9 +659,96 @@
                     let displayImg = 'https://via.placeholder.com/100?text=No+Image'; if(order.productImage) { displayImg = order.productImage.includes('||') ? order.productImage.split('||')[0] : order.productImage; }
                     const searchString = `${shortId} ${order.phone} ${order.name} ${dateStr} ${order.productName}`; const safeProductName = (order.productName||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); const safeName = (order.name||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); const safePhone = (order.phone||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); const safeAddress = (order.address||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'");
                     let courierStatusHtml = order.courierBooked ? `<p class="text-xs text-teal-600 font-bold mt-2 bg-teal-50 px-2 py-1 rounded inline-block"><i class="fas fa-truck"></i> Courier Booked</p>` : '';
-                    list.innerHTML += `<tr class="hover:bg-slate-50 transition order-row align-top" data-search="${searchString}"><td class="p-4"><p class="font-bold text-slate-800 mb-2">#${shortId} <br><span class="text-xs font-medium text-slate-400">${dateStr}</span></p><div class="flex items-start gap-3 mt-3"><img src="${displayImg}" class="w-12 h-12 object-cover rounded shadow-sm shrink-0 border border-slate-200"><p class="text-xs font-medium text-slate-700 whitespace-normal break-words leading-tight">${order.productName || ''}</p></div></td><td class="p-4"><p class="font-bold text-slate-800 mb-1">${order.name || 'Unknown'}</p><p class="text-sm font-semibold text-blue-600 mb-2">${order.phone || ''}</p><p class="text-xs text-slate-600 whitespace-normal break-words leading-relaxed bg-slate-100 p-2.5 rounded-lg border border-slate-200">${order.address || ''}</p></td><td class="p-4"><p class="font-black text-slate-800 text-lg mb-1">৳${amount}</p><p class="text-xs font-medium text-slate-500 mb-3">${order.deliveryArea || 'N/A'} (Charge: ৳${dCharge})</p><select onchange="updatePaymentStatus('${doc.id}', this.value)" class="border py-1.5 px-2 rounded-md outline-none cursor-pointer text-xs font-bold mb-2 w-full shadow-sm ${payColor}"><option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid</option><option value="Partial Paid" ${payStatus === 'Partial Paid' ? 'selected' : ''}>Partial Paid</option><option value="Paid" ${payStatus === 'Paid' ? 'selected' : ''}>Paid</option></select><select onchange="handleOrderStatusChange('${doc.id}', this.value, '${status}', '${safeProductName}', ${order.qty || 1})" class="border py-1.5 px-2 rounded-md outline-none cursor-pointer text-xs font-bold w-full shadow-sm ${statusColor}"><option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option><option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option><option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Shipped</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option><option value="Returned" ${status === 'Returned' ? 'selected' : ''}>Returned (Stock +)</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option></select>${courierStatusHtml}</td><td class="p-4"><div class="bg-slate-50 p-2 rounded-lg border border-slate-200 h-full flex flex-col min-w-[200px]"><textarea id="note-${doc.id}" rows="3" class="w-full text-xs p-2 border border-slate-300 rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent whitespace-normal break-words placeholder-slate-400 mb-2 resize-none" placeholder="Private admin note...">${order.adminNote || ''}</textarea><button onclick="saveAdminNote('${doc.id}')" class="mt-auto w-full text-xs font-bold bg-slate-200 text-slate-700 py-2 rounded hover:bg-slate-300 transition">Save Note</button></div></td><td class="p-4 text-center"><div class="flex flex-row lg:flex-col items-center justify-center gap-2"><button onclick="bookParcel(this, '${doc.id}', '${safeName}', '${safePhone}', '${safeAddress}', ${amount})" class="text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Auto Courier Book"><i class="fas fa-truck-fast"></i></button><button onclick="printInvoice('${shortId}', '${safeName}', '${safePhone}', '${safeAddress}', '${safeProductName}', ${amount - dCharge}, ${dCharge}, ${amount}, '${dateStr}')" class="text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Print Invoice"><i class="fas fa-print"></i></button><button onclick="deleteOrder('${doc.id}')" class="text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Delete Order"><i class="fas fa-trash"></i></button></div></td></tr>`;
+                    
+                    list.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition order-row align-top" data-search="${searchString}">
+                            <td class="p-4">
+                                <p class="font-bold text-slate-800 mb-2">#${shortId} <br><span class="text-xs font-medium text-slate-400">${dateStr}</span></p>
+                                <div class="flex items-start gap-3 mt-3">
+                                    <img src="${displayImg}" class="w-12 h-12 object-cover rounded shadow-sm shrink-0 border border-slate-200">
+                                    <p class="text-xs font-medium text-slate-700 whitespace-normal break-words leading-tight">${order.productName || ''}</p>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <p class="font-bold text-slate-800 mb-1">${order.name || 'Unknown'}</p>
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <p class="text-sm font-semibold text-blue-600">${order.phone || ''}</p>
+                                    ${order.phone ? `<button onclick="fetchCourierStats('${order.phone}', 'stats-${doc.id}', this)" class="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded hover:bg-blue-200 transition" title="Check Courier Stats"><i class="fas fa-chart-pie"></i></button>` : ''}
+                                </div>
+                                <div id="stats-${doc.id}" class="hidden mb-2 w-full"></div>
+                                <p class="text-xs text-slate-600 whitespace-normal break-words leading-relaxed bg-slate-100 p-2.5 rounded-lg border border-slate-200">${order.address || ''}</p>
+                            </td>
+                            <td class="p-4">
+                                <p class="font-black text-slate-800 text-lg mb-1">৳${amount}</p>
+                                <p class="text-xs font-medium text-slate-500 mb-3">${order.deliveryArea || 'N/A'} (Charge: ৳${dCharge})</p>
+                                <select onchange="updatePaymentStatus('${doc.id}', this.value)" class="border py-1.5 px-2 rounded-md outline-none cursor-pointer text-xs font-bold mb-2 w-full shadow-sm ${payColor}"><option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid</option><option value="Partial Paid" ${payStatus === 'Partial Paid' ? 'selected' : ''}>Partial Paid</option><option value="Paid" ${payStatus === 'Paid' ? 'selected' : ''}>Paid</option></select>
+                                <select onchange="handleOrderStatusChange('${doc.id}', this.value, '${status}', '${safeProductName}', ${order.qty || 1})" class="border py-1.5 px-2 rounded-md outline-none cursor-pointer text-xs font-bold w-full shadow-sm ${statusColor}"><option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option><option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option><option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Shipped</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option><option value="Returned" ${status === 'Returned' ? 'selected' : ''}>Returned (Stock +)</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option></select>
+                                ${courierStatusHtml}
+                            </td>
+                            <td class="p-4">
+                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-200 h-full flex flex-col min-w-[200px]">
+                                    <textarea id="note-${doc.id}" rows="3" class="w-full text-xs p-2 border border-slate-300 rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent whitespace-normal break-words placeholder-slate-400 mb-2 resize-none" placeholder="Private admin note...">${order.adminNote || ''}</textarea>
+                                    <button onclick="saveAdminNote('${doc.id}')" class="mt-auto w-full text-xs font-bold bg-slate-200 text-slate-700 py-2 rounded hover:bg-slate-300 transition">Save Note</button>
+                                </div>
+                            </td>
+                            <td class="p-4 text-center">
+                                <div class="flex flex-row lg:flex-col items-center justify-center gap-2">
+                                    <button onclick="bookParcel(this, '${doc.id}', '${safeName}', '${safePhone}', '${safeAddress}', ${amount})" class="text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Auto Courier Book"><i class="fas fa-truck-fast"></i></button>
+                                    <button onclick="printInvoice('${shortId}', '${safeName}', '${safePhone}', '${safeAddress}', '${safeProductName}', ${amount - dCharge}, ${dCharge}, ${amount}, '${dateStr}')" class="text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Print Invoice"><i class="fas fa-print"></i></button>
+                                    <button onclick="deleteOrder('${doc.id}')" class="text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Delete Order"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
                 });
             });
+        }
+
+        async function fetchCourierStats(phone, elementId, btnElement) {
+            if (!globalCourierApiKey || !globalCourierSecretKey) {
+                showToast('Configure Courier API keys in Site Settings first!', 'error');
+                return;
+            }
+            
+            const container = document.getElementById(elementId);
+            const originalHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+
+            try {
+                // Packzy / Steadfast Standard API Endpoint for Delivery Ratio
+                const response = await fetch(`https://portal.packzy.com/api/v1/customer_delivery_ratio/${phone}`, {
+                    method: 'GET',
+                    headers: {
+                        'Api-Key': globalCourierApiKey,
+                        'Secret-Key': globalCourierSecretKey
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 200 || result.status === 'success') {
+                    // Extract data structure based on typical response
+                    let delivered = result.data?.delivered || result.delivered || 0;
+                    let cancelled = result.data?.cancelled || result.data?.returned || result.cancelled || result.returned || 0;
+                    
+                    container.innerHTML = `
+                        <div class="bg-indigo-50 border border-indigo-100 rounded px-2 py-1.5 text-[11px] font-bold flex flex-wrap gap-2 items-center justify-between shadow-sm">
+                            <span class="text-emerald-600"><i class="fas fa-box-open mr-1"></i>Del: ${delivered}</span>
+                            <span class="text-rose-600"><i class="fas fa-ban mr-1"></i>Can/Ret: ${cancelled}</span>
+                        </div>
+                    `;
+                    container.classList.remove('hidden');
+                    btnElement.style.display = 'none'; // Hide button after success
+                } else {
+                    showToast('Failed to fetch stats. API may not support this endpoint.', 'error');
+                    btnElement.innerHTML = originalHtml;
+                    btnElement.disabled = false;
+                }
+            } catch (error) {
+                showToast('API Connection Error!', 'error');
+                btnElement.innerHTML = originalHtml;
+                btnElement.disabled = false;
+            }
         }
 
         async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { if(newStatus === oldStatus) return; try { if (newStatus === 'Returned') { if(!await customConfirm('Mark order as Returned? This will automatically restock the item and log a delivery loss.')) { loadOrders(); return; } const pSnap = await db.collection('products').where('name', '==', productName).get(); if(!pSnap.empty) { const pDoc = pSnap.docs[0]; const currentStock = parseInt(pDoc.data().stock) || 0; await db.collection('products').doc(pDoc.id).update({ stock: currentStock + (parseInt(qty) || 1) }); showToast(`Restocked ${qty || 1} unit(s) of ${productName}`, 'info'); } } const timestamp = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); showToast("Status updated successfully", "success"); } catch (err) { showToast("Status Error: " + err.message, "error"); loadOrders(); } }
