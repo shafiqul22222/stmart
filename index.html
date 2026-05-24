@@ -716,7 +716,8 @@
 
         // --- UPDATED VERIFY FUNCTION HERE ---
         async function verifyAndSubmitBkashOrder() {
-            const trxIdInput = document.getElementById('bkash-trx-id').value.trim();
+            // Space delete kore nilam keno na onek somoy copy korar por space chole ase
+            const trxIdInput = document.getElementById('bkash-trx-id').value.trim().replace(/\s+/g, '');
             if(!trxIdInput) {
                 showErrorToast("Error!", "দয়া করে Transaction ID (TrxID) দিন।");
                 return;
@@ -746,7 +747,7 @@
                 if (smsDoc.exists) {
                     transactionData = smsDoc.data();
                 } else {
-                    // অপশন বি: যদি Microdroid ডকুমেন্ট আইডি হিসেবে অটো-আইডি দেয় এবং ভিতরে 필্ড হিসেবে trxId সেভ করে (আগের ডাটার জন্য)
+                    // অপশন বি: যদি Microdroid ডকুমেন্ট আইডি হিসেবে অটো-আইডি দেয় এবং ভিতরে 필্ড হিসেবে trxId সেভ করে
                     let queryByField = await db.collection('bkash_transactions').where('trxId', '==', trxId).limit(1).get();
                     if (!queryByField.empty) {
                         transactionData = queryByField.docs[0].data();
@@ -795,7 +796,7 @@
                     }
                 } else {
                     // ডাটাবেজে না পাওয়া গেলে Error Toast
-                    showErrorToast("Error!", "আপনার TrxID টি ভুল বা ডাটাবেজে পাওয়া যায়নি!");
+                    showErrorToast("Error!", "আপনার TrxID টি ডাটাবেজে পাওয়া যায়নি! দয়া করে একটু অপেক্ষা করে আবার চেষ্টা করুন।");
                     btn.innerHTML = 'Verify Payment';
                     btn.disabled = false;
                 }
