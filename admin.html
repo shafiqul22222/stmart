@@ -638,7 +638,107 @@
 
         document.getElementById('editForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerText = "Updating..."; btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.e-size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('eUnit').value; let pId = document.getElementById('eId').value; try { let files = document.getElementById('eImageFiles').files; let imagesArray = []; let existingImages = JSON.parse(document.getElementById('eExistingImages').value || "[]"); if(files.length > 0) { let newImages = await processImagesToBase64(files); imagesArray = existingImages.concat(newImages); } else { imagesArray = existingImages; } await db.collection('products').doc(pId).update({ name: document.getElementById('eName').value, purchasePrice: parseFloat(document.getElementById('ePurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('eOldPrice').value) || 0, price: parseFloat(document.getElementById('ePrice').value), stock: parseInt(document.getElementById('eStock').value) || 0, category: document.getElementById('eCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('eDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('editForm').reset(); document.getElementById('eImageFiles').value = ""; document.getElementById('editModal').classList.add('hidden'); showToast("Product updated successfully!", "success"); } catch (err) { showToast("Update Error: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
 
-        document.getElementById('csvFileInput').addEventListener('change', function(e) { const file = e.target.files[0]; if (!file) return; const isCSV = file.name.toLowerCase().endsWith('.csv'); const reader = new FileReader(); reader.onload = async function(event) { try { let workbook; if (isCSV) { workbook = XLSX.read(event.target.result, {type: 'string'}); } else { const data = new Uint8Array(event.target.result); workbook = XLSX.read(data, {type: 'array'}); } const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName]; const json = XLSX.utils.sheet_to_json(worksheet); if (json.length === 0) { showToast("File is empty or invalid format!", "error"); return; } showToast(`Starting upload (${json.length} items)... Please wait.`, "info"); let successCount = 0; let errorCount = 0; const getVal = (row, keys) => { for(let k of Object.keys(row)) { if(keys.includes(k.trim().toLowerCase())) return row[k]; } return ''; }; for (let i = 0; i < json.length; i++) { const row = json[i]; const pName = String(getVal(row, ['name', 'title', 'product name'])); const pPrice = parseFloat(getVal(row, ['price', 'current price', 'sale price'])); if (!pName || pName === 'undefined' || isNaN(pPrice)) { errorCount++; continue; } const pPurchasePrice = parseFloat(getVal(row, ['purchase price', 'purchaseprice'])) || 0; const pOldPrice = parseFloat(getVal(row, ['old price', 'oldprice'])) || 0; const pStock = parseInt(getVal(row, ['stock', 'qty', 'quantity', 'availability'])) || 0; const pCategory = String(getVal(row, ['category'])) || ''; const pUnit = String(getVal(row, ['unit'])) || 'Piece'; const pDesc = String(getVal(row, ['description', 'details'])) || ''; let pSizesRaw = String(getVal(row, ['sizes', 'size'])); let pSizes = pSizesRaw && pSizesRaw !== 'undefined' ? pSizesRaw.split(',').map(s => s.trim()).filter(s => s) : []; let pImage = String(getVal(row, ['image', 'image_link', 'image url'])); if(pImage === 'undefined') pImage = ''; let pImages = pImage ? [pImage] : []; const productData = { name: pName, purchasePrice: pPurchasePrice, oldPrice: pOldPrice, price: pPrice, stock: pStock, category: pCategory, sizes: pSizes, unit: pUnit, description: pDesc, image: pImage, images: pImages, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; const snapshot = await db.collection('products').where('name', '==', pName).get(); if (!snapshot.empty) { const docId = snapshot.docs[0].id; await db.collection('products').doc(docId).update(productData); } else { productData.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('products').add(productData); } successCount++; } document.getElementById('csvFileInput').value = ''; showToast(`Success: ${successCount} | Failed: ${errorCount}`, "success"); } catch (err) { showToast("File read error: " + err.message, "error"); } }; if (isCSV) reader.readAsText(file, 'UTF-8'); else reader.readAsArrayBuffer(file); });
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0]; 
+            if (!file) return; 
+            const isCSV = file.name.toLowerCase().endsWith('.csv'); 
+            const reader = new FileReader(); 
+            
+            reader.onload = async function(event) { 
+                try { 
+                    let workbook; 
+                    if (isCSV) { 
+                        workbook = XLSX.read(event.target.result, {type: 'string'}); 
+                    } else { 
+                        const data = new Uint8Array(event.target.result); 
+                        workbook = XLSX.read(data, {type: 'array'}); 
+                    } 
+                    
+                    const firstSheetName = workbook.SheetNames[0]; 
+                    const worksheet = workbook.Sheets[firstSheetName]; 
+                    const json = XLSX.utils.sheet_to_json(worksheet); 
+                    
+                    if (json.length === 0) { 
+                        showToast("File is empty or invalid format!", "error"); 
+                        return; 
+                    } 
+                    
+                    showToast(`Starting upload (${json.length} items)... Please wait.`, "info"); 
+                    let successCount = 0; 
+                    let errorCount = 0; 
+                    
+                    const getVal = (row, keys) => { 
+                        for(let k of Object.keys(row)) { 
+                            if(keys.includes(k.trim().toLowerCase())) return row[k]; 
+                        } 
+                        return ''; 
+                    }; 
+                    
+                    for (let i = 0; i < json.length; i++) { 
+                        const row = json[i]; 
+                        const pName = String(getVal(row, ['name', 'title', 'product name'])); 
+                        const pPrice = parseFloat(getVal(row, ['price', 'current price', 'sale price'])); 
+                        if (!pName || pName === 'undefined' || isNaN(pPrice)) { errorCount++; continue; } 
+                        
+                        // Modified variables to capture Purchase Price & Stock properly
+                        const pPurchasePrice = parseFloat(getVal(row, ['purchase price', 'purchaseprice', 'cost price', 'cost'])) || 0; 
+                        const pOldPrice = parseFloat(getVal(row, ['old price', 'oldprice', 'compare at price', 'regular price'])) || 0; 
+                        const pStock = parseInt(getVal(row, ['stock', 'qty', 'quantity', 'stock qty', 'inventory', 'availability'])) || 0; 
+                        
+                        const pCategory = String(getVal(row, ['category', 'type', 'product category'])) || ''; 
+                        const pUnit = String(getVal(row, ['unit'])) || 'Piece'; 
+                        
+                        // Modified Description parsing to Strip out <p>, <br> & &nbsp;
+                        let rawDesc = String(getVal(row, ['description', 'details', 'body (html)', 'short description'])) || '';
+                        const pDesc = rawDesc !== 'undefined' ? rawDesc.replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/gi, " ").trim() : ''; 
+                        
+                        // Modified Size Variants support (Comma or Pipe separated)
+                        let pSizesRaw = String(getVal(row, ['sizes', 'size', 'variants', 'options'])); 
+                        let pSizes = pSizesRaw && pSizesRaw !== 'undefined' ? pSizesRaw.split(/[,|;]/).map(s => s.trim()).filter(s => s) : []; 
+                        
+                        // Modified Multiple Images support (Comma, Pipe, Semicolon separated)
+                        let pImagesRaw = String(getVal(row, ['images', 'image', 'image_link', 'image url', 'image src', 'picture', 'pictures'])); 
+                        let pImages = [];
+                        if (pImagesRaw && pImagesRaw !== 'undefined') {
+                            pImages = pImagesRaw.split(/[,|;]/).map(url => url.trim()).filter(url => url !== '');
+                        }
+                        let pImage = pImages.length > 0 ? pImages[0] : '';
+                        
+                        const productData = { 
+                            name: pName, 
+                            purchasePrice: pPurchasePrice, 
+                            oldPrice: pOldPrice, 
+                            price: pPrice, 
+                            stock: pStock, 
+                            category: pCategory, 
+                            sizes: pSizes, 
+                            unit: pUnit, 
+                            description: pDesc, 
+                            image: pImage, 
+                            images: pImages, 
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                        }; 
+                        
+                        const snapshot = await db.collection('products').where('name', '==', pName).get(); 
+                        if (!snapshot.empty) { 
+                            const docId = snapshot.docs[0].id; 
+                            await db.collection('products').doc(docId).update(productData); 
+                        } else { 
+                            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp(); 
+                            await db.collection('products').add(productData); 
+                        } 
+                        successCount++; 
+                    } 
+                    
+                    document.getElementById('csvFileInput').value = ''; 
+                    showToast(`Success: ${successCount} | Failed: ${errorCount}`, "success"); 
+                } catch (err) { 
+                    showToast("File read error: " + err.message, "error"); 
+                } 
+            }; 
+            
+            if (isCSV) reader.readAsText(file, 'UTF-8'); else reader.readAsArrayBuffer(file); 
+        });
 
         function loadDashboardData() { db.collection('orders').onSnapshot(snap => { let totalSales = 0, todaySales = 0, totalProfit = 0, todayProfit = 0; let returnLoss = 0, returnedCount = 0; let totalOrders = 0, todayOrders = 0, pendingCount = 0, processingCount = 0, completeCount = 0; let customers = new Set(); let today = new Date(); today.setHours(0, 0, 0, 0); snap.forEach(doc => { const order = doc.data(); const status = order.status || 'Pending'; totalOrders++; if(status === 'Pending') pendingCount++; else if(status === 'Processing') processingCount++; else if(status === 'Completed') completeCount++; else if(status === 'Returned') { returnedCount++; returnLoss += parseFloat(order.deliveryCharge) || 0; } let amount = parseFloat(String(order.totalPrice || order.price || 0).replace(/[^0-9.]/g, '')) || 0; let orderProfit = parseFloat(order.totalProfit) || 0; if(status === 'Completed') { totalSales += amount; totalProfit += orderProfit; } if(order.phone) customers.add(order.phone); else if(order.email) customers.add(order.email); if(order.createdAt) { let orderDate = order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt); if(orderDate >= today) { todayOrders++; if(status === 'Completed') { todaySales += amount; todayProfit += orderProfit; } } } }); document.getElementById('dash-total-sales').innerText = '৳' + totalSales; document.getElementById('dash-today-sales').innerText = '৳' + todaySales; document.getElementById('dash-total-profit').innerText = '৳' + totalProfit; document.getElementById('dash-today-profit').innerText = '৳' + todayProfit; document.getElementById('dash-return-loss').innerText = '৳' + returnLoss; document.getElementById('dash-returned-orders').innerText = returnedCount; document.getElementById('dash-total-orders').innerText = totalOrders; document.getElementById('dash-today-orders').innerText = todayOrders; document.getElementById('dash-total-customers').innerText = customers.size; document.getElementById('dash-pending-orders').innerText = pendingCount; document.getElementById('dash-processing-orders').innerText = processingCount; document.getElementById('dash-complete-orders').innerText = completeCount; }); }
 
