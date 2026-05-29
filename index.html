@@ -165,7 +165,39 @@
     <div id="product-landing-page" class="hidden min-h-[80vh] bg-[#F8FAFC] py-10">
         <div class="container mx-auto px-4 max-w-6xl">
             <button onclick="closeProductDetails()" class="mb-6 flex items-center text-gray-500 hover:text-[#FF6B35] transition-colors font-medium text-sm bg-white px-4 py-2 rounded-full shadow-sm w-max"><i class="fas fa-arrow-left mr-2"></i> ফিরে যান</button>
-            <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col lg:flex-row overflow-hidden w-full mx-auto border border-gray-100">
+            
+            <!-- Skeleton Loader (Direct Link Loading State) -->
+            <div id="product-detail-skeleton" class="hidden bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col lg:flex-row overflow-hidden w-full mx-auto border border-gray-100 animate-pulse">
+                <div class="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col items-center justify-start bg-gray-50/50">
+                    <div class="w-full bg-gray-200 rounded-2xl h-[350px] lg:h-[450px]"></div>
+                    <div class="flex gap-4 mt-8 w-full justify-center pb-4">
+                        <div class="w-16 h-16 bg-gray-200 rounded-xl"></div>
+                        <div class="w-16 h-16 bg-gray-200 rounded-xl"></div>
+                        <div class="w-16 h-16 bg-gray-200 rounded-xl hidden sm:block"></div>
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/2 p-8 lg:p-12 bg-white flex flex-col">
+                    <div class="w-24 h-6 bg-gray-200 rounded-full mb-4"></div>
+                    <div class="w-full h-10 bg-gray-200 rounded-lg mb-2"></div>
+                    <div class="w-2/3 h-10 bg-gray-200 rounded-lg mb-6"></div>
+                    <div class="w-full h-24 bg-gray-100 rounded-2xl mb-8"></div>
+                    <div class="w-32 h-6 bg-gray-200 rounded-lg mb-3"></div>
+                    <div class="flex gap-3 mb-8">
+                        <div class="w-24 h-10 bg-gray-200 rounded-xl"></div>
+                        <div class="w-24 h-10 bg-gray-200 rounded-xl"></div>
+                    </div>
+                    <div class="w-24 h-6 bg-gray-200 rounded-lg mb-3"></div>
+                    <div class="w-32 h-10 bg-gray-200 rounded-xl mb-8"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="w-full h-14 bg-gray-200 rounded-xl"></div>
+                        <div class="w-full h-14 bg-gray-200 rounded-xl"></div>
+                    </div>
+                    <div class="w-full h-14 bg-gray-200 rounded-xl mt-2"></div>
+                </div>
+            </div>
+
+            <!-- Actual Product Content -->
+            <div id="product-main-content" class="bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col lg:flex-row overflow-hidden w-full mx-auto border border-gray-100">
                 <div class="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col items-center justify-start bg-gray-50/50 relative">
                     <div class="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-center"><img id="detail-image" src="" alt="Product" class="w-full max-h-[450px] lg:max-h-[550px] object-contain transition duration-500 hover:scale-105"></div>
                     <div id="detail-thumbnails" class="flex gap-4 mt-8 overflow-x-auto w-full justify-center pb-4 scrollbar-hide"></div>
@@ -569,6 +601,9 @@
         function selectSize(btn, size) { document.querySelectorAll('.size-btn').forEach(b => { b.classList.remove('border-[#1DBF60]', 'bg-[#F0FDF4]', 'text-[#1DBF60]'); b.classList.add('border-gray-200', 'bg-white', 'text-gray-700'); }); btn.classList.add('border-[#1DBF60]', 'bg-[#F0FDF4]', 'text-[#1DBF60]'); btn.classList.remove('border-gray-200', 'bg-white', 'text-gray-700'); currentSelectedProduct.selectedVariant = size; }
 
         function openProductDetails(btn) {
+            document.getElementById('product-detail-skeleton')?.classList.add('hidden');
+            document.getElementById('product-main-content')?.classList.remove('hidden');
+
             currentSelectedProduct.id = btn.getAttribute('data-id'); currentSelectedProduct.name = btn.getAttribute('data-name'); currentSelectedProduct.price = parseFloat(btn.getAttribute('data-price')) || 0; currentSelectedProduct.purchasePrice = parseFloat(btn.getAttribute('data-purchaseprice')) || 0; currentSelectedProduct.stock = parseInt(btn.getAttribute('data-stock')) || 0; currentSelectedProduct.qty = 1; currentSelectedProduct.image = btn.getAttribute('data-image'); currentSelectedProduct.selectedVariant = ''; currentSelectedProduct.category = btn.getAttribute('data-category') || 'সাধারণ';
             let oldPrice = parseFloat(btn.getAttribute('data-oldprice')) || 0; document.getElementById('detail-image').src = currentSelectedProduct.image; document.getElementById('detail-name').innerText = currentSelectedProduct.name; document.getElementById('detail-price').innerText = '৳' + currentSelectedProduct.price; document.getElementById('detail-qty').value = currentSelectedProduct.qty;
             if(currentSelectedProduct.stock <= 0) { document.getElementById('detail-action-buttons').classList.add('hidden'); document.getElementById('detail-stock-out-msg').classList.remove('hidden'); } else { document.getElementById('detail-action-buttons').classList.remove('hidden'); document.getElementById('detail-stock-out-msg').classList.add('hidden'); }
@@ -580,7 +615,34 @@
             showPage('product-landing', false); const newUrl = spaBasePath + '?p=' + currentSelectedProduct.id; history.pushState({ page: 'product-landing', product: currentSelectedProduct.id }, '', newUrl);
         }
         
-        async function openProductById(productId) { showPage('product-landing', false); document.getElementById('detail-name').innerHTML = '<span class="animate-pulse text-gray-300">লোড হচ্ছে...</span>'; document.getElementById('detail-price').innerText = '...'; document.getElementById('detail-action-buttons').classList.add('hidden'); try { const doc = await db.collection('products').doc(productId).get(); if(doc.exists) { const p = doc.data(); currentSelectedProduct.id = doc.id; currentSelectedProduct.name = p.name || ''; currentSelectedProduct.price = parseFloat(p.price) || 0; currentSelectedProduct.purchasePrice = parseFloat(p.purchasePrice) || 0; currentSelectedProduct.stock = parseInt(p.stock) || 0; currentSelectedProduct.qty = 1; currentSelectedProduct.image = p.image || (p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400'); currentSelectedProduct.selectedVariant = ''; currentSelectedProduct.category = p.category || 'সাধারণ'; document.getElementById('detail-image').src = currentSelectedProduct.image; document.getElementById('detail-name').innerText = currentSelectedProduct.name; document.getElementById('detail-price').innerText = '৳' + currentSelectedProduct.price; document.getElementById('detail-qty').value = currentSelectedProduct.qty; if(currentSelectedProduct.stock <= 0) { document.getElementById('detail-action-buttons').classList.add('hidden'); document.getElementById('detail-stock-out-msg').classList.remove('hidden'); } else { document.getElementById('detail-action-buttons').classList.remove('hidden'); document.getElementById('detail-stock-out-msg').classList.add('hidden'); } let thumbContainer = document.getElementById('detail-thumbnails'); if(p.images && p.images.length > 1) { thumbContainer.innerHTML = p.images.map(imgSrc => `<img src="${imgSrc}" onclick="changeMainImage('${imgSrc}')" class="w-16 h-16 object-contain bg-white rounded-xl cursor-pointer border-2 hover:border-[#1DBF60] p-1 shadow-sm transition-colors border-gray-100">`).join(''); thumbContainer.classList.remove('hidden'); } else thumbContainer.classList.add('hidden'); let oldPrice = parseFloat(p.oldPrice) || 0; let oldPriceElem = document.getElementById('detail-old-price'); let discountTag = document.getElementById('detail-discount-tag'); if(oldPrice > currentSelectedProduct.price) { oldPriceElem.innerText = '৳' + oldPrice; discountTag.innerText = Math.round(((oldPrice - currentSelectedProduct.price) / oldPrice) * 100) + '% সাশ্রয়'; discountTag.classList.remove('hidden'); } else { oldPriceElem.innerText = ''; discountTag.classList.add('hidden'); } document.getElementById('detail-category').innerText = currentSelectedProduct.category; document.getElementById('detail-desc').innerText = p.description || ''; let variantsContainer = document.getElementById('detail-variants'); if (p.sizes && p.sizes.length > 0) { currentSelectedProduct.selectedVariant = p.sizes[0]; variantsContainer.innerHTML = p.sizes.map((s, idx) => `<button onclick="selectSize(this, '${s}')" class="size-btn border-2 ${idx===0?'border-[#1DBF60] text-[#1DBF60] bg-[#F0FDF4]':'border-gray-200 text-gray-700 bg-white'} px-5 py-2 rounded-xl font-bold text-sm transition-colors">${s}</button>`).join(''); document.getElementById('detail-variants-container').classList.remove('hidden'); } else if (p.unit && p.unit !== 'null') { currentSelectedProduct.selectedVariant = p.unit; variantsContainer.innerHTML = `<span class="border-2 border-gray-100 text-gray-800 px-5 py-2 rounded-xl bg-gray-50 font-bold text-sm cursor-default inline-block">${p.unit}</span>`; document.getElementById('detail-variants-container').classList.remove('hidden'); } else document.getElementById('detail-variants-container').classList.add('hidden'); loadProductReviews(currentSelectedProduct.id); loadRelatedProducts(currentSelectedProduct.category, currentSelectedProduct.id); syncToFacebookCatalog(currentSelectedProduct); } else { document.getElementById('detail-name').innerHTML = '<span class="text-red-500">প্রোডাক্ট পাওয়া যায়নি!</span>'; } } catch(e) { console.error("Error loading product", e); } }
+        async function openProductById(productId) { 
+            showPage('product-landing', false); 
+            
+            // Show Skeleton and Hide Main Content during fetch
+            document.getElementById('product-main-content').classList.add('hidden');
+            document.getElementById('product-detail-skeleton').classList.remove('hidden');
+
+            try { 
+                const doc = await db.collection('products').doc(productId).get(); 
+                if(doc.exists) { 
+                    const p = doc.data(); 
+                    currentSelectedProduct.id = doc.id; currentSelectedProduct.name = p.name || ''; currentSelectedProduct.price = parseFloat(p.price) || 0; currentSelectedProduct.purchasePrice = parseFloat(p.purchasePrice) || 0; currentSelectedProduct.stock = parseInt(p.stock) || 0; currentSelectedProduct.qty = 1; currentSelectedProduct.image = p.image || (p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/400'); currentSelectedProduct.selectedVariant = ''; currentSelectedProduct.category = p.category || 'সাধারণ'; document.getElementById('detail-image').src = currentSelectedProduct.image; document.getElementById('detail-name').innerText = currentSelectedProduct.name; document.getElementById('detail-price').innerText = '৳' + currentSelectedProduct.price; document.getElementById('detail-qty').value = currentSelectedProduct.qty; if(currentSelectedProduct.stock <= 0) { document.getElementById('detail-action-buttons').classList.add('hidden'); document.getElementById('detail-stock-out-msg').classList.remove('hidden'); } else { document.getElementById('detail-action-buttons').classList.remove('hidden'); document.getElementById('detail-stock-out-msg').classList.add('hidden'); } let thumbContainer = document.getElementById('detail-thumbnails'); if(p.images && p.images.length > 1) { thumbContainer.innerHTML = p.images.map(imgSrc => `<img src="${imgSrc}" onclick="changeMainImage('${imgSrc}')" class="w-16 h-16 object-contain bg-white rounded-xl cursor-pointer border-2 hover:border-[#1DBF60] p-1 shadow-sm transition-colors border-gray-100">`).join(''); thumbContainer.classList.remove('hidden'); } else thumbContainer.classList.add('hidden'); let oldPrice = parseFloat(p.oldPrice) || 0; let oldPriceElem = document.getElementById('detail-old-price'); let discountTag = document.getElementById('detail-discount-tag'); if(oldPrice > currentSelectedProduct.price) { oldPriceElem.innerText = '৳' + oldPrice; discountTag.innerText = Math.round(((oldPrice - currentSelectedProduct.price) / oldPrice) * 100) + '% সাশ্রয়'; discountTag.classList.remove('hidden'); } else { oldPriceElem.innerText = ''; discountTag.classList.add('hidden'); } document.getElementById('detail-category').innerText = currentSelectedProduct.category; document.getElementById('detail-desc').innerText = p.description || ''; let variantsContainer = document.getElementById('detail-variants'); if (p.sizes && p.sizes.length > 0) { currentSelectedProduct.selectedVariant = p.sizes[0]; variantsContainer.innerHTML = p.sizes.map((s, idx) => `<button onclick="selectSize(this, '${s}')" class="size-btn border-2 ${idx===0?'border-[#1DBF60] text-[#1DBF60] bg-[#F0FDF4]':'border-gray-200 text-gray-700 bg-white'} px-5 py-2 rounded-xl font-bold text-sm transition-colors">${s}</button>`).join(''); document.getElementById('detail-variants-container').classList.remove('hidden'); } else if (p.unit && p.unit !== 'null') { currentSelectedProduct.selectedVariant = p.unit; variantsContainer.innerHTML = `<span class="border-2 border-gray-100 text-gray-800 px-5 py-2 rounded-xl bg-gray-50 font-bold text-sm cursor-default inline-block">${p.unit}</span>`; document.getElementById('detail-variants-container').classList.remove('hidden'); } else document.getElementById('detail-variants-container').classList.add('hidden'); loadProductReviews(currentSelectedProduct.id); loadRelatedProducts(currentSelectedProduct.category, currentSelectedProduct.id); syncToFacebookCatalog(currentSelectedProduct); 
+
+                    // Hide Skeleton and Show Real Content instantly
+                    document.getElementById('product-detail-skeleton').classList.add('hidden');
+                    document.getElementById('product-main-content').classList.remove('hidden');
+                } else { 
+                    document.getElementById('product-detail-skeleton').classList.add('hidden');
+                    document.getElementById('product-main-content').classList.remove('hidden');
+                    document.getElementById('detail-name').innerHTML = '<span class="text-red-500">প্রোডাক্ট পাওয়া যায়নি!</span>'; 
+                    document.getElementById('detail-action-buttons').classList.add('hidden');
+                } 
+            } catch(e) { 
+                console.error("Error loading product", e); 
+                document.getElementById('product-detail-skeleton').classList.add('hidden');
+                document.getElementById('product-main-content').classList.remove('hidden');
+            } 
+        }
 
         function closeProductDetails() { showPage('home', true); }
         function updateQty(change) { let newQty = currentSelectedProduct.qty + change; if(newQty >= 1) { currentSelectedProduct.qty = newQty; document.getElementById('detail-qty').value = currentSelectedProduct.qty; } }
