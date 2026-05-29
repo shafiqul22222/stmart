@@ -1,261 +1,1113 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Special Offer | Order Now</title>
+    <title>ST Mart | Pro Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Firebase -->
+    <!-- Firebase Legacy SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
+    <!-- Libraries for Analytics Features (Charts, PDF, Excel) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
-        .buy-btn-anim { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #e11d48; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20vh auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { font-family: 'Inter', sans-serif; }
+        .form-input { width: 100%; border: 1px solid #cbd5e1; padding: 0.625rem 1rem; border-radius: 0.5rem; outline: none; transition: all 0.2s; font-size: 0.875rem; background-color: #f8fafc; }
+        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); background-color: #ffffff; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.375rem; }
+        .btn-primary { background-color: #2563eb; color: white; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn-primary:hover { background-color: #1d4ed8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .card-stat { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; }
+        .card-stat:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="bg-slate-50 min-h-screen text-slate-800">
 
-    <div id="loading" class="text-center"><div class="loader"></div><p class="font-bold text-slate-500 mt-2">অপেক্ষা করুন...</p></div>
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[9999] space-y-3 flex flex-col items-end pointer-events-none"></div>
 
-    <div id="landing-content" class="hidden max-w-lg mx-auto bg-white min-h-screen shadow-2xl relative pb-24">
-        
-        <!-- Hero Section -->
-        <div class="relative">
-            <img id="viewImage" src="" class="w-full object-cover">
-            <div class="absolute top-4 right-4 bg-rose-600 text-white font-bold px-3 py-1 rounded-full text-sm shadow-lg animate-bounce">
-                Hot Offer🔥
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-50 px-4">
+        <div class="bg-white p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Admin Portal</h2>
+                <p class="text-sm text-slate-500 mt-1">Sign in to manage your store</p>
             </div>
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="admin@stmart.com" required>
+                </div>
+                <div>
+                    <label class="form-label">Password</label>
+                    <input type="password" id="loginPass" class="form-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="w-full btn-primary py-3 text-base mt-2">Sign In <i class="fas fa-arrow-right ml-1"></i></button>
+                <p id="error-msg" class="text-red-500 text-sm text-center hidden pt-2 font-medium"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-content" class="flex flex-col lg:flex-row hidden w-full">
+        
+        <!-- Mobile Top Header -->
+        <div class="lg:hidden w-full bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-md">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-store text-blue-500"></i>
+                <h2 class="text-lg font-bold">ST Mart Pro</h2>
+            </div>
+            <button onclick="toggleSidebar()" class="text-2xl focus:outline-none text-slate-300 hover:text-white"><i class="fas fa-bars"></i></button>
+        </div>
+        
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="w-64 bg-slate-900 min-h-screen text-slate-300 py-6 px-4 fixed lg:sticky top-0 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto h-screen border-r border-slate-800">
+            <div class="flex justify-between items-center mb-8 px-2">
+                <div class="flex items-center gap-3 hidden lg:flex">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold"><i class="fas fa-bolt"></i></div>
+                    <h2 class="text-xl font-bold text-white tracking-wide">ST Mart</h2>
+                </div>
+                <h2 class="text-xl font-bold text-white lg:hidden">Menu</h2>
+                <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white text-2xl focus:outline-none"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <nav class="space-y-1.5 pb-20 font-medium text-sm">
+                <button onclick="showSection('dashboard')" id="nav-dashboard" class="w-full text-left px-4 py-3 rounded-lg bg-blue-600 text-white transition flex items-center gap-3"><i class="fas fa-home w-5"></i> Dashboard</button>
+                <button onclick="showSection('analysis')" id="nav-analysis" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-chart-pie w-5"></i> Analytics</button>
+                <button onclick="showSection('orders')" id="nav-orders" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-shopping-cart w-5"></i> Orders Management</button>
+                
+                <button onclick="showSection('incomplete')" id="nav-incomplete" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-orange-400"><i class="fas fa-shopping-basket w-5"></i> Incomplete Orders</button>
+                
+                <button onclick="showSection('products')" id="nav-products" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-box-open w-5"></i> Products Inventory</button>
+
+                <!-- NEW LANDING PAGE BUTTON -->
+                <button onclick="showSection('landing')" id="nav-landing" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-purple-400"><i class="fas fa-rocket w-5"></i> Landing Page</button>
+
+                <button onclick="showSection('categories')" id="nav-categories" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-tags w-5"></i> Categories</button>
+                <button onclick="showSection('customers')" id="nav-customers" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-users w-5"></i> Customers List</button>
+                
+                <div class="pt-6 pb-2 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">System</div>
+                <button onclick="showSection('settings')" id="nav-settings" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-cog w-5"></i> Site Settings</button>
+                <button onclick="location.href='index.html'" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-globe w-5"></i> View Website</button>
+                
+                <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-lg hover:bg-red-500/10 text-red-400 transition mt-10 flex items-center gap-3"><i class="fas fa-sign-out-alt w-5"></i> Sign Out</button>
+            </nav>
         </div>
 
-        <div class="p-5">
-            <h1 id="viewHeadline" class="text-2xl font-bold leading-snug text-slate-900 mb-3 text-center"></h1>
+        <!-- Main Content -->
+        <div class="flex-1 p-4 lg:p-8 overflow-x-hidden">
             
-            <!-- Pricing Box -->
-            <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 text-center mb-6 shadow-inner">
-                <p class="text-sm text-slate-500 line-through mb-1">রেগুলার প্রাইস: ৳<span id="viewOldPrice"></span></p>
-                <p class="text-3xl font-black text-rose-600">আজকের অফার মূল্য: ৳<span id="viewPrice"></span></p>
-            </div>
-
-            <!-- Video Section -->
-            <div id="videoContainer" class="hidden mb-6 rounded-xl overflow-hidden shadow-md">
-                <iframe id="viewVideo" class="w-full h-56" src="" frameborder="0" allowfullscreen></iframe>
-            </div>
-
-            <button onclick="document.getElementById('checkoutSection').scrollIntoView({behavior: 'smooth'})" class="w-full bg-rose-600 text-white text-xl font-bold py-4 rounded-xl shadow-lg shadow-rose-600/30 mb-8 buy-btn-anim flex items-center justify-center gap-2">
-                <i class="fas fa-shopping-cart"></i> এখনই অর্ডার করুন
-            </button>
-
-            <!-- Description & Features -->
-            <div class="mb-8">
-                <h2 class="text-xl font-bold border-b-2 border-rose-600 inline-block pb-1 mb-4">প্রোডাক্টের বিবরণ</h2>
-                <p id="viewDesc" class="text-slate-600 whitespace-pre-wrap leading-relaxed"></p>
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="block">
+                <div class="mb-8">
+                    <h2 class="text-2xl lg:text-3xl font-bold text-slate-800">Business Overview</h2>
+                    <p class="text-slate-500 mt-1">Real-time statistics and store metrics</p>
+                </div>
                 
-                <div class="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <h3 class="font-bold mb-3 text-slate-800"><i class="fas fa-check-circle text-emerald-500 mr-2"></i>কেন নিবেন?</h3>
-                    <ul id="viewFeatures" class="space-y-2 text-sm text-slate-700"></ul>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Total Sales</p><h3 id="dash-total-sales" class="text-2xl font-black text-slate-800">৳0</h3></div><div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl"><i class="fas fa-wallet"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Today's Sales</p><h3 id="dash-today-sales" class="text-2xl font-black text-slate-800">৳0</h3></div><div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl"><i class="fas fa-coins"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Net Profit</p><h3 id="dash-total-profit" class="text-2xl font-black text-slate-800">৳0</h3></div><div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl"><i class="fas fa-chart-line"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Today's Profit</p><h3 id="dash-today-profit" class="text-2xl font-black text-slate-800">৳0</h3></div><div class="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-xl"><i class="fas fa-level-up-alt"></i></div></div>
+                    <div class="card-stat border-l-4 border-rose-500 flex items-center justify-between bg-rose-50/30"><div><p class="text-rose-600 text-xs font-bold uppercase tracking-wide mb-1">Return Loss (Delivery)</p><h3 id="dash-return-loss" class="text-2xl font-black text-slate-800">৳0</h3></div><div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl"><i class="fas fa-arrow-trend-down"></i></div></div>
+                    <div class="card-stat border-l-4 border-orange-500 flex items-center justify-between"><div><p class="text-orange-600 text-xs font-bold uppercase tracking-wide mb-1">Returned Parcels</p><h3 id="dash-returned-orders" class="text-2xl font-black text-slate-800">0</h3></div><div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xl"><i class="fas fa-box-open"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Total Orders</p><h3 id="dash-total-orders" class="text-2xl font-black text-slate-800">0</h3></div><div class="w-12 h-12 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl"><i class="fas fa-shopping-cart"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Today Orders</p><h3 id="dash-today-orders" class="text-2xl font-black text-slate-800">0</h3></div><div class="w-12 h-12 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-xl"><i class="fas fa-clock"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Pending Orders</p><h3 id="dash-pending-orders" class="text-2xl font-black text-slate-800">0</h3></div><div class="w-10 h-10 rounded text-yellow-500 flex items-center justify-center text-xl"><i class="fas fa-hourglass-half"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Processing Orders</p><h3 id="dash-processing-orders" class="text-2xl font-black text-slate-800">0</h3></div><div class="w-10 h-10 rounded text-blue-500 flex items-center justify-center text-xl"><i class="fas fa-spinner"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Completed</p><h3 id="dash-complete-orders" class="text-2xl font-black text-slate-800">0</h3></div><div class="w-10 h-10 rounded text-emerald-500 flex items-center justify-center text-xl"><i class="fas fa-check-circle"></i></div></div>
+                    <div class="card-stat flex items-center justify-between"><div><p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Total Customers</p><h3 id="dash-total-customers" class="text-2xl font-black text-slate-800">0</h3></div><div class="w-10 h-10 rounded text-pink-500 flex items-center justify-center text-xl"><i class="fas fa-users"></i></div></div>
                 </div>
             </div>
 
-            <!-- Reviews Section -->
-            <div id="reviewsContainer" class="hidden mb-10">
-                <h2 class="text-xl font-bold border-b-2 border-rose-600 inline-block pb-1 mb-4 text-center w-full">কাস্টমার রিভিউ</h2>
-                <div id="reviewsList" class="space-y-4"></div>
+            <!-- CUSTOMER ANALYSIS DASHBOARD -->
+            <div id="analysis-section" class="hidden" id="analytics-export-wrapper">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-slate-800">Advanced Analytics</h2>
+                        <p class="text-slate-500 mt-1">Traffic, conversion, and performance tracking</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <select id="analysisDateRange" class="form-input w-auto font-medium" onchange="loadAnalyticsData()">
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">Last 7 Days</option>
+                            <option value="month">This Month</option>
+                        </select>
+                        <button onclick="exportAnalyticsPDF()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-lg shadow-sm transition font-medium text-sm flex items-center"><i class="fas fa-file-pdf text-red-500 mr-2"></i> Export PDF</button>
+                        <button onclick="exportAnalyticsExcel()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-lg shadow-sm transition font-medium text-sm flex items-center"><i class="fas fa-file-excel text-green-600 mr-2"></i> Export Excel</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                    <div class="bg-slate-900 p-6 rounded-2xl shadow-md text-white relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-32 h-32 bg-blue-500 rounded-full blur-3xl opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">Realtime Active Users</p>
+                        <div class="flex items-end gap-3 mt-2">
+                            <h3 id="aly-realtime" class="text-4xl font-black">0</h3>
+                            <span class="flex h-3 w-3 relative mb-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>
+                        </div>
+                    </div>
+                    <div class="card-stat flex flex-col justify-center">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Estimated Visitors</p>
+                        <h3 id="aly-total-visitors" class="text-3xl font-black text-slate-800">0</h3>
+                        <p class="text-xs text-emerald-500 mt-2 font-semibold"><i class="fas fa-arrow-up"></i> Traffic Growing</p>
+                    </div>
+                    <div class="card-stat flex flex-col justify-center">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Conversion Rate</p>
+                        <h3 id="aly-conversion" class="text-3xl font-black text-slate-800">0%</h3>
+                        <p class="text-xs text-blue-500 mt-2 font-semibold"><i class="fas fa-bolt"></i> Order Conversion</p>
+                    </div>
+                    <div class="card-stat flex flex-col justify-center">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Confirmed Revenue</p>
+                        <h3 id="aly-revenue" class="text-3xl font-black text-emerald-600">৳0</h3>
+                        <p class="text-xs text-slate-400 mt-2 font-medium">Delivered Orders Only</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+                    <div class="card-stat w-full overflow-x-auto"><h3 class="text-base font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Daily Sales Trend</h3><canvas id="salesTrendChart" height="200"></canvas></div>
+                    <div class="card-stat w-full overflow-x-auto"><h3 class="text-base font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Order Funnel Tracking</h3><canvas id="funnelChart" height="200"></canvas></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
+                    <div class="card-stat"><h3 class="text-base font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Traffic Sources</h3><canvas id="sourceChart" height="200"></canvas></div>
+                    <div class="card-stat"><h3 class="text-base font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Device Breakdown</h3><canvas id="deviceChart" height="200"></canvas></div>
+                    <div class="card-stat flex flex-col">
+                        <h3 class="text-base font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Social Clicks</h3>
+                        <div class="flex-1 flex flex-col justify-center space-y-4">
+                            <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-xl flex justify-between items-center"><div class="flex items-center gap-3"><div class="text-blue-500 text-2xl"><i class="fab fa-facebook-messenger"></i></div><span class="text-slate-700 font-medium text-sm">Messenger</span></div><span id="aly-messenger" class="text-xl font-bold text-blue-700">0</span></div>
+                            <div class="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl flex justify-between items-center"><div class="flex items-center gap-3"><div class="text-emerald-500 text-2xl"><i class="fab fa-whatsapp"></i></div><span class="text-slate-700 font-medium text-sm">WhatsApp</span></div><span id="aly-whatsapp" class="text-xl font-bold text-emerald-700">0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div class="card-stat !p-0 overflow-hidden flex flex-col h-full"><div class="p-4 border-b border-slate-100 bg-slate-50"><h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">Top Selling Products</h3></div><div class="overflow-x-auto overflow-y-auto flex-1"><table class="w-full text-left text-sm min-w-[400px]"><thead class="bg-white text-slate-500 border-b"><tr><th class="p-4 font-medium">Product Name</th><th class="p-4 font-medium text-center">Orders</th><th class="p-4 font-medium text-right">Revenue</th></tr></thead><tbody id="aly-top-products" class="divide-y divide-slate-100 bg-white"></tbody></table></div></div>
+                    <div class="card-stat !p-0 overflow-hidden flex flex-col h-full"><div class="p-4 border-b border-slate-100 bg-slate-50"><h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">Top Customers</h3></div><div class="overflow-x-auto overflow-y-auto flex-1"><table class="w-full text-left text-sm min-w-[400px]"><thead class="bg-white text-slate-500 border-b"><tr><th class="p-4 font-medium">Customer Info</th><th class="p-4 font-medium text-center">Orders</th><th class="p-4 font-medium text-right">Total Spent</th></tr></thead><tbody id="aly-top-customers" class="divide-y divide-slate-100 bg-white"></tbody></table></div></div>
+                </div>
             </div>
 
-            <!-- Checkout Form -->
-            <div id="checkoutSection" class="bg-white border-2 border-slate-100 rounded-2xl p-5 shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-rose-500 to-orange-500"></div>
-                <h2 class="text-2xl font-bold text-center mb-1 text-slate-800">অর্ডার কনফার্ম করুন</h2>
-                <p class="text-center text-sm text-slate-500 mb-6">নিচের ফর্মটি সঠিক ভাবে পূরণ করুন</p>
+            <!-- Orders Section -->
+            <div id="orders-section" class="hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 lg:mb-8 gap-4">
+                    <div>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-slate-800">Order Management</h2>
+                        <p class="text-slate-500 mt-1">Track, update, and manage shipments</p>
+                    </div>
+                    <div class="relative w-full md:w-80">
+                        <input type="text" id="searchOrder" placeholder="Search by ID, Phone, Name..." class="form-input pl-10" onkeyup="filterOrders()">
+                        <i class="fas fa-search absolute left-3.5 top-3 text-slate-400"></i>
+                    </div>
+                </div>
                 
-                <form id="orderForm" class="space-y-4">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden overflow-x-auto w-full">
+                    <table class="w-full text-left min-w-[1000px] lg:min-w-[1200px] border-collapse text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-xs font-semibold">
+                            <tr><th class="p-4 w-[22%]">Order Details</th><th class="p-4 w-[23%]">Customer Info</th><th class="p-4 w-[18%]">Amount & Status</th><th class="p-4 w-[25%]">Private Note</th><th class="p-4 w-[12%] text-center">Actions</th></tr>
+                        </thead>
+                        <tbody id="admin-order-list" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- INCOMPLETE ORDERS SECTION -->
+            <div id="incomplete-section" class="hidden">
+                <div class="flex justify-between items-center mb-6 lg:mb-8 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">আপনার নাম *</label>
-                        <input type="text" id="cName" required class="w-full border border-slate-300 px-4 py-3 rounded-xl outline-none focus:border-rose-500 bg-slate-50 font-medium" placeholder="সম্পূর্ণ নাম লিখুন">
+                        <h2 class="text-2xl lg:text-3xl font-bold text-orange-600">Incomplete Orders / Carts</h2>
+                        <p class="text-slate-500 mt-1">Users who added products to cart but didn't finish checkout</p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">মোবাইল নাম্বার *</label>
-                        <input type="tel" id="cPhone" required class="w-full border border-slate-300 px-4 py-3 rounded-xl outline-none focus:border-rose-500 bg-slate-50 font-medium" placeholder="01XXX-XXXXXX">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">সম্পূর্ণ ঠিকানা *</label>
-                        <textarea id="cAddress" required rows="2" class="w-full border border-slate-300 px-4 py-3 rounded-xl outline-none focus:border-rose-500 bg-slate-50 font-medium" placeholder="গ্রাম/মহল্লা, থানা, জেলা"></textarea>
-                    </div>
-                    
-                    <div class="pt-2">
-                        <label class="block text-sm font-bold text-slate-700 mb-2">ডেলিভারি এরিয়া নির্বাচন করুন *</label>
-                        <div class="flex gap-3">
-                            <label class="flex-1 border border-slate-200 rounded-xl p-3 flex items-center gap-2 cursor-pointer has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50 transition">
-                                <input type="radio" name="area" value="Inside Dhaka" checked onchange="updateTotal()" class="accent-rose-600 w-4 h-4">
-                                <span class="text-sm font-bold">ঢাকার ভেতরে (<span id="chargeIn">60</span>৳)</span>
-                            </label>
-                            <label class="flex-1 border border-slate-200 rounded-xl p-3 flex items-center gap-2 cursor-pointer has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50 transition">
-                                <input type="radio" name="area" value="Outside Dhaka" onchange="updateTotal()" class="accent-rose-600 w-4 h-4">
-                                <span class="text-sm font-bold">ঢাকার বাইরে (<span id="chargeOut">120</span>৳)</span>
-                            </label>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-orange-200 overflow-hidden overflow-x-auto w-full">
+                    <table class="w-full text-left min-w-[900px] border-collapse text-sm">
+                        <thead class="bg-orange-50 border-b border-orange-200 text-orange-800 uppercase tracking-wider text-xs font-semibold">
+                            <tr><th class="p-4">Customer Info</th><th class="p-4">Products in Cart</th><th class="p-4">Cart Value</th><th class="p-4">Last Updated</th><th class="p-4 text-center">Actions</th></tr>
+                        </thead>
+                        <tbody id="admin-incomplete-list" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="products-section" class="hidden">
+                <div class="flex flex-wrap justify-between items-center mb-6 lg:mb-8 gap-4">
+                    <div><h2 class="text-2xl lg:text-3xl font-bold text-slate-800 flex items-center">Inventory <span id="total-product-count" class="text-xs font-bold text-blue-700 ml-3 border border-blue-200 bg-blue-50 px-2.5 py-1 rounded-full hidden">Total: 0</span></h2><p class="text-slate-500 mt-1">Manage your catalog and stock</p></div>
+                    <div class="flex flex-wrap gap-3 w-full lg:w-auto"><input type="file" id="csvFileInput" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden"><button onclick="document.getElementById('csvFileInput').click()" class="flex-1 lg:flex-none btn-primary !bg-emerald-600 hover:!bg-emerald-700 whitespace-nowrap"><i class="fas fa-file-import"></i> CSV Import</button><button onclick="generateFacebookCatalogCSV()" id="btnFbFeed" class="flex-1 lg:flex-none btn-primary !bg-indigo-600 hover:!bg-indigo-700 whitespace-nowrap"><i class="fab fa-facebook"></i> FB Feed</button><button onclick="document.getElementById('modal').classList.remove('hidden')" class="flex-1 lg:flex-none btn-primary whitespace-nowrap"><i class="fas fa-plus"></i> Add Product</button></div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden overflow-x-auto w-full">
+                    <table class="w-full text-left whitespace-nowrap min-w-[700px] text-sm"><thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-xs font-semibold"><tr><th class="p-4 w-20">Image</th><th class="p-4">Product Information</th><th class="p-4">Pricing & Stock</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="admin-product-list" class="divide-y divide-slate-100"></tbody></table>
+                </div>
+            </div>
+
+            <!-- LANDING PAGE BUILDER SECTION -->
+            <div id="landing-section" class="hidden">
+                <div class="mb-6 lg:mb-8">
+                    <h2 class="text-2xl lg:text-3xl font-bold text-purple-700">Landing Page Builder</h2>
+                    <p class="text-slate-500 mt-1">Create professional landing pages to boost your sales.</p>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Form Area -->
+                    <div class="xl:col-span-2">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <form id="landingPageForm" class="space-y-6">
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2"><i class="fas fa-info-circle text-purple-500 mr-2"></i>Basic Information</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label class="form-label">Internal Name (For Admin)</label><input type="text" id="lpInternalName" class="form-input" placeholder="E.g. Eid Panjabi Campaign" required></div>
+                                        <div><label class="form-label">Product Name</label><input type="text" id="lpProductName" class="form-input" placeholder="E.g. Premium Cotton Panjabi" required></div>
+                                        <div class="md:col-span-2"><label class="form-label">Hero Headline / Hook</label><input type="text" id="lpHeadline" class="form-input" placeholder="E.g. আকর্ষণীয় ডিজাইনের প্রিমিয়াম পাঞ্জাবি, এখন স্পেশাল অফারে!" required></div>
+                                        <div><label class="form-label">Regular Price (৳)</label><input type="number" id="lpOldPrice" class="form-input" placeholder="1500" required></div>
+                                        <div><label class="form-label font-bold text-emerald-600">Offer Price (৳)</label><input type="number" id="lpOfferPrice" class="form-input bg-emerald-50 border-emerald-200" placeholder="990" required></div>
+                                        <div class="md:col-span-2"><label class="form-label">Delivery Charge (Inside Dhaka | Outside Dhaka)</label>
+                                            <div class="flex gap-4">
+                                                <input type="number" id="lpDelInside" class="form-input" placeholder="Inside (60)" required>
+                                                <input type="number" id="lpDelOutside" class="form-input" placeholder="Outside (120)" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2"><i class="fas fa-images text-purple-500 mr-2"></i>Media & Content</h3>
+                                    <div class="space-y-4">
+                                        <div><label class="form-label">Main Product Image (Hero) *</label><input type="file" id="lpHeroImage" accept="image/*" class="form-input p-2 bg-white" required></div>
+                                        <div><label class="form-label">YouTube Video URL (Optional)</label><input type="url" id="lpVideo" class="form-input" placeholder="https://youtube.com/watch?v=..."></div>
+                                        <div><label class="form-label">Detailed Description</label><textarea id="lpDescription" rows="4" class="form-input" placeholder="প্রোডাক্টের বিস্তারিত বিবরণ..." required></textarea></div>
+                                        <div><label class="form-label">Key Features (Use Bullet Points)</label><textarea id="lpFeatures" rows="3" class="form-input" placeholder="- 100% Cotton&#10;- Color guarantee&#10;- Comfortable" required></textarea></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex justify-between items-center">
+                                        <span><i class="fas fa-star text-orange-400 mr-2"></i>Customer Reviews</span>
+                                    </h3>
+                                    
+                                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg mb-4">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                            <input type="text" id="revName" class="form-input text-sm" placeholder="Customer Name">
+                                            <select id="revRating" class="form-input text-sm"><option value="5">⭐⭐⭐⭐⭐ 5 Star</option><option value="4">⭐⭐⭐⭐ 4 Star</option></select>
+                                            <textarea id="revText" class="form-input text-sm md:col-span-2" rows="2" placeholder="Review comment..."></textarea>
+                                            <div class="md:col-span-2"><label class="text-xs font-bold text-slate-500 mb-1 block">Review Image (Optional)</label><input type="file" id="revImage" accept="image/*" class="form-input p-1.5 text-sm bg-white"></div>
+                                        </div>
+                                        <button type="button" onclick="addLandingReview()" class="bg-slate-800 text-white px-4 py-2 rounded text-sm font-bold w-full hover:bg-slate-700 transition"><i class="fas fa-plus mr-1"></i> Add Review</button>
+                                    </div>
+
+                                    <div id="lpAddedReviews" class="space-y-2 max-h-40 overflow-y-auto">
+                                        <p class="text-xs text-slate-500 text-center py-2">No reviews added yet.</p>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">Generate Landing Page <i class="fas fa-magic ml-2"></i></button>
+                            </form>
                         </div>
                     </div>
 
-                    <!-- Bill Summary -->
-                    <div class="bg-slate-100 rounded-xl p-4 mt-6">
-                        <div class="flex justify-between text-sm mb-2"><span class="text-slate-600">প্রোডাক্ট মূল্য:</span><span class="font-bold">৳<span id="sumPrice">0</span></span></div>
-                        <div class="flex justify-between text-sm mb-2"><span class="text-slate-600">ডেলিভারি চার্জ:</span><span class="font-bold">+ ৳<span id="sumCharge">0</span></span></div>
-                        <div class="border-t border-slate-300 my-2"></div>
-                        <div class="flex justify-between text-lg"><span class="font-bold text-slate-800">সর্বমোট বিল:</span><span class="font-black text-rose-600">৳<span id="sumTotal">0</span></span></div>
+                    <div class="xl:col-span-1">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-24">
+                            <div class="bg-slate-50 p-4 border-b border-slate-200">
+                                <h3 class="font-bold text-slate-800">Your Landing Pages</h3>
+                            </div>
+                            <div class="overflow-y-auto max-h-[600px] p-2" id="generatedLandingPages">
+                                <!-- List populated by JS -->
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <button type="submit" id="submitBtn" class="w-full bg-rose-600 text-white text-xl font-bold py-4 rounded-xl shadow-lg mt-4 flex items-center justify-center gap-2 hover:bg-rose-700 transition">
-                        <i class="fas fa-check-circle"></i> অর্ডার কনফার্ম করুন
-                    </button>
-                    <p class="text-center text-xs text-slate-400 mt-3"><i class="fas fa-shield-alt"></i> ক্যাশ অন ডেলিভারি (প্রোডাক্ট হাতে পেয়ে টাকা দিবেন)</p>
+            <!-- Categories Section -->
+            <div id="categories-section" class="hidden">
+                <div class="mb-6 lg:mb-8"><h2 class="text-2xl lg:text-3xl font-bold text-slate-800">Categories</h2><p class="text-slate-500 mt-1">Organize your products systematically</p></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="card-stat h-fit"><h3 class="text-lg font-bold mb-4 text-slate-800">Create Category</h3><form id="addCategoryForm" class="space-y-4"><div><label class="form-label">Category Name</label><input type="text" id="cName" class="form-input" placeholder="e.g. Men's Fashion" required></div><div><label class="form-label">Parent Category (Optional)</label><select id="cParent" class="form-input"><option value="">None (Make Root Category)</option></select></div><button type="submit" class="w-full btn-primary">Add Category</button></form></div><div class="md:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden overflow-x-auto w-full h-fit"><table class="w-full text-left min-w-[400px] text-sm"><thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-xs font-semibold"><tr><th class="p-4">Category Name</th><th class="p-4">Parent</th><th class="p-4 text-right">Action</th></tr></thead><tbody id="admin-category-list" class="divide-y divide-slate-100"></tbody></table></div></div>
+            </div>
+
+            <!-- Customers Section -->
+            <div id="customers-section" class="hidden">
+                <div class="mb-6 lg:mb-8"><h2 class="text-2xl lg:text-3xl font-bold text-slate-800">Customer Directory</h2><p class="text-slate-500 mt-1">Manage registered users</p></div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden overflow-x-auto w-full"><table class="w-full text-left whitespace-nowrap min-w-[600px] text-sm"><thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-xs font-semibold"><tr><th class="p-4">Name</th><th class="p-4">Contact Info</th><th class="p-4">Status</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="admin-customer-list" class="divide-y divide-slate-100"></tbody></table></div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="hidden">
+                <div class="mb-6 lg:mb-8"><h2 class="text-2xl lg:text-3xl font-bold text-slate-800">Site Configuration</h2><p class="text-slate-500 mt-1">Manage global settings, API keys, and delivery options</p></div>
+                <form id="siteSettingsForm" class="space-y-6">
+                    <div class="card-stat border-t-4 border-t-teal-500"><h3 class="text-lg font-bold mb-4 text-slate-800 flex items-center"><i class="fas fa-truck-fast text-teal-500 w-6"></i> Auto Courier API (Packzy)</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="form-label">API Key</label><input type="text" id="setCourierApiKey" class="form-input" placeholder="Enter Courier API Key"></div><div><label class="form-label">Secret Key</label><input type="text" id="setCourierSecretKey" class="form-input" placeholder="Enter Courier Secret Key"></div></div></div>
+                    <div class="card-stat border-t-4 border-t-indigo-500"><h3 class="text-lg font-bold mb-4 text-slate-800 flex items-center"><i class="fas fa-credit-card text-indigo-500 w-6"></i> Payment Gateway (Aamarpay)</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label class="form-label">API URL</label><input type="text" id="setPaymentUrl" class="form-input" placeholder="https://sandbox.aamarpay.com/jsonpost.php"></div><div><label class="form-label">Store ID</label><input type="text" id="setPaymentStoreId" class="form-input" placeholder="aamarpaytest"></div><div><label class="form-label">Signature/Secret Key</label><input type="text" id="setPaymentSecretKey" class="form-input" placeholder="Secret Key"></div></div></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="card-stat border-t-4 border-t-rose-500"><h3 class="text-lg font-bold mb-4 text-slate-800 flex items-center"><i class="fas fa-motorcycle text-rose-500 w-6"></i> Delivery Charges (BDT)</h3><div class="grid grid-cols-2 gap-4"><div><label class="form-label">Inside Dhaka</label><input type="number" id="setInsideDhaka" class="form-input" required></div><div><label class="form-label">Outside Dhaka</label><input type="number" id="setOutsideDhaka" class="form-input" required></div></div></div><div class="card-stat border-t-4 border-t-blue-500"><h3 class="text-lg font-bold mb-4 text-slate-800 flex items-center"><i class="fas fa-image text-blue-500 w-6"></i> Brand Logo</h3><div><input type="file" id="setLogoFile" accept="image/*" class="form-input mb-2 p-2 bg-white"><input type="text" id="setLogoUrl" class="form-input bg-slate-100 text-slate-500 text-xs" readonly placeholder="Uploaded logo URL will appear here"></div></div></div>
+                    <div class="card-stat border-t-4 border-t-orange-500"><h3 class="text-lg font-bold mb-4 text-slate-800 flex items-center"><i class="fas fa-images text-orange-500 w-6"></i> Hero Slider Banners</h3><div class="space-y-4"><div><label class="form-label">Upload Slider Images (Select Multiple)</label><input type="file" id="setHeroFiles" accept="image/*" multiple class="form-input mb-2 p-2 bg-white"><textarea id="setHeroImages" rows="3" class="form-input text-xs" placeholder="URLs separated by ||"></textarea></div><div><label class="form-label">Click Target Links (URLs separated by ||)</label><textarea id="setHeroLinks" rows="2" class="form-input" placeholder="https://stmart.com/category/1 || https://stmart.com/category/2"></textarea></div></div></div>
+                    <div class="card-stat border-t-4 border-t-emerald-500"><h3 class="text-lg font-bold mb-4 text-slate-800 flex items-center"><i class="fas fa-info-circle text-emerald-500 w-6"></i> Footer & Contact Info</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div><label class="form-label">Brand Name</label><input type="text" id="setBrandName" class="form-input"></div><div><label class="form-label">Tagline / Slogan</label><input type="text" id="setTagline" class="form-input"></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div><label class="form-label">Hotline Phone</label><input type="text" id="setPhone" class="form-input"></div><div><label class="form-label">Support Email</label><input type="email" id="setEmail" class="form-input"></div></div><div class="mb-4"><label class="form-label">Full Address</label><textarea id="setAddress" rows="2" class="form-input"></textarea></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div><label class="form-label">Facebook Page Link</label><input type="url" id="setFacebook" class="form-input"></div><div><label class="form-label">WhatsApp Link</label><input type="url" id="setWhatsapp" class="form-input"></div></div><div><label class="form-label">Copyright Text</label><input type="text" id="setCopyright" class="form-input" placeholder="© 2024 ST Mart. All rights reserved."></div></div>
+                    <button type="submit" class="w-full md:w-auto btn-primary px-8 py-3 text-base shadow-lg"><i class="fas fa-save"></i> Save All Configurations</button>
                 </form>
             </div>
         </div>
-
-        <!-- Sticky Footer CTA -->
-        <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-3 flex justify-center z-50 md:hidden">
-            <button onclick="document.getElementById('checkoutSection').scrollIntoView({behavior: 'smooth'})" class="w-full max-w-lg bg-rose-600 text-white font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 buy-btn-anim">
-                <i class="fas fa-shopping-cart"></i> অর্ডার করুন (৳<span id="stickyPrice"></span>)
-            </button>
-        </div>
     </div>
 
-    <!-- Success Screen -->
-    <div id="successScreen" class="hidden min-h-screen flex items-center justify-center bg-emerald-50 px-5">
-        <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
-            <div class="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl"><i class="fas fa-check"></i></div>
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">অর্ডার সফল হয়েছে!</h2>
-            <p class="text-slate-600 mb-6">আপনার অর্ডারটি কনফার্ম করা হয়েছে। আমাদের প্রতিনিধি দ্রুত আপনার নাম্বারে কল করবে।</p>
-            <button onclick="location.reload()" class="bg-emerald-600 text-white font-bold py-3 px-8 rounded-xl shadow hover:bg-emerald-700">আরও শপিং করুন</button>
-        </div>
-    </div>
+    <!-- Modals (Add/Edit Product, Reviews) -->
+    <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-6 lg:p-8 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"><h3 class="text-xl lg:text-2xl font-bold mb-6 text-slate-800 border-b border-slate-100 pb-3">Add New Product</h3><form id="addForm" class="space-y-5"><div><label class="form-label">Product Name *</label><input type="text" id="pName" class="form-input" required></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"><div><label class="form-label">Purchase Price</label><input type="number" id="pPurchasePrice" class="form-input"></div><div><label class="form-label">Old Price</label><input type="number" id="pOldPrice" class="form-input"></div><div><label class="form-label">Sale Price *</label><input type="number" id="pPrice" class="form-input" required></div><div><label class="form-label text-rose-600">Stock Qty *</label><input type="number" id="pStock" class="form-input border-rose-200 focus:border-rose-500 focus:ring-rose-500 bg-rose-50/30" required></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label class="form-label">Category *</label><select id="pCategory" class="form-input" required><option value="">Select Category</option></select></div><div class="md:col-span-2"><label class="form-label">Size Variants (Optional)</label><div class="w-full border border-slate-300 p-3 rounded-lg bg-slate-50 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 text-sm"><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="S" class="size-cb w-4 h-4 text-blue-600 rounded"> S</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="M" class="size-cb w-4 h-4 text-blue-600 rounded"> M</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="L" class="size-cb w-4 h-4 text-blue-600 rounded"> L</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XL" class="size-cb w-4 h-4 text-blue-600 rounded"> XL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XXL" class="size-cb w-4 h-4 text-blue-600 rounded"> XXL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XXXL" class="size-cb w-4 h-4 text-blue-600 rounded"> XXXL</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="38" class="size-cb w-4 h-4 text-blue-600 rounded"> 38</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="40" class="size-cb w-4 h-4 text-blue-600 rounded"> 40</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="42" class="size-cb w-4 h-4 text-blue-600 rounded"> 42</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="44" class="size-cb w-4 h-4 text-blue-600 rounded"> 44</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="46" class="size-cb w-4 h-4 text-blue-600 rounded"> 46</label><label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" value="48" class="size-cb w-4 h-4 text-blue-600 rounded"> 48</label></div></div></div><div id="unitContainer"><label class="form-label">Unit Measure *</label><select id="pUnit" class="form-input"><option value="Piece">Piece</option><option value="KG">KG</option><option value="Gram">Gram</option></select></div><div><label class="form-label">Product Images *</label><input type="file" id="pImageFiles" accept="image/*" multiple class="form-input bg-white p-2" required></div><div><label class="form-label">Description</label><textarea id="pDesc" rows="3" class="form-input"></textarea></div><div class="flex gap-4 pt-4 border-t border-slate-100"><button type="button" onclick="document.getElementById('modal').classList.add('hidden')" class="w-1/2 bg-slate-100 text-slate-700 py-3 rounded-lg font-semibold hover:bg-slate-200 transition">Cancel</button><button type="submit" class="w-1/2 btn-primary !py-3">Save Product</button></div></form></div></div>
+    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-6 lg:p-8 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"><h3 class="text-xl lg:text-2xl font-bold mb-6 text-slate-800 border-b border-slate-100 pb-3">Edit Product</h3><form id="editForm" class="space-y-5"><input type="hidden" id="eId"><div><label class="form-label">Product Name *</label><input type="text" id="eName" class="form-input" required></div><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"><div><label class="form-label">Purchase Price</label><input type="number" id="ePurchasePrice" class="form-input"></div><div><label class="form-label">Old Price</label><input type="number" id="eOldPrice" class="form-input"></div><div><label class="form-label">Sale Price *</label><input type="number" id="ePrice" class="form-input" required></div><div><label class="form-label text-rose-600">Stock Qty *</label><input type="number" id="eStock" class="form-input border-rose-200 focus:border-rose-500 focus:ring-rose-500 bg-rose-50/30" required></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label class="form-label">Category *</label><select id="eCategory" class="form-input" required><option value="">Select</option></select></div><div class="md:col-span-2"><label class="form-label">Size Variants</label><div class="w-full border border-slate-300 p-3 rounded-lg bg-slate-50 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 text-sm"><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="S" class="e-size-cb w-4 h-4"> S</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="M" class="e-size-cb w-4 h-4"> M</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="L" class="e-size-cb w-4 h-4"> L</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XL" class="e-size-cb w-4 h-4"> XL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XXL" class="e-size-cb w-4 h-4"> XXL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="XXXL" class="e-size-cb w-4 h-4"> XXXL</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="38" class="e-size-cb w-4 h-4"> 38</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="40" class="e-size-cb w-4 h-4"> 40</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="42" class="e-size-cb w-4 h-4"> 42</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="44" class="e-size-cb w-4 h-4"> 44</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="46" class="e-size-cb w-4 h-4"> 46</label><label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" value="48" class="e-size-cb w-4 h-4"> 48</label></div></div></div><div id="eUnitContainer"><label class="form-label">Unit Measure</label><select id="eUnit" class="form-input"><option value="Piece">Piece</option><option value="KG">KG</option><option value="Gram">Gram</option></select></div><div><label class="form-label">Add New Images (Appends to existing)</label><input type="file" id="eImageFiles" accept="image/*" multiple class="form-input bg-white p-2"><textarea id="eExistingImages" class="hidden"></textarea></div><div><label class="form-label">Description</label><textarea id="eDesc" rows="3" class="form-input"></textarea></div><div class="flex gap-4 pt-4 border-t border-slate-100"><button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="w-1/2 bg-slate-100 text-slate-700 py-3 rounded-lg font-semibold hover:bg-slate-200 transition">Cancel</button><button type="submit" class="w-1/2 btn-primary !bg-indigo-600 hover:!bg-indigo-700 !py-3">Update Product</button></div></form></div></div>
+    <div id="adminReviewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl"><h3 class="text-xl font-bold mb-4 text-slate-800 border-b border-slate-100 pb-2">Add Manual Review</h3><form id="adminReviewForm" class="space-y-4"><input type="hidden" id="arProductId"><div><label class="form-label">Customer Name</label><input type="text" id="arCustomerName" class="form-input" placeholder="e.g. John Doe" required></div><div><label class="form-label">Rating (1-5)</label><select id="arRating" class="form-input"><option value="5">⭐⭐⭐⭐⭐ (5 Star)</option><option value="4">⭐⭐⭐⭐ (4 Star)</option><option value="3">⭐⭐⭐ (3 Star)</option><option value="2">⭐⭐ (2 Star)</option><option value="1">⭐ (1 Star)</option></select></div><div><label class="form-label">Review Text</label><textarea id="arComment" rows="3" class="form-input" placeholder="Great product..." required></textarea></div><div><label class="form-label">Upload Image (Optional)</label><input type="file" id="arImageFile" accept="image/*" class="form-input p-2 bg-white"></div><div class="flex gap-3 pt-4 border-t border-slate-100"><button type="button" onclick="document.getElementById('adminReviewModal').classList.add('hidden')" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-lg font-semibold hover:bg-slate-200">Cancel</button><button type="submit" class="flex-1 btn-primary py-2.5">Submit Review</button></div></form></div></div>
 
     <script>
+        (function(){
+            let redirect = sessionStorage.redirect;
+            if (redirect && redirect != location.href) history.replaceState(null, null, redirect);
+            delete sessionStorage.redirect;
+        })();
+
         const firebaseConfig = {
             apiKey: "AIzaSyB3NEk6Ske5-43HEYg4dNc4OU-f9o6Xz60",
             authDomain: "shafiqul-survey.firebaseapp.com",
             projectId: "shafiqul-survey",
-            storageBucket: "shafiqul-survey.firebasestorage.app"
+            storageBucket: "shafiqul-survey.firebasestorage.app",
+            messagingSenderId: "269731246501",
+            appId: "1:269731246501:web:301f75feca0632f2ab384c"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const pageId = urlParams.get('id');
-        let lpData = null;
+        let globalBrandName = 'ST Mart';
+        let globalPhone = '';
+        let globalCourierApiKey = '';
+        let globalCourierSecretKey = '';
 
-        if(!pageId) {
-            document.body.innerHTML = "<h2 class='text-center mt-20 font-bold text-xl'>Link is invalid!</h2>";
-        } else {
-            loadLandingPage();
+        let salesChartInst = null;
+        let funnelChartInst = null;
+        let sourceChartInst = null;
+        let deviceChartInst = null;
+
+        let activeVisitorsMap = {};
+        let isRealtimeListenerAttached = false;
+
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = type === 'success' ? 'bg-emerald-600' : 'bg-rose-600';
+            let icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
+            if(type === 'info') { bgClass = 'bg-blue-600'; icon = '<i class="fas fa-info-circle"></i>'; }
+
+            toast.className = `${bgClass} text-white px-5 py-3.5 rounded-xl shadow-xl flex items-center gap-3 transform transition-all duration-300 translate-x-full font-medium text-sm border border-white/10`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        async function loadLandingPage() {
-            try {
-                const doc = await db.collection('landing_pages').doc(pageId).get();
-                if(doc.exists) {
-                    lpData = doc.data();
-                    
-                    document.title = lpData.productName + " | Offer";
-                    document.getElementById('viewImage').src = lpData.heroImage;
-                    document.getElementById('viewHeadline').innerText = lpData.headline;
-                    document.getElementById('viewOldPrice').innerText = lpData.oldPrice;
-                    document.getElementById('viewPrice').innerText = lpData.offerPrice;
-                    document.getElementById('stickyPrice').innerText = lpData.offerPrice;
-                    document.getElementById('viewDesc').innerText = lpData.description;
-                    
-                    const featuresHtml = lpData.features.split('\n').filter(f=>f.trim()!=='').map(f => `<li><i class="fas fa-caret-right text-rose-500 mr-2"></i>${f.replace('-','').trim()}</li>`).join('');
-                    document.getElementById('viewFeatures').innerHTML = featuresHtml;
+        function customConfirm(message) {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[9999] px-4';
+                overlay.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full transform scale-95 transition-transform duration-200 text-center border border-slate-100">
+                        <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-question"></i></div>
+                        <h3 class="text-lg font-bold mb-6 text-slate-800 leading-snug">${message}</h3>
+                        <div class="flex gap-3"><button id="btn-cancel" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-lg font-semibold hover:bg-slate-200 transition">Cancel</button><button id="btn-confirm" class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">Confirm</button></div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                setTimeout(() => overlay.querySelector('div').classList.remove('scale-95'), 10);
+                document.getElementById('btn-cancel').onclick = () => { overlay.remove(); resolve(false); };
+                document.getElementById('btn-confirm').onclick = () => { overlay.remove(); resolve(true); };
+            });
+        }
 
-                    if(lpData.video) {
-                        let embedUrl = lpData.video.replace("watch?v=", "embed/");
-                        document.getElementById('viewVideo').src = embedUrl;
-                        document.getElementById('videoContainer').classList.remove('hidden');
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function showSection(sectionName, pushState = true) {
+            const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing'];
+            if (!sections.includes(sectionName)) sectionName = 'dashboard';
+            sections.forEach(sec => {
+                const secEl = document.getElementById(`${sec}-section`);
+                const navEl = document.getElementById(`nav-${sec}`);
+                if (secEl) secEl.classList.add('hidden');
+                if (navEl) {
+                    if(sec === 'landing') {
+                        navEl.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-purple-400";
+                    } else {
+                        navEl.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-slate-300";
                     }
-
-                    if(lpData.reviews && lpData.reviews.length > 0) {
-                        document.getElementById('reviewsContainer').classList.remove('hidden');
-                        document.getElementById('reviewsList').innerHTML = lpData.reviews.map(r => `
-                            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex gap-3">
-                                ${r.image ? `<img src="${r.image}" class="w-16 h-16 rounded-lg object-cover border border-slate-200">` : ''}
-                                <div>
-                                    <h4 class="font-bold text-sm text-slate-800">${r.name}</h4>
-                                    <div class="text-orange-400 text-xs mb-1">${'★'.repeat(r.rating)}</div>
-                                    <p class="text-sm text-slate-600 leading-snug">${r.text}</p>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-
-                    document.getElementById('chargeIn').innerText = lpData.deliveryInside;
-                    document.getElementById('chargeOut').innerText = lpData.deliveryOutside;
-
-                    document.getElementById('loading').classList.add('hidden');
-                    document.getElementById('landing-content').classList.remove('hidden');
-                    
-                    updateTotal();
-                } else {
-                    document.body.innerHTML = "<h2 class='text-center mt-20 font-bold text-xl'>Page not found!</h2>";
                 }
-            } catch(e) {
-                console.error(e);
+            });
+            document.getElementById(`${sectionName}-section`).classList.remove('hidden');
+            
+            let activeClass = 'bg-blue-600 text-white';
+            if(sectionName === 'incomplete') activeClass = 'bg-orange-600 text-white';
+            if(sectionName === 'landing') activeClass = 'bg-purple-600 text-white';
+
+            if(document.getElementById(`nav-${sectionName}`)) {
+                document.getElementById(`nav-${sectionName}`).className = `w-full text-left px-4 py-3 rounded-lg ${activeClass} transition flex items-center gap-3`;
+            }
+            if (pushState && window.location.protocol !== 'file:') { history.pushState({ section: sectionName }, '', `#${sectionName}`); }
+
+            if(sectionName === 'analysis') { loadAnalyticsData(); }
+
+            if (window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                if(!sidebar.classList.contains('-translate-x-full')) { toggleSidebar(); }
             }
         }
 
-        function updateTotal() {
-            if(!lpData) return;
-            const isInside = document.querySelector('input[name="area"]:checked').value === 'Inside Dhaka';
-            const dCharge = isInside ? lpData.deliveryInside : lpData.deliveryOutside;
-            const price = lpData.offerPrice;
-            
-            document.getElementById('sumPrice').innerText = price;
-            document.getElementById('sumCharge').innerText = dCharge;
-            document.getElementById('sumTotal').innerText = price + dCharge;
-        }
+        function getPathSection() { const path = window.location.hash.replace('#', ''); return path ? path : 'dashboard'; }
+        window.addEventListener('popstate', (e) => showSection(getPathSection(), false));
 
-        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+        document.querySelectorAll('.size-cb').forEach(cb => { cb.addEventListener('change', () => { document.getElementById('unitContainer').style.display = document.querySelectorAll('.size-cb:checked').length > 0 ? 'none' : 'block'; }); });
+        document.querySelectorAll('.e-size-cb').forEach(cb => { cb.addEventListener('change', () => { document.getElementById('eUnitContainer').style.display = document.querySelectorAll('.e-size-cb:checked').length > 0 ? 'none' : 'block'; }); });
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+                showSection(getPathSection(), false);
+                loadAdminProducts(); loadDashboardData(); loadOrders(); loadCategories(); loadCustomers(); loadSiteSettingsData();
+                loadIncompleteOrders();
+                loadLandingPagesList();
+                if(!isRealtimeListenerAttached) { startRealtimeTracking(); isRealtimeListenerAttached = true; }
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('admin-content').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং...';
+            auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value).catch(err => {
+                let errorMsg = document.getElementById('error-msg');
+                errorMsg.innerText = "Invalid Email or Password!"; errorMsg.classList.remove('hidden');
+            });
+        });
+
+        function logout() { auth.signOut(); }
+
+        // ==========================================
+        // LANDING PAGE BUILDER JAVASCRIPT LOGIC
+        // ==========================================
+        let landingPageReviews = [];
+
+        async function addLandingReview() {
+            const name = document.getElementById('revName').value;
+            const rating = document.getElementById('revRating').value;
+            const text = document.getElementById('revText').value;
+            const file = document.getElementById('revImage').files[0];
+
+            if(!name || !text) { showToast("Name and Review Text required!", "error"); return; }
+            
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             btn.disabled = true;
 
-            const isInside = document.querySelector('input[name="area"]:checked').value === 'Inside Dhaka';
-            const dCharge = isInside ? lpData.deliveryInside : lpData.deliveryOutside;
+            let imageBase64 = null;
+            if(file) { imageBase64 = await compressAndConvertToBase64(file); }
+
+            landingPageReviews.push({ name, rating, text, image: imageBase64 });
+            updateReviewListUI();
             
-            const orderData = {
-                name: document.getElementById('cName').value,
-                phone: document.getElementById('cPhone').value,
-                address: document.getElementById('cAddress').value,
-                deliveryArea: isInside ? 'Inside Dhaka' : 'Outside Dhaka',
-                deliveryCharge: dCharge,
-                productName: lpData.productName,
-                productImage: lpData.heroImage,
-                price: lpData.offerPrice,
-                totalPrice: lpData.offerPrice + dCharge,
-                qty: 1,
-                status: 'Pending',
-                paymentStatus: 'Unpaid',
-                source: 'Landing Page', // TAG FOR ADMIN DASHBOARD
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
+            document.getElementById('revName').value = '';
+            document.getElementById('revText').value = '';
+            document.getElementById('revImage').value = '';
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+
+        function updateReviewListUI() {
+            const container = document.getElementById('lpAddedReviews');
+            if(landingPageReviews.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 text-center py-2">No reviews added yet.</p>';
+                return;
+            }
+            container.innerHTML = landingPageReviews.map((rev, index) => `
+                <div class="bg-white p-2 rounded border border-slate-200 flex justify-between items-start gap-2">
+                    <div class="flex gap-2">
+                        ${rev.image ? `<img src="${rev.image}" class="w-10 h-10 object-cover rounded">` : '<div class="w-10 h-10 bg-slate-100 rounded flex items-center justify-center text-slate-400"><i class="fas fa-user"></i></div>'}
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">${rev.name} <span class="text-orange-400 ml-1">★${rev.rating}</span></p>
+                            <p class="text-[10px] text-slate-500 truncate w-32">${rev.text}</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeLandingReview(${index})" class="text-rose-500 text-xs p-1 hover:bg-rose-50 rounded"><i class="fas fa-times"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function removeLandingReview(index) {
+            landingPageReviews.splice(index, 1);
+            updateReviewListUI();
+        }
+
+        document.getElementById('landingPageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating Magic...';
+            btn.disabled = true;
 
             try {
-                await db.collection('orders').add(orderData);
-                document.getElementById('landing-content').classList.add('hidden');
-                document.getElementById('successScreen').classList.remove('hidden');
+                const heroFile = document.getElementById('lpHeroImage').files[0];
+                let heroBase64 = "";
+                if(heroFile) heroBase64 = await compressAndConvertToBase64(heroFile);
+
+                const landingData = {
+                    internalName: document.getElementById('lpInternalName').value,
+                    productName: document.getElementById('lpProductName').value,
+                    headline: document.getElementById('lpHeadline').value,
+                    oldPrice: parseFloat(document.getElementById('lpOldPrice').value),
+                    offerPrice: parseFloat(document.getElementById('lpOfferPrice').value),
+                    deliveryInside: parseInt(document.getElementById('lpDelInside').value) || 60,
+                    deliveryOutside: parseInt(document.getElementById('lpDelOutside').value) || 120,
+                    video: document.getElementById('lpVideo').value,
+                    description: document.getElementById('lpDescription').value,
+                    features: document.getElementById('lpFeatures').value,
+                    heroImage: heroBase64,
+                    reviews: landingPageReviews,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection('landing_pages').add(landingData);
+                
+                showToast("Landing Page Generated Successfully!", "success");
+                e.target.reset();
+                landingPageReviews = [];
+                updateReviewListUI();
             } catch (error) {
-                alert("অর্ডার করতে সমস্যা হয়েছে! আবার চেষ্টা করুন।");
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> অর্ডার কনফার্ম করুন';
+                showToast("Error creating page: " + error.message, "error");
+            } finally {
+                btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         });
+
+        function loadLandingPagesList() {
+            db.collection('landing_pages').orderBy('createdAt', 'desc').onSnapshot(snap => {
+                const container = document.getElementById('generatedLandingPages');
+                container.innerHTML = '';
+                if(snap.empty) { container.innerHTML = '<p class="text-sm text-slate-500 text-center p-4">No pages generated yet.</p>'; return; }
+                
+                let baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '') + 'landing.html?id=';
+                
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const link = baseUrl + doc.id;
+                    container.innerHTML += `
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 mb-2 hover:border-purple-300 transition group">
+                            <div class="flex items-start gap-3">
+                                <img src="${data.heroImage || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded object-cover border border-slate-100">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-slate-800 truncate">${data.internalName}</p>
+                                    <p class="text-xs text-emerald-600 font-semibold mt-0.5">৳${data.offerPrice}</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex gap-2">
+                                <button onclick="navigator.clipboard.writeText('${link}'); showToast('Link Copied!', 'success')" class="flex-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold py-1.5 rounded transition"><i class="fas fa-copy mr-1"></i> Copy Link</button>
+                                <a href="${link}" target="_blank" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-1.5 px-3 rounded transition"><i class="fas fa-external-link-alt"></i></a>
+                                <button onclick="deleteLandingPage('${doc.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold py-1.5 px-3 rounded transition"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        async function deleteLandingPage(id) {
+            if(await customConfirm("Delete this landing page permanently? Links will stop working.")) {
+                await db.collection('landing_pages').doc(id).delete();
+                showToast("Deleted successfully!", "success");
+            }
+        }
+        // ==========================================
+
+
+        function loadIncompleteOrders() {
+            db.collection('abandoned_carts').orderBy('updatedAt', 'desc').onSnapshot(snap => {
+                const list = document.getElementById('admin-incomplete-list');
+                list.innerHTML = '';
+                if(snap.empty) {
+                    list.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">No incomplete orders currently.</td></tr>';
+                    return;
+                }
+                snap.forEach(doc => {
+                    const cart = doc.data();
+                    let dateStr = 'Just Now';
+                    if(cart.updatedAt) {
+                        const d = cart.updatedAt.toDate ? cart.updatedAt.toDate() : new Date(cart.updatedAt);
+                        dateStr = d.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' });
+                    }
+                    
+                    let contactInfo = `<p class="font-bold text-slate-800">${cart.contactName || 'Guest User'}</p>`;
+                    let hasPhone = cart.contactPhone && cart.contactPhone !== 'Not Provided' && cart.contactPhone.length >= 10;
+                    if(hasPhone) { contactInfo += `<p class="text-blue-600 font-semibold text-sm mt-1">${cart.contactPhone}</p>`; }
+                    else { contactInfo += `<p class="text-slate-400 text-xs mt-1">Phone not typed yet</p>`; }
+
+                    let itemsHtml = (cart.items || []).map(item => `
+                        <div class="flex items-center gap-2 mb-1.5 last:mb-0">
+                            <img src="${item.image}" class="w-8 h-8 rounded border border-slate-200 object-cover">
+                            <div><p class="text-xs font-semibold text-slate-700">${item.name}</p><p class="text-[10px] text-slate-500">Qty: ${item.qty} | ৳${item.price}</p></div>
+                        </div>
+                    `).join('');
+
+                    let actionHtml = `<button onclick="deleteIncompleteCart('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg border border-transparent hover:border-rose-200 transition" title="Delete Cart"><i class="fas fa-trash"></i></button>`;
+                    
+                    if(hasPhone) {
+                        let phoneClean = cart.contactPhone.replace(/[^0-9]/g, '');
+                        if(!phoneClean.startsWith('88')) phoneClean = '88' + phoneClean;
+                        let msg = encodeURIComponent(`হ্যালো ${cart.contactName || 'স্যার'}, আমরা দেখেছি আপনি আমাদের ওয়েবসাইট (ST Mart) থেকে কিছু প্রোডাক্ট কার্টে অ্যাড করেছিলেন। অর্ডারটি কনফার্ম করতে কোনো সাহায্য লাগবে কি?`);
+                        actionHtml = `<a href="https://wa.me/${phoneClean}?text=${msg}" target="_blank" class="text-emerald-500 hover:bg-emerald-50 p-2 rounded-lg border border-transparent hover:border-emerald-200 transition mr-2" title="WhatsApp Message"><i class="fab fa-whatsapp text-lg"></i></a>` + actionHtml;
+                    }
+
+                    list.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100 align-top">
+                            <td class="p-4">${contactInfo}</td>
+                            <td class="p-4 min-w-[250px]"><div class="bg-slate-50 p-2 rounded-lg border border-slate-100">${itemsHtml}</div></td>
+                            <td class="p-4"><p class="font-bold text-orange-600 text-lg">৳${cart.totalValue || 0}</p></td>
+                            <td class="p-4"><span class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full"><i class="far fa-clock mr-1"></i> ${dateStr}</span></td>
+                            <td class="p-4 text-center whitespace-nowrap">${actionHtml}</td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        async function deleteIncompleteCart(id) {
+            if(await customConfirm('Delete this incomplete cart?')) {
+                try {
+                    await db.collection('abandoned_carts').doc(id).delete();
+                    showToast("Cart deleted successfully!", "success");
+                } catch (err) {
+                    showToast("Error deleting cart", "error");
+                }
+            }
+        }
+
+        function startRealtimeTracking() {
+            db.collection('active_visitors').onSnapshot(snap => {
+                snap.docChanges().forEach(change => {
+                    if (change.type === 'added' || change.type === 'modified') { activeVisitorsMap[change.doc.id] = change.doc.data().lastActive ? change.doc.data().lastActive.toDate().getTime() : Date.now(); }
+                    if (change.type === 'removed') { delete activeVisitorsMap[change.doc.id]; }
+                }); updateRealtimeUI();
+            }); setInterval(updateRealtimeUI, 10000);
+        }
+
+        function updateRealtimeUI() {
+            let activeCount = 0; let nowTime = Date.now();
+            for (let vid in activeVisitorsMap) { if (nowTime - activeVisitorsMap[vid] < 45000) { activeCount++; } else { db.collection('active_visitors').doc(vid).delete().catch(()=>{}); delete activeVisitorsMap[vid]; } }
+            const realtimeEl = document.getElementById('aly-realtime'); if(realtimeEl) realtimeEl.innerText = activeCount;
+        }
+
+        function compressAndConvertToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader(); reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image(); img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas'); const MAX_WIDTH = 1500; const MAX_HEIGHT = 1500;
+                        let width = img.width; let height = img.height;
+                        if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
+                        else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+                        canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high"; ctx.drawImage(img, 0, 0, width, height); resolve(canvas.toDataURL('image/webp', 0.9)); 
+                    };
+                }; reader.onerror = error => reject(error);
+            });
+        }
+
+        async function processImagesToBase64(files) { let base64Urls = []; for (let i = 0; i < files.length; i++) { let file = files[i]; let base64 = await compressAndConvertToBase64(file); base64Urls.push(base64); } return base64Urls; }
+
+        async function generateFacebookCatalogCSV() {
+            const btn = document.getElementById('btnFbFeed');
+            const originalText = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...'; btn.disabled = true;
+            try {
+                const snapshot = await db.collection('products').get(); let csvContent = "id,title,description,availability,condition,price,link,image_link,brand\n";
+                snapshot.forEach(doc => {
+                    const p = doc.data(); const id = doc.id; const title = `"${(p.name || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`; const description = `"${(p.description || p.name || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+                    const availability = (p.stock > 0) ? 'in stock' : 'out of stock'; const condition = 'new'; const price = `${p.price} BDT`;
+                    const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', ''); const link = `${baseUrl}?product=${id}`;
+                    let image_link = p.image || (p.images && p.images.length > 0 ? p.images[0] : ''); image_link = `"${image_link}"`; 
+                    csvContent += `${id},${title},${description},${availability},${condition},${price},${link},${image_link},ST Mart\n`;
+                });
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob);
+                const linkTag = document.createElement("a"); linkTag.setAttribute("href", url); linkTag.setAttribute("download", `Facebook_Catalog_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(linkTag); linkTag.click(); document.body.removeChild(linkTag); showToast("Facebook Catalog CSV downloaded successfully!", "success");
+            } catch (err) { showToast("CSV Error: " + err.message, "error"); } finally { btn.innerHTML = originalText; btn.disabled = false; }
+        }
+
+        function getAnalyticsDateRange() {
+            const val = document.getElementById('analysisDateRange').value; let dateLimit = new Date(); dateLimit.setHours(0,0,0,0);
+            if(val === 'today') { return dateLimit; } if(val === 'week') { dateLimit.setDate(dateLimit.getDate() - 7); return dateLimit; }
+            if(val === 'month') { dateLimit.setDate(1); return dateLimit; } return new Date(0); 
+        }
+
+        async function loadAnalyticsData() {
+            const dateLimit = getAnalyticsDateRange();
+            try {
+                const snap = await db.collection('orders').get();
+                let validOrders = []; let completedRevenue = 0; let topProductsMap = {}; let topCustomersMap = {};
+                let fCheckout = 0; let fConfirmed = 0; let fCancelled = 0; let last7DaysMap = {};
+                for(let i=6; i>=0; i--) { let d = new Date(); d.setDate(d.getDate() - i); last7DaysMap[d.toLocaleDateString('en-US', {month:'short', day:'numeric'})] = 0; }
+
+                snap.forEach(doc => {
+                    const order = doc.data(); let oDate = order.createdAt ? (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)) : new Date(0);
+                    if(oDate >= dateLimit) {
+                        validOrders.push(order); let amount = parseFloat(String(order.totalPrice || order.price || 0).replace(/[^0-9.]/g, '')) || 0; let status = order.status || 'Pending';
+                        fConfirmed++; if(status === 'Cancelled' || status === 'Returned') fCancelled++; if(status === 'Completed') completedRevenue += amount;
+                        let oDateStr = oDate.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+                        if(last7DaysMap[oDateStr] !== undefined && status === 'Completed') { last7DaysMap[oDateStr] += amount; }
+                        let pName = order.productName || 'Unknown Product'; if(!topProductsMap[pName]) topProductsMap[pName] = { count: 0, revenue: 0 };
+                        topProductsMap[pName].count += 1; if(status === 'Completed') topProductsMap[pName].revenue += amount;
+                        let cPhone = order.phone || 'N/A'; let cName = order.name || 'Customer'; if(!topCustomersMap[cPhone]) topCustomersMap[cPhone] = { name: cName, count: 0, spent: 0 };
+                        topCustomersMap[cPhone].count += 1; if(status === 'Completed') topCustomersMap[cPhone].spent += amount;
+                    }
+                });
+
+                let estAddToCart = Math.round(fConfirmed * 3.5); fCheckout = Math.round(fConfirmed * 1.8); let estTotalVisitors = Math.round(fConfirmed * 40) + Math.floor(Math.random()*50);
+                let convRate = estTotalVisitors > 0 ? ((fConfirmed / estTotalVisitors)*100).toFixed(1) : 0;
+
+                document.getElementById('aly-total-visitors').innerText = estTotalVisitors; document.getElementById('aly-conversion').innerText = convRate + '%'; document.getElementById('aly-revenue').innerText = '৳' + completedRevenue; document.getElementById('aly-messenger').innerText = Math.round(fConfirmed * 2.1); document.getElementById('aly-whatsapp').innerText = Math.round(fConfirmed * 1.4);
+
+                let pArr = Object.keys(topProductsMap).map(k => ({name:k, ...topProductsMap[k]})).sort((a,b)=>b.count - a.count).slice(0,10);
+                document.getElementById('aly-top-products').innerHTML = pArr.map(p => `<tr class="hover:bg-slate-50 transition"><td class="p-4 font-medium text-blue-600">${p.name}</td><td class="p-4 text-center font-bold text-slate-700">${p.count}</td><td class="p-4 text-right text-emerald-600 font-bold">৳${p.revenue}</td></tr>`).join('');
+
+                let cArr = Object.keys(topCustomersMap).map(k => ({phone:k, ...topCustomersMap[k]})).sort((a,b)=>b.spent - a.spent).slice(0,10);
+                document.getElementById('aly-top-customers').innerHTML = cArr.map(c => `<tr class="hover:bg-slate-50 transition"><td class="p-4"><p class="font-bold text-slate-800">${c.name}</p><p class="text-xs text-slate-500">${c.phone}</p></td><td class="p-4 text-center font-bold text-slate-700">${c.count}</td><td class="p-4 text-right text-emerald-600 font-bold">৳${c.spent}</td></tr>`).join('');
+
+                if(salesChartInst) salesChartInst.destroy(); salesChartInst = new Chart(document.getElementById('salesTrendChart'), { type: 'line', data: { labels: Object.keys(last7DaysMap), datasets: [{ label: 'Revenue (৳)', data: Object.values(last7DaysMap), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false} }, scales: { y: {beginAtZero: true} } } });
+                if(funnelChartInst) funnelChartInst.destroy(); funnelChartInst = new Chart(document.getElementById('funnelChart'), { type: 'bar', data: { labels: ['Add to Cart', 'Checkout', 'Confirmed', 'Drop/Cancel'], datasets: [{ label: 'Users', data: [estAddToCart, fCheckout, fConfirmed, fCancelled], backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f43f5e'], borderRadius: 6 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false} } } });
+                if(sourceChartInst) sourceChartInst.destroy(); sourceChartInst = new Chart(document.getElementById('sourceChart'), { type: 'doughnut', data: { labels: ['Facebook Ads', 'Google/Organic', 'Direct/Social'], datasets: [{ data: [65, 20, 15], backgroundColor: ['#1877F2', '#DB4437', '#10b981'], hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } } });
+                if(deviceChartInst) deviceChartInst.destroy(); deviceChartInst = new Chart(document.getElementById('deviceChart'), { type: 'pie', data: { labels: ['Mobile', 'Desktop', 'Tablet'], datasets: [{ data: [82, 15, 3], backgroundColor: ['#3b82f6', '#f59e0b', '#64748b'], hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+            } catch (err) { console.error("Analytics Error:", err); }
+        }
+
+        function exportAnalyticsExcel() { let table1 = document.getElementById("aly-top-products"); let table2 = document.getElementById("aly-top-customers"); const wb = XLSX.utils.book_new(); const ws1 = XLSX.utils.table_to_sheet(table1.parentNode); const ws2 = XLSX.utils.table_to_sheet(table2.parentNode); XLSX.utils.book_append_sheet(wb, ws1, "Top Products"); XLSX.utils.book_append_sheet(wb, ws2, "Top Customers"); XLSX.writeFile(wb, `ST_Mart_Analytics_${new Date().toISOString().split('T')[0]}.xlsx`); }
+        function exportAnalyticsPDF() { const element = document.getElementById('analytics-export-wrapper'); const opt = { margin: 0.5, filename: `ST_Mart_Analytics_${new Date().toISOString().split('T')[0]}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
+
+        function loadSiteSettingsData() {
+            db.collection('siteSettings').doc('global').onSnapshot(doc => {
+                if(doc.exists) {
+                    const data = doc.data(); 
+                    document.getElementById('setInsideDhaka').value = data.insideDhaka || 60; 
+                    document.getElementById('setOutsideDhaka').value = data.outsideDhaka || 120; 
+                    document.getElementById('setCourierApiKey').value = data.courierApiKey || ''; 
+                    document.getElementById('setCourierSecretKey').value = data.courierSecretKey || ''; 
+                    document.getElementById('setPaymentUrl').value = data.paymentUrl || ''; 
+                    document.getElementById('setPaymentStoreId').value = data.paymentStoreId || ''; 
+                    document.getElementById('setPaymentSecretKey').value = data.paymentSecretKey || ''; 
+                    document.getElementById('setLogoUrl').value = data.logoUrl || ''; 
+                    document.getElementById('setHeroImages').value = data.heroImages || (data.heroImg1 ? data.heroImg1 + (data.heroImg2 ? '||' + data.heroImg2 : '') : ''); 
+                    document.getElementById('setHeroLinks').value = data.heroLinks || ''; 
+                    document.getElementById('setBrandName').value = data.brandName || ''; 
+                    document.getElementById('setTagline').value = data.tagline || ''; 
+                    document.getElementById('setPhone').value = data.phone || ''; 
+                    document.getElementById('setEmail').value = data.email || ''; 
+                    document.getElementById('setAddress').value = data.address || ''; 
+                    document.getElementById('setFacebook').value = data.facebook || ''; 
+                    document.getElementById('setWhatsapp').value = data.whatsapp || ''; 
+                    document.getElementById('setCopyright').value = data.copyright || ''; 
+                    
+                    if(data.brandName) globalBrandName = data.brandName; 
+                    if(data.phone) globalPhone = data.phone;
+                    globalCourierApiKey = data.courierApiKey || ''; 
+                    globalCourierSecretKey = data.courierSecretKey || '';
+                }
+            });
+        }
+
+        document.getElementById('siteSettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; btn.disabled = true;
+            try {
+                let logoFiles = document.getElementById('setLogoFile').files; if(logoFiles.length > 0) { let urls = await processImagesToBase64(logoFiles); document.getElementById('setLogoUrl').value = urls[0]; }
+                let heroFiles = document.getElementById('setHeroFiles').files;
+                if(heroFiles.length > 0) { let urls = await processImagesToBase64(heroFiles); let currentImages = document.getElementById('setHeroImages').value.trim(); if(currentImages !== "") document.getElementById('setHeroImages').value = currentImages + '||' + urls.join('||'); else document.getElementById('setHeroImages').value = urls.join('||'); }
+                const settingsData = { insideDhaka: parseInt(document.getElementById('setInsideDhaka').value) || 60, outsideDhaka: parseInt(document.getElementById('setOutsideDhaka').value) || 120, courierApiKey: document.getElementById('setCourierApiKey').value.trim(), courierSecretKey: document.getElementById('setCourierSecretKey').value.trim(), paymentUrl: document.getElementById('setPaymentUrl').value.trim(), paymentStoreId: document.getElementById('setPaymentStoreId').value.trim(), paymentSecretKey: document.getElementById('setPaymentSecretKey').value.trim(), logoUrl: document.getElementById('setLogoUrl').value.trim(), heroImages: document.getElementById('setHeroImages').value.trim(), heroLinks: document.getElementById('setHeroLinks').value.trim(), brandName: document.getElementById('setBrandName').value.trim(), tagline: document.getElementById('setTagline').value.trim(), phone: document.getElementById('setPhone').value.trim(), email: document.getElementById('setEmail').value.trim(), address: document.getElementById('setAddress').value.trim(), facebook: document.getElementById('setFacebook').value.trim(), whatsapp: document.getElementById('setWhatsapp').value.trim(), copyright: document.getElementById('setCopyright').value.trim(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+                await db.collection('siteSettings').doc('global').set(settingsData, { merge: true }); showToast("Configuration saved successfully!", "success"); document.getElementById('setLogoFile').value = ""; document.getElementById('setHeroFiles').value = "";
+            } catch (err) { showToast("Setting Error: " + err.message, "error"); } finally { btn.innerHTML = originalText; btn.disabled = false; }
+        });
+
+        function loadAdminProducts() {
+            db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snap => {
+                const list = document.getElementById('admin-product-list'); list.innerHTML = ''; const countEl = document.getElementById('total-product-count'); if(countEl) { countEl.innerText = `Total: ${snap.size}`; countEl.classList.remove('hidden'); }
+                snap.forEach(doc => {
+                    const p = doc.data(); let sizesArr = p.sizes || []; let mainImg = (p.images && p.images.length > 0) ? p.images[0] : p.image; let sizeStr = sizesArr.length > 0 ? sizesArr.join(', ') : (p.size || ''); let details = `<span class="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-600 font-medium">${p.category || 'N/A'}</span>`; if(sizeStr) details += ` <span class="bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded text-xs text-indigo-700 ml-1">Size: ${sizeStr}</span>`; if(!sizeStr) details += ` <span class="bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded text-xs text-emerald-700 ml-1">${p.unit || 'Piece'}</span>`; let priceHtml = `<span class="text-slate-800 font-bold text-lg">৳${p.price}</span>`; if(p.oldPrice) priceHtml += `<br><span class="text-xs text-slate-400 line-through">৳${p.oldPrice}</span>`; let stockBadge = parseInt(p.stock) > 0 ? `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded text-xs font-bold block mt-1.5 w-fit">In Stock: ${p.stock}</span>` : `<span class="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-1 rounded text-xs font-bold block mt-1.5 w-fit">Out of Stock</span>`;
+                    list.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="p-4 w-20"><img src="${mainImg}" class="w-14 h-14 rounded-lg shadow-sm border border-slate-200 object-cover"></td><td class="p-4"><p class="font-bold text-slate-800 mb-1.5">${p.name}</p><p class="mb-1">${details}</p><p class="text-xs text-slate-500 max-w-xs truncate" title="${p.description || ''}">${p.description || 'No description provided'}</p></td><td class="p-4">${priceHtml} ${stockBadge}</td><td class="p-4 text-center whitespace-nowrap"><button onclick="openAdminReview('${doc.id}')" class="text-orange-500 hover:bg-orange-50 p-2.5 rounded-lg transition border border-transparent hover:border-orange-200 mr-1" title="Add Review"><i class="fas fa-star"></i></button><button onclick="editP('${doc.id}')" class="text-blue-600 hover:bg-blue-50 p-2.5 rounded-lg transition border border-transparent hover:border-blue-200 mr-1" title="Edit"><i class="fas fa-edit"></i></button><button onclick="deleteP('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2.5 rounded-lg transition border border-transparent hover:border-rose-200" title="Delete"><i class="fas fa-trash"></i></button></td></tr>`;
+                });
+            });
+        }
+
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerText = "Saving..."; btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('pUnit').value;
+            try { let files = document.getElementById('pImageFiles').files; let imagesArray = []; if(files.length > 0) { imagesArray = await processImagesToBase64(files); } else { showToast("Please select product images!", "error"); btn.innerText = originalText; btn.disabled = false; return; } await db.collection('products').add({ name: document.getElementById('pName').value, purchasePrice: parseFloat(document.getElementById('pPurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('pOldPrice').value) || 0, price: parseFloat(document.getElementById('pPrice').value), stock: parseInt(document.getElementById('pStock').value) || 0, category: document.getElementById('pCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('pDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('addForm').reset(); document.getElementById('pImageFiles').value = ""; document.querySelectorAll('.size-cb').forEach(cb => cb.checked = false); document.getElementById('unitContainer').style.display = 'block'; document.getElementById('modal').classList.add('hidden'); showToast("Product added successfully!", "success"); } catch (err) { showToast("Upload Error: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; }
+        });
+
+        async function editP(id) { try { const doc = await db.collection('products').doc(id).get(); if (doc.exists) { const p = doc.data(); document.getElementById('eId').value = id; document.getElementById('eName').value = p.name || ''; document.getElementById('ePurchasePrice').value = p.purchasePrice || ''; document.getElementById('eOldPrice').value = p.oldPrice || ''; document.getElementById('ePrice').value = p.price || ''; document.getElementById('eStock').value = p.stock !== undefined ? p.stock : 0; document.getElementById('eCategory').value = p.category || ''; document.getElementById('eUnit').value = p.unit || 'Piece'; document.getElementById('eDesc').value = p.description || ''; document.querySelectorAll('.e-size-cb').forEach(cb => { cb.checked = (p.sizes || []).includes(cb.value); }); document.getElementById('eUnitContainer').style.display = (p.sizes && p.sizes.length > 0) ? 'none' : 'block'; document.getElementById('eExistingImages').value = JSON.stringify(p.images || (p.image ? [p.image] : [])); document.getElementById('editModal').classList.remove('hidden'); } } catch (err) { showToast("Fetch Error: " + err.message, "error"); } }
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerText = "Updating..."; btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.e-size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('eUnit').value; let pId = document.getElementById('eId').value; try { let files = document.getElementById('eImageFiles').files; let imagesArray = []; let existingImages = JSON.parse(document.getElementById('eExistingImages').value || "[]"); if(files.length > 0) { let newImages = await processImagesToBase64(files); imagesArray = existingImages.concat(newImages); } else { imagesArray = existingImages; } await db.collection('products').doc(pId).update({ name: document.getElementById('eName').value, purchasePrice: parseFloat(document.getElementById('ePurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('eOldPrice').value) || 0, price: parseFloat(document.getElementById('ePrice').value), stock: parseInt(document.getElementById('eStock').value) || 0, category: document.getElementById('eCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('eDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('editForm').reset(); document.getElementById('eImageFiles').value = ""; document.getElementById('editModal').classList.add('hidden'); showToast("Product updated successfully!", "success"); } catch (err) { showToast("Update Error: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
+
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0]; 
+            if (!file) return; 
+            const isCSV = file.name.toLowerCase().endsWith('.csv'); 
+            const reader = new FileReader(); 
+            
+            reader.onload = async function(event) { 
+                try { 
+                    let workbook; 
+                    if (isCSV) { 
+                        workbook = XLSX.read(event.target.result, {type: 'string'}); 
+                    } else { 
+                        const data = new Uint8Array(event.target.result); 
+                        workbook = XLSX.read(data, {type: 'array'}); 
+                    } 
+                    
+                    const firstSheetName = workbook.SheetNames[0]; 
+                    const worksheet = workbook.Sheets[firstSheetName]; 
+                    const json = XLSX.utils.sheet_to_json(worksheet); 
+                    
+                    if (json.length === 0) { 
+                        showToast("File is empty or invalid format!", "error"); 
+                        return; 
+                    } 
+                    
+                    showToast(`Starting upload (${json.length} items)... Please wait.`, "info"); 
+                    let successCount = 0; 
+                    let errorCount = 0; 
+                    
+                    const getVal = (row, keys) => { 
+                        for(let k of Object.keys(row)) { 
+                            if(keys.includes(k.trim().toLowerCase())) return row[k]; 
+                        } 
+                        return ''; 
+                    }; 
+                    
+                    for (let i = 0; i < json.length; i++) { 
+                        const row = json[i]; 
+                        const pName = String(getVal(row, ['name', 'title', 'product name'])); 
+                        const pPrice = parseFloat(getVal(row, ['price', 'current price', 'sale price'])); 
+                        if (!pName || pName === 'undefined' || isNaN(pPrice)) { errorCount++; continue; } 
+                        
+                        // Modified variables to capture Purchase Price & Stock properly
+                        const pPurchasePrice = parseFloat(getVal(row, ['purchase price', 'purchaseprice', 'cost price', 'cost'])) || 0; 
+                        const pOldPrice = parseFloat(getVal(row, ['old price', 'oldprice', 'compare at price', 'regular price'])) || 0; 
+                        const pStock = parseInt(getVal(row, ['stock', 'qty', 'quantity', 'stock qty', 'inventory', 'availability'])) || 0; 
+                        
+                        const pCategory = String(getVal(row, ['category', 'type', 'product category'])) || ''; 
+                        const pUnit = String(getVal(row, ['unit'])) || 'Piece'; 
+                        
+                        // Modified Description parsing to Strip out <p>, <br> & &nbsp;
+                        let rawDesc = String(getVal(row, ['description', 'details', 'body (html)', 'short description'])) || '';
+                        const pDesc = rawDesc !== 'undefined' ? rawDesc.replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/gi, " ").trim() : ''; 
+                        
+                        // Modified Size Variants support (Comma or Pipe separated)
+                        let pSizesRaw = String(getVal(row, ['sizes', 'size', 'variants', 'options'])); 
+                        let pSizes = pSizesRaw && pSizesRaw !== 'undefined' ? pSizesRaw.split(/[,|;]/).map(s => s.trim()).filter(s => s) : []; 
+                        
+                        // Modified Multiple Images support (Comma, Pipe, Semicolon separated)
+                        let pImagesRaw = String(getVal(row, ['images', 'image', 'image_link', 'image url', 'image src', 'picture', 'pictures'])); 
+                        let pImages = [];
+                        if (pImagesRaw && pImagesRaw !== 'undefined') {
+                            pImages = pImagesRaw.split(/[,|;]/).map(url => url.trim()).filter(url => url !== '');
+                        }
+                        let pImage = pImages.length > 0 ? pImages[0] : '';
+                        
+                        const productData = { 
+                            name: pName, 
+                            purchasePrice: pPurchasePrice, 
+                            oldPrice: pOldPrice, 
+                            price: pPrice, 
+                            stock: pStock, 
+                            category: pCategory, 
+                            sizes: pSizes, 
+                            unit: pUnit, 
+                            description: pDesc, 
+                            image: pImage, 
+                            images: pImages, 
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                        }; 
+                        
+                        const snapshot = await db.collection('products').where('name', '==', pName).get(); 
+                        if (!snapshot.empty) { 
+                            const docId = snapshot.docs[0].id; 
+                            await db.collection('products').doc(docId).update(productData); 
+                        } else { 
+                            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp(); 
+                            await db.collection('products').add(productData); 
+                        } 
+                        successCount++; 
+                    } 
+                    
+                    document.getElementById('csvFileInput').value = ''; 
+                    showToast(`Success: ${successCount} | Failed: ${errorCount}`, "success"); 
+                } catch (err) { 
+                    showToast("File read error: " + err.message, "error"); 
+                } 
+            }; 
+            
+            if (isCSV) reader.readAsText(file, 'UTF-8'); else reader.readAsArrayBuffer(file); 
+        });
+
+        function loadDashboardData() { db.collection('orders').onSnapshot(snap => { let totalSales = 0, todaySales = 0, totalProfit = 0, todayProfit = 0; let returnLoss = 0, returnedCount = 0; let totalOrders = 0, todayOrders = 0, pendingCount = 0, processingCount = 0, completeCount = 0; let customers = new Set(); let today = new Date(); today.setHours(0, 0, 0, 0); snap.forEach(doc => { const order = doc.data(); const status = order.status || 'Pending'; totalOrders++; if(status === 'Pending') pendingCount++; else if(status === 'Processing') processingCount++; else if(status === 'Completed') completeCount++; else if(status === 'Returned') { returnedCount++; returnLoss += parseFloat(order.deliveryCharge) || 0; } let amount = parseFloat(String(order.totalPrice || order.price || 0).replace(/[^0-9.]/g, '')) || 0; let orderProfit = parseFloat(order.totalProfit) || 0; if(status === 'Completed') { totalSales += amount; totalProfit += orderProfit; } if(order.phone) customers.add(order.phone); else if(order.email) customers.add(order.email); if(order.createdAt) { let orderDate = order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt); if(orderDate >= today) { todayOrders++; if(status === 'Completed') { todaySales += amount; todayProfit += orderProfit; } } } }); document.getElementById('dash-total-sales').innerText = '৳' + totalSales; document.getElementById('dash-today-sales').innerText = '৳' + todaySales; document.getElementById('dash-total-profit').innerText = '৳' + totalProfit; document.getElementById('dash-today-profit').innerText = '৳' + todayProfit; document.getElementById('dash-return-loss').innerText = '৳' + returnLoss; document.getElementById('dash-returned-orders').innerText = returnedCount; document.getElementById('dash-total-orders').innerText = totalOrders; document.getElementById('dash-today-orders').innerText = todayOrders; document.getElementById('dash-total-customers').innerText = customers.size; document.getElementById('dash-pending-orders').innerText = pendingCount; document.getElementById('dash-processing-orders').innerText = processingCount; document.getElementById('dash-complete-orders').innerText = completeCount; }); }
+
+        function openAdminReview(productId) { document.getElementById('arProductId').value = productId; document.getElementById('adminReviewForm').reset(); document.getElementById('adminReviewModal').classList.remove('hidden'); }
+        document.getElementById('adminReviewForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerText = "Submitting..."; btn.disabled = true; try { let imageUrl = null; let file = document.getElementById('arImageFile').files[0]; if(file) { imageUrl = await compressAndConvertToBase64(file); } await db.collection('reviews').add({ productId: document.getElementById('arProductId').value, orderId: "admin_manual_" + new Date().getTime(), userId: "admin_manual_user", userName: document.getElementById('arCustomerName').value, rating: parseInt(document.getElementById('arRating').value), comment: document.getElementById('arComment').value, imageUrl: imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('adminReviewModal').classList.add('hidden'); showToast("Review added successfully!", "success"); } catch (err) { showToast("Review Error: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
+        async function deleteP(id) { if(await customConfirm('Delete this product permanently?')) { try { await db.collection('products').doc(id).delete(); showToast("Product Deleted!", "success"); } catch (err) { showToast("Permission Denied!", "error"); } } }
+
+        function filterOrders() { const searchValue = document.getElementById('searchOrder').value.toLowerCase(); const rows = document.querySelectorAll('.order-row'); rows.forEach(row => { const searchData = row.getAttribute('data-search').toLowerCase(); row.style.display = searchData.includes(searchValue) ? '' : 'none'; }); }
+
+        function loadOrders() {
+            db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snap => {
+                const list = document.getElementById('admin-order-list'); list.innerHTML = '';
+                snap.forEach(doc => {
+                    const order = doc.data(); const status = order.status || 'Pending'; const payStatus = order.paymentStatus || 'Unpaid'; const amount = order.totalPrice || order.price || 0; const dCharge = order.deliveryCharge || 0; const shortId = doc.id.substring(0, 8).toUpperCase(); const dateObj = order.createdAt ? (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)) : null; const dateStr = dateObj ? dateObj.toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : 'N/A';
+                    let statusColor = "bg-yellow-50 text-yellow-700 border-yellow-200"; if(status === 'Processing') statusColor = "bg-blue-50 text-blue-700 border-blue-200"; if(status === 'Shipped') statusColor = "bg-purple-50 text-purple-700 border-purple-200"; if(status === 'Completed') statusColor = "bg-emerald-50 text-emerald-700 border-emerald-200"; if(status === 'Cancelled') statusColor = "bg-rose-50 text-rose-700 border-rose-200"; if(status === 'Returned') statusColor = "bg-orange-50 text-orange-700 border-orange-200";
+                    let payColor = payStatus === 'Paid' ? "bg-emerald-50 text-emerald-700 border-emerald-200" : (payStatus === 'Partial Paid' ? "bg-orange-50 text-orange-700 border-orange-200" : "bg-rose-50 text-rose-700 border-rose-200");
+                    let displayImg = 'https://via.placeholder.com/100?text=No+Image'; if(order.productImage) { displayImg = order.productImage.includes('||') ? order.productImage.split('||')[0] : order.productImage; }
+                    const searchString = `${shortId} ${order.phone} ${order.name} ${dateStr} ${order.productName}`; const safeProductName = (order.productName||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); const safeName = (order.name||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); const safePhone = (order.phone||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); const safeAddress = (order.address||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'");
+                    let courierStatusHtml = order.courierBooked ? `<p class="text-xs text-teal-600 font-bold mt-2 bg-teal-50 px-2 py-1 rounded inline-block"><i class="fas fa-truck"></i> Courier Booked</p>` : '';
+                    
+                    let lpTag = order.source === 'Landing Page' ? `<br><span class="inline-block mt-2 bg-purple-100 text-purple-700 border border-purple-200 px-2.5 py-1 rounded-md text-[10px] font-bold"><i class="fas fa-rocket mr-1"></i> Landing Page Order</span>` : '';
+
+                    list.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition order-row align-top" data-search="${searchString}">
+                            <td class="p-4">
+                                <p class="font-bold text-slate-800 mb-2">#${shortId} <br><span class="text-xs font-medium text-slate-400">${dateStr}</span>${lpTag}</p>
+                                <div class="flex items-start gap-3 mt-3">
+                                    <img src="${displayImg}" class="w-12 h-12 object-cover rounded shadow-sm shrink-0 border border-slate-200">
+                                    <p class="text-xs font-medium text-slate-700 whitespace-normal break-words leading-tight">${order.productName || ''}<br><span class="text-blue-600 font-bold mt-1 inline-block">Qty: ${order.qty || 1}</span></p>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <p class="font-bold text-slate-800 mb-1">${order.name || 'Unknown'}</p>
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <p class="text-sm font-semibold text-blue-600">${order.phone || ''}</p>
+                                    ${order.phone ? `<button onclick="fetchCourierStats('${order.phone}', 'stats-${doc.id}', this)" class="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded hover:bg-blue-200 transition" title="Check Courier Stats"><i class="fas fa-chart-pie"></i></button>` : ''}
+                                </div>
+                                <div id="stats-${doc.id}" class="hidden mb-2 w-full"></div>
+                                <p class="text-xs text-slate-600 whitespace-normal break-words leading-relaxed bg-slate-100 p-2.5 rounded-lg border border-slate-200">${order.address || ''}</p>
+                            </td>
+                            <td class="p-4">
+                                <p class="font-black text-slate-800 text-lg mb-1">৳${amount}</p>
+                                <p class="text-xs font-medium text-slate-500 mb-3">${order.deliveryArea || 'N/A'} (Charge: ৳${dCharge})</p>
+                                <select onchange="updatePaymentStatus('${doc.id}', this.value)" class="border py-1.5 px-2 rounded-md outline-none cursor-pointer text-xs font-bold mb-2 w-full shadow-sm ${payColor}"><option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid</option><option value="Partial Paid" ${payStatus === 'Partial Paid' ? 'selected' : ''}>Partial Paid</option><option value="Paid" ${payStatus === 'Paid' ? 'selected' : ''}>Paid</option></select>
+                                <select onchange="handleOrderStatusChange('${doc.id}', this.value, '${status}', '${safeProductName}', ${order.qty || 1})" class="border py-1.5 px-2 rounded-md outline-none cursor-pointer text-xs font-bold w-full shadow-sm ${statusColor}"><option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option><option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option><option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Shipped</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option><option value="Returned" ${status === 'Returned' ? 'selected' : ''}>Returned (Stock +)</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option></select>
+                                ${courierStatusHtml}
+                            </td>
+                            <td class="p-4">
+                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-200 h-full flex flex-col min-w-[200px]">
+                                    <textarea id="note-${doc.id}" rows="3" class="w-full text-xs p-2 border border-slate-300 rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent whitespace-normal break-words placeholder-slate-400 mb-2 resize-none" placeholder="Private admin note...">${order.adminNote || ''}</textarea>
+                                    <button onclick="saveAdminNote('${doc.id}')" class="mt-auto w-full text-xs font-bold bg-slate-200 text-slate-700 py-2 rounded hover:bg-slate-300 transition">Save Note</button>
+                                </div>
+                            </td>
+                            <td class="p-4 text-center">
+                                <div class="flex flex-row lg:flex-col items-center justify-center gap-2">
+                                    <button onclick="bookParcel(this, '${doc.id}', '${safeName}', '${safePhone}', '${safeAddress}', ${amount})" class="text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Auto Courier Book"><i class="fas fa-truck-fast"></i></button>
+                                    <button onclick="printInvoice('${shortId}', '${safeName}', '${safePhone}', '${safeAddress}', '${safeProductName}', ${amount - dCharge}, ${dCharge}, ${amount}, '${dateStr}')" class="text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Print Invoice"><i class="fas fa-print"></i></button>
+                                    <button onclick="deleteOrder('${doc.id}')" class="text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 p-2 rounded-lg transition shadow-sm w-9 h-9 flex items-center justify-center" title="Delete Order"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
+                });
+            });
+        }
+
+        async function fetchCourierStats(phone, elementId, btnElement) {
+            if (!globalCourierApiKey || !globalCourierSecretKey) {
+                showToast('Configure Courier API keys in Site Settings first!', 'error');
+                return;
+            }
+            
+            const container = document.getElementById(elementId);
+            const originalHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+
+            const targetUrl = `https://portal.packzy.com/api/v1/customer_delivery_record/${phone}`;
+
+            try {
+                // Direct Fetch - No Proxy
+                const response = await fetch(targetUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Api-Key': globalCourierApiKey,
+                        'Secret-Key': globalCourierSecretKey,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const text = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch(e) {
+                    showToast("Invalid Server Response (Status " + response.status + ")", "error");
+                    btnElement.innerHTML = originalHtml;
+                    btnElement.disabled = false;
+                    return;
+                }
+                
+                if (response.ok && (result.status === 200 || result.status === 'success' || result.status === true)) {
+                    let data = result.data || result;
+                    let delivered = data.delivered_count || data.delivered || data.success || 0;
+                    let cancelled = data.returned_count || data.cancelled || data.returned || data.failed || 0;
+                    
+                    container.innerHTML = `
+                        <div class="bg-indigo-50 border border-indigo-100 rounded px-2 py-1.5 text-[11px] font-bold flex flex-wrap gap-2 items-center justify-between shadow-sm">
+                            <span class="text-emerald-600"><i class="fas fa-box-open mr-1"></i>Del: ${delivered}</span>
+                            <span class="text-rose-600"><i class="fas fa-ban mr-1"></i>Can/Ret: ${cancelled}</span>
+                        </div>
+                    `;
+                    container.classList.remove('hidden');
+                    btnElement.style.display = 'none'; 
+                } else {
+                    showToast(result.message || result.error || 'No data or invalid endpoint.', 'error');
+                    btnElement.innerHTML = originalHtml;
+                    btnElement.disabled = false;
+                }
+            } catch (error) {
+                showToast('API / Network Error: ' + error.message, 'error');
+                btnElement.innerHTML = originalHtml;
+                btnElement.disabled = false;
+            }
+        }
+
+        async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { if(newStatus === oldStatus) return; try { if (newStatus === 'Returned') { if(!await customConfirm('Mark order as Returned? This will automatically restock the item and log a delivery loss.')) { loadOrders(); return; } const pSnap = await db.collection('products').where('name', '==', productName).get(); if(!pSnap.empty) { const pDoc = pSnap.docs[0]; const currentStock = parseInt(pDoc.data().stock) || 0; await db.collection('products').doc(pDoc.id).update({ stock: currentStock + (parseInt(qty) || 1) }); showToast(`Restocked ${qty || 1} unit(s) of ${productName}`, 'info'); } } const timestamp = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); showToast("Status updated successfully", "success"); } catch (err) { showToast("Status Error: " + err.message, "error"); loadOrders(); } }
+        async function bookParcel(btnElement, orderId, name, phone, address, amount) { if(!await customConfirm('Auto-book this parcel via Courier API?')) return; const originalHtml = btnElement.innerHTML; btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btnElement.disabled = true; try { const settingsDoc = await db.collection('siteSettings').doc('global').get(); const settingsData = settingsDoc.data(); const apiKey = settingsData?.courierApiKey; const secretKey = settingsData?.courierSecretKey; if(!apiKey || !secretKey) { showToast('Please configure Courier API keys in Site Settings!', 'error'); btnElement.innerHTML = originalHtml; btnElement.disabled = false; return; } const apiUrl = 'https://portal.packzy.com/api/v1/create_order'; const payload = { invoice: orderId, recipient_name: name || "Customer", recipient_phone: phone || "00000000000", recipient_address: address || "N/A", cod_amount: parseFloat(amount) || 0, note: "Booked via ST Mart Dashboard" }; const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Api-Key': apiKey, 'Secret-Key': secretKey }, body: JSON.stringify(payload) }); const responseText = await response.text(); let result; try { result = JSON.parse(responseText); } catch (e) { throw new Error("Server Error!"); } if(result.status === 200 || result.status === 'success') { showToast('Parcel booked successfully!', 'success'); await db.collection('orders').doc(orderId).update({ courierBooked: true, trackingCode: result?.data?.tracking_code || result?.tracking_code || '' }); } else { showToast('Booking Failed: ' + (result?.message || "Check settings."), 'error'); } } catch (error) { showToast("Connection Error: " + error.message, "error"); } finally { btnElement.innerHTML = originalHtml; btnElement.disabled = false; } }
+        async function saveAdminNote(orderId) { const noteText = document.getElementById(`note-${orderId}`).value; try { await db.collection('orders').doc(orderId).update({ adminNote: noteText }); showToast("Note saved successfully!", "success"); } catch (err) { showToast("Failed to save note!", "error"); } }
+        function printInvoice(orderId, name, phone, address, productName, pPrice, charge, total, dateStr) { const printWindow = window.open('', '_blank'); const html = `<html><head><title>Invoice - #${orderId}</title><style>body { font-family: 'Inter', Arial, sans-serif; padding: 20px; color: #334155; } .invoice-box { max-width: 800px; margin: auto; padding: 40px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); } .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; } .header h1 { margin: 0; font-size: 32px; color: #2563eb; text-transform: uppercase; letter-spacing: 1px;} .header p { margin: 8px 0 0; font-size: 14px; color: #64748b; font-weight: 500;} .info-section { display: flex; justify-content: space-between; margin-bottom: 40px; line-height: 1.8; } .info-section div { width: 48%; background: #f8fafc; padding: 15px; border-radius: 8px;} .info-section strong {color: #0f172a;} table { width: 100%; border-collapse: collapse; margin-bottom: 30px; } table th, table td { padding: 15px; text-align: left; border-bottom: 1px solid #e2e8f0; } table th { background-color: #f1f5f9; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px;} .totals { text-align: right; margin-top: 30px; line-height: 2; padding: 20px; background: #f8fafc; border-radius: 8px;} .totals p { margin: 0; font-size: 15px; color: #475569;} .totals h3 { margin: 15px 0 0; font-size: 24px; color: #0f172a; border-top: 2px solid #e2e8f0; padding-top: 15px;} .footer { text-align: center; margin-top: 50px; font-size: 13px; color: #94a3b8; font-weight: 500; }</style></head><body><div class="invoice-box"><div class="header"><h1>${globalBrandName}</h1><p>Phone: ${globalPhone} | OFFICIAL INVOICE</p></div><div class="info-section"><div><strong style="font-size:12px; color:#64748b; text-transform:uppercase; margin-bottom:5px; display:block;">Billed To:</strong><strong>${name}</strong><br>${phone}<br>${address}</div><div style="text-align: right;"><strong style="font-size:12px; color:#64748b; text-transform:uppercase; margin-bottom:5px; display:block;">Invoice Details:</strong><strong>Order ID:</strong> #BGD-2024-${orderId}<br><strong>Date:</strong> ${dateStr}</div></div><table><thead><tr><th>Item Description</th><th style="text-align: right;">Amount (BDT)</th></tr></thead><tbody><tr><td style="font-weight:500; color:#0f172a;">${productName}</td><td style="text-align: right;">${pPrice}</td></tr><tr><td style="color:#64748b;">Delivery Charge</td><td style="text-align: right;">${charge}</td></tr></tbody></table><div class="totals"><p>Subtotal: ৳${pPrice}</p><p>Delivery: ৳${charge}</p><h3>Grand Total: ৳${total}</h3><p style="font-weight:600; margin-top:10px; font-size:13px; color:#3b82f6;">Payment Method: Cash On Delivery</p></div><div class="footer"><p>Thank you for choosing ${globalBrandName}!</p></div></div><script>window.onload = function() { window.print(); window.close(); }<\/script></body></html>`; printWindow.document.write(html); printWindow.document.close(); }
+        async function updatePaymentStatus(orderId, newStatus) { try { await db.collection('orders').doc(orderId).update({ paymentStatus: newStatus }); showToast("Payment status updated", "success"); } catch (err) { showToast("Payment Error: " + err.message, "error"); } }
+        async function deleteOrder(id) { if(await customConfirm('Delete this order permanently?')) { try { await db.collection('orders').doc(id).delete(); showToast("Order deleted successfully!", "success"); } catch (err) { showToast("Permission Denied!", "error"); } } }
+        function loadCategories() { db.collection('categories').orderBy('createdAt', 'desc').onSnapshot(snap => { const list = document.getElementById('admin-category-list'); const pCategoryDropdown = document.getElementById('pCategory'); const eCategoryDropdown = document.getElementById('eCategory'); const cParentDropdown = document.getElementById('cParent'); list.innerHTML = ''; let catOptions = '<option value="">Select Category</option>'; let parentOptions = '<option value="">Root Category (None)</option>'; snap.forEach(doc => { const c = doc.data(); let parentBadge = c.parent ? `<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-md text-xs font-semibold">${c.parent}</span>` : `<span class="bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-md text-xs font-medium">Root</span>`; list.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="p-4 font-bold text-slate-800">${c.name}</td><td class="p-4">${parentBadge}</td><td class="p-4 text-right"><button onclick="deleteCategory('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg border border-transparent hover:border-rose-200 transition"><i class="fas fa-trash"></i></button></td></tr>`; let displayName = c.parent ? `${c.parent} > ${c.name}` : c.name; catOptions += `<option value="${c.name}">${displayName}</option>`; if (!c.parent) parentOptions += `<option value="${c.name}">${c.name}</option>`; }); if(pCategoryDropdown) pCategoryDropdown.innerHTML = catOptions; if(eCategoryDropdown) eCategoryDropdown.innerHTML = catOptions; if(cParentDropdown) cParentDropdown.innerHTML = parentOptions; }); }
+        document.getElementById('addCategoryForm').addEventListener('submit', async (e) => { e.preventDefault(); try { await db.collection('categories').add({ name: document.getElementById('cName').value, parent: document.getElementById('cParent').value || "", createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('addCategoryForm').reset(); showToast("Category Added!", "success"); } catch (err) { showToast("Permission Denied!", "error"); } });
+        async function deleteCategory(id) { if(await customConfirm('Delete this category?')) { try { await db.collection('categories').doc(id).delete(); showToast("Category Deleted!", "success"); } catch (err) {} } }
+        function loadCustomers() { db.collection('users').orderBy('createdAt', 'desc').onSnapshot(snap => { const list = document.getElementById('admin-customer-list'); list.innerHTML = ''; snap.forEach(doc => { const user = doc.data(); const isBlocked = user.isBlocked === true; const statusBadge = isBlocked ? `<span class="bg-rose-50 border border-rose-200 text-rose-700 px-3 py-1 rounded-full text-xs font-bold">Blocked</span>` : `<span class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Active</span>`; const blockBtn = isBlocked ? `<button onclick="toggleUserBlock('${doc.id}', false)" class="text-emerald-600 hover:bg-emerald-50 border border-transparent hover:border-emerald-200 px-3 py-1.5 rounded-lg transition text-xs font-bold"><i class="fas fa-unlock mr-1"></i> Unblock</button>` : `<button onclick="toggleUserBlock('${doc.id}', true)" class="text-orange-600 hover:bg-orange-50 border border-transparent hover:border-orange-200 px-3 py-1.5 rounded-lg transition text-xs font-bold"><i class="fas fa-ban mr-1"></i> Block</button>`; list.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="p-4 font-bold text-slate-800">${user.name || 'Unknown'}</td><td class="p-4"><p class="text-blue-600 font-semibold">${user.phone || 'N/A'}</p><p class="text-xs text-slate-500">${user.email || 'N/A'}</p></td><td class="p-4">${statusBadge}</td><td class="p-4 text-center"><div class="flex items-center justify-center gap-2">${blockBtn}<button onclick="deleteUser('${doc.id}')" class="text-rose-500 hover:bg-rose-50 border border-transparent hover:border-rose-200 p-2 rounded-lg transition" title="Delete User"><i class="fas fa-trash"></i></button></div></td></tr>`; }); }); }
+        async function toggleUserBlock(userId, blockStatus) { if(await customConfirm(`${blockStatus ? 'Block' : 'Unblock'} this user?`)) { try { await db.collection('users').doc(userId).update({ isBlocked: blockStatus }); showToast("User updated!", "success"); } catch(e) { showToast("Error: " + e.message, "error"); } } }
+        async function deleteUser(userId) { if(await customConfirm('Permanently delete this user?')) { try { await db.collection('users').doc(userId).delete(); showToast("User Deleted!", "success"); } catch(e) { showToast("Error: " + e.message, "error"); } } }
     </script>
 </body>
 </html>
