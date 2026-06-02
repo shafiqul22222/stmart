@@ -96,6 +96,9 @@
                 <button onclick="showSection('analysis')" id="nav-analysis" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-chart-pie w-5"></i> Analytics</button>
                 <button onclick="showSection('orders')" id="nav-orders" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-shopping-cart w-5"></i> Orders Management</button>
                 
+                <!-- NEW COURIER RATE BUTTON -->
+                <button onclick="showSection('courier')" id="nav-courier" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-teal-400"><i class="fas fa-truck-fast w-5"></i> Courier Rate</button>
+                
                 <button onclick="showSection('incomplete')" id="nav-incomplete" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-orange-400"><i class="fas fa-shopping-basket w-5"></i> Incomplete Orders</button>
                 
                 <button onclick="showSection('products')" id="nav-products" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-box-open w-5"></i> Products Inventory</button>
@@ -228,6 +231,130 @@
                         </thead>
                         <tbody id="admin-order-list" class="divide-y divide-slate-100"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- NEW COURIER RATE SECTION -->
+            <div id="courier-section" class="hidden">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mt-2">
+                    <div class="p-4 border-b border-slate-200 bg-slate-50">
+                        <h3 class="text-sm font-semibold text-slate-800">Courier Success Rate</h3>
+                    </div>
+                    
+                    <div class="flex flex-col lg:flex-row">
+                        <!-- Left Table Side -->
+                        <div class="w-full lg:w-3/5 border-b lg:border-b-0 lg:border-r border-slate-200">
+                            <table class="w-full text-left text-sm">
+                                <thead class="border-b border-slate-200 bg-white">
+                                    <tr>
+                                        <th class="p-4 font-bold text-slate-800 w-[30%]">Courier</th>
+                                        <th class="p-4 font-bold text-slate-800 w-[70%]">Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 bg-white">
+                                    <!-- Pathao -->
+                                    <tr>
+                                        <td class="p-4 font-bold text-slate-800 align-top pt-5">Pathao</td>
+                                        <td class="p-4">
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5 opacity-80">
+                                                <div class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold" style="width: 0%;"></div>
+                                            </div>
+                                            <div class="flex gap-10 text-[13px] font-bold mt-1">
+                                                <span class="text-slate-800">To: <span class="font-semibold text-slate-600"></span></span>
+                                                <span class="text-[#00a651]">Su: <span class="font-semibold"></span></span>
+                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- REDx -->
+                                    <tr>
+                                        <td class="p-4 font-bold text-slate-800 align-top pt-5">REDx</td>
+                                        <td class="p-4">
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5">
+                                                <div class="bg-[#28a745] h-full text-[10px] text-white flex items-center justify-center font-bold tracking-wider" style="width: 100%;">100%</div>
+                                            </div>
+                                            <div class="flex gap-10 text-[13px] font-bold mt-1">
+                                                <span class="text-slate-800">To: 1</span>
+                                                <span class="text-[#00a651]">Su: 1</span>
+                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Steadfast -->
+                                    <tr>
+                                        <td class="p-4 font-bold text-slate-800 align-top pt-5">Steadfast</td>
+                                        <td class="p-4">
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5 opacity-80">
+                                                <div class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold" style="width: 0%;"></div>
+                                            </div>
+                                            <div class="flex gap-10 text-[13px] font-bold mt-1">
+                                                <span class="text-slate-800">To: 0</span>
+                                                <span class="text-[#00a651]">Su: 0</span>
+                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Carrybee -->
+                                    <tr>
+                                        <td class="p-4 font-bold text-slate-800 align-top pt-5">Carrybee</td>
+                                        <td class="p-4">
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5 opacity-80">
+                                                <div class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold" style="width: 0%;"></div>
+                                            </div>
+                                            <div class="flex gap-10 text-[13px] font-bold mt-1">
+                                                <span class="text-slate-800">To: 0</span>
+                                                <span class="text-[#00a651]">Su: 0</span>
+                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Paperfly -->
+                                    <tr>
+                                        <td class="p-4 font-bold text-slate-800 align-top pt-5">Paperfly</td>
+                                        <td class="p-4">
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5 opacity-80">
+                                                <div class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold" style="width: 0%;"></div>
+                                            </div>
+                                            <div class="flex gap-10 text-[13px] font-bold mt-1">
+                                                <span class="text-slate-800">To: 0</span>
+                                                <span class="text-[#00a651]">Su: 0</span>
+                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Right Chart Side -->
+                        <div class="w-full lg:w-2/5 p-6 bg-white flex flex-col justify-between">
+                            <div class="flex justify-around items-center h-full pt-4">
+                                <!-- BizMation Circle -->
+                                <div class="flex flex-col items-center">
+                                    <div class="w-24 h-24 rounded-full border-[6px] border-[#cccccc] flex items-center justify-center mb-3">
+                                        <span class="text-[#b3b3b3] text-lg font-medium">0%</span>
+                                    </div>
+                                    <h3 class="font-bold text-slate-800 text-lg mb-1">BizMation</h3>
+                                    <p class="text-[11px] font-bold text-slate-800 text-center leading-tight">Total: 0<br>Success: 0<br>Failed: 0</p>
+                                    <a href="#" class="text-[#3b82f6] text-[11px] mt-2 hover:underline">Add/View Reports (0)</a>
+                                </div>
+                                
+                                <!-- All Circle -->
+                                <div class="flex flex-col items-center">
+                                    <div class="w-24 h-24 rounded-full border-[6px] border-[#107c10] flex items-center justify-center mb-3">
+                                        <span class="text-[#b3b3b3] text-xl font-medium tracking-wide">100.0%</span>
+                                    </div>
+                                    <h3 class="font-bold text-slate-800 text-lg mb-1">All</h3>
+                                    <p class="text-[11px] font-bold text-slate-800 text-center leading-tight">Total: 1<br>Success: 1<br>Failed: 0</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Bottom Note -->
+                            <div class="mt-8 text-center border-t border-slate-100 pt-4">
+                                <p class="text-xs font-bold text-slate-800">NB: BizMation এর হিসাব টোটাল এ যোগ হবে না।</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -444,7 +571,8 @@
         }
 
         function showSection(sectionName, pushState = true) {
-            const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing'];
+            // Updated Sections array to include 'courier'
+            const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing', 'courier'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
             sections.forEach(sec => {
                 const secEl = document.getElementById(`${sec}-section`);
@@ -453,6 +581,8 @@
                 if (navEl) {
                     if(sec === 'landing') {
                         navEl.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-purple-400";
+                    } else if(sec === 'courier') {
+                        navEl.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-teal-400";
                     } else {
                         navEl.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-slate-300";
                     }
@@ -463,6 +593,7 @@
             let activeClass = 'bg-blue-600 text-white';
             if(sectionName === 'incomplete') activeClass = 'bg-orange-600 text-white';
             if(sectionName === 'landing') activeClass = 'bg-purple-600 text-white';
+            if(sectionName === 'courier') activeClass = 'bg-teal-600 text-white';
 
             if(document.getElementById(`nav-${sectionName}`)) {
                 document.getElementById(`nav-${sectionName}`).className = `w-full text-left px-4 py-3 rounded-lg ${activeClass} transition flex items-center gap-3`;
