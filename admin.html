@@ -96,14 +96,14 @@
                 <button onclick="showSection('analysis')" id="nav-analysis" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-chart-pie w-5"></i> Analytics</button>
                 <button onclick="showSection('orders')" id="nav-orders" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-shopping-cart w-5"></i> Orders Management</button>
                 
-                <!-- NEW COURIER RATE BUTTON -->
+                <!-- COURIER RATE BUTTON -->
                 <button onclick="showSection('courier')" id="nav-courier" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-teal-400"><i class="fas fa-truck-fast w-5"></i> Courier Rate</button>
                 
                 <button onclick="showSection('incomplete')" id="nav-incomplete" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-orange-400"><i class="fas fa-shopping-basket w-5"></i> Incomplete Orders</button>
                 
                 <button onclick="showSection('products')" id="nav-products" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-box-open w-5"></i> Products Inventory</button>
 
-                <!-- NEW LANDING PAGE BUTTON -->
+                <!-- LANDING PAGE BUTTON -->
                 <button onclick="showSection('landing')" id="nav-landing" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-purple-400"><i class="fas fa-rocket w-5"></i> Landing Page</button>
 
                 <button onclick="showSection('categories')" id="nav-categories" class="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3"><i class="fas fa-tags w-5"></i> Categories</button>
@@ -234,11 +234,19 @@
                 </div>
             </div>
 
-            <!-- NEW COURIER RATE SECTION -->
+            <!-- COURIER RATE SECTION -->
             <div id="courier-section" class="hidden">
                 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mt-2">
-                    <div class="p-4 border-b border-slate-200 bg-slate-50">
-                        <h3 class="text-sm font-semibold text-slate-800">Courier Success Rate</h3>
+                    
+                    <!-- Search Bar Header -->
+                    <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <h3 class="text-sm font-semibold text-slate-800">Courier Success Rate <span class="text-xs font-normal text-slate-500 ml-2">(Live Packzy Data)</span></h3>
+                        <div class="flex w-full md:w-auto gap-2">
+                            <input type="text" id="csPhoneInput" placeholder="Customer Phone (e.g. 017...)" class="form-input text-sm py-1.5 px-3 w-full md:w-64" onkeypress="if(event.key === 'Enter') searchCourierRate()">
+                            <button onclick="searchCourierRate()" id="btnCsSearch" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded text-sm font-bold transition flex items-center justify-center gap-2 whitespace-nowrap min-w-[100px]">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="flex flex-col lg:flex-row">
@@ -256,13 +264,13 @@
                                     <tr>
                                         <td class="p-4 font-bold text-slate-800 align-top pt-5">Pathao</td>
                                         <td class="p-4">
-                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5 opacity-80">
-                                                <div class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold" style="width: 0%;"></div>
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5">
+                                                <div id="cr-pathao-bar" class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold tracking-wider transition-all duration-500" style="width: 0%;"></div>
                                             </div>
                                             <div class="flex gap-10 text-[13px] font-bold mt-1">
-                                                <span class="text-slate-800">To: <span class="font-semibold text-slate-600"></span></span>
-                                                <span class="text-[#00a651]">Su: <span class="font-semibold"></span></span>
-                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                                <span class="text-slate-800">To: <span id="cr-pathao-to">0</span></span>
+                                                <span class="text-[#00a651]">Su: <span id="cr-pathao-su">0</span></span>
+                                                <span class="text-[#ff3b3b]">Fa: <span id="cr-pathao-fa">0</span></span>
                                             </div>
                                         </td>
                                     </tr>
@@ -271,12 +279,12 @@
                                         <td class="p-4 font-bold text-slate-800 align-top pt-5">REDx</td>
                                         <td class="p-4">
                                             <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5">
-                                                <div class="bg-[#28a745] h-full text-[10px] text-white flex items-center justify-center font-bold tracking-wider" style="width: 100%;">100%</div>
+                                                <div id="cr-redx-bar" class="bg-[#28a745] h-full text-[10px] text-white flex items-center justify-center font-bold tracking-wider transition-all duration-500" style="width: 0%;"></div>
                                             </div>
                                             <div class="flex gap-10 text-[13px] font-bold mt-1">
-                                                <span class="text-slate-800">To: 1</span>
-                                                <span class="text-[#00a651]">Su: 1</span>
-                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                                <span class="text-slate-800">To: <span id="cr-redx-to">0</span></span>
+                                                <span class="text-[#00a651]">Su: <span id="cr-redx-su">0</span></span>
+                                                <span class="text-[#ff3b3b]">Fa: <span id="cr-redx-fa">0</span></span>
                                             </div>
                                         </td>
                                     </tr>
@@ -284,13 +292,13 @@
                                     <tr>
                                         <td class="p-4 font-bold text-slate-800 align-top pt-5">Steadfast</td>
                                         <td class="p-4">
-                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5 opacity-80">
-                                                <div class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold" style="width: 0%;"></div>
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5">
+                                                <div id="cr-steadfast-bar" class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold tracking-wider transition-all duration-500" style="width: 0%;"></div>
                                             </div>
                                             <div class="flex gap-10 text-[13px] font-bold mt-1">
-                                                <span class="text-slate-800">To: 0</span>
-                                                <span class="text-[#00a651]">Su: 0</span>
-                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                                <span class="text-slate-800">To: <span id="cr-steadfast-to">0</span></span>
+                                                <span class="text-[#00a651]">Su: <span id="cr-steadfast-su">0</span></span>
+                                                <span class="text-[#ff3b3b]">Fa: <span id="cr-steadfast-fa">0</span></span>
                                             </div>
                                         </td>
                                     </tr>
@@ -298,13 +306,13 @@
                                     <tr>
                                         <td class="p-4 font-bold text-slate-800 align-top pt-5">Carrybee</td>
                                         <td class="p-4">
-                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5 opacity-80">
-                                                <div class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold" style="width: 0%;"></div>
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5">
+                                                <div id="cr-carrybee-bar" class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold tracking-wider transition-all duration-500" style="width: 0%;"></div>
                                             </div>
                                             <div class="flex gap-10 text-[13px] font-bold mt-1">
-                                                <span class="text-slate-800">To: 0</span>
-                                                <span class="text-[#00a651]">Su: 0</span>
-                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                                <span class="text-slate-800">To: <span id="cr-carrybee-to">0</span></span>
+                                                <span class="text-[#00a651]">Su: <span id="cr-carrybee-su">0</span></span>
+                                                <span class="text-[#ff3b3b]">Fa: <span id="cr-carrybee-fa">0</span></span>
                                             </div>
                                         </td>
                                     </tr>
@@ -312,13 +320,13 @@
                                     <tr>
                                         <td class="p-4 font-bold text-slate-800 align-top pt-5">Paperfly</td>
                                         <td class="p-4">
-                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5 opacity-80">
-                                                <div class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold" style="width: 0%;"></div>
+                                            <div class="w-full bg-[#a3a3a3] h-[14px] rounded-sm overflow-hidden mb-1.5">
+                                                <div id="cr-paperfly-bar" class="bg-green-500 h-full text-[10px] text-white flex items-center justify-center font-bold tracking-wider transition-all duration-500" style="width: 0%;"></div>
                                             </div>
                                             <div class="flex gap-10 text-[13px] font-bold mt-1">
-                                                <span class="text-slate-800">To: 0</span>
-                                                <span class="text-[#00a651]">Su: 0</span>
-                                                <span class="text-[#ff3b3b]">Fa: 0</span>
+                                                <span class="text-slate-800">To: <span id="cr-paperfly-to">0</span></span>
+                                                <span class="text-[#00a651]">Su: <span id="cr-paperfly-su">0</span></span>
+                                                <span class="text-[#ff3b3b]">Fa: <span id="cr-paperfly-fa">0</span></span>
                                             </div>
                                         </td>
                                     </tr>
@@ -331,7 +339,7 @@
                             <div class="flex justify-around items-center h-full pt-4">
                                 <!-- BizMation Circle -->
                                 <div class="flex flex-col items-center">
-                                    <div class="w-24 h-24 rounded-full border-[6px] border-[#cccccc] flex items-center justify-center mb-3">
+                                    <div class="w-24 h-24 rounded-full border-[6px] border-[#cccccc] flex items-center justify-center mb-3 transition-colors duration-500">
                                         <span class="text-[#b3b3b3] text-lg font-medium">0%</span>
                                     </div>
                                     <h3 class="font-bold text-slate-800 text-lg mb-1">BizMation</h3>
@@ -341,11 +349,15 @@
                                 
                                 <!-- All Circle -->
                                 <div class="flex flex-col items-center">
-                                    <div class="w-24 h-24 rounded-full border-[6px] border-[#107c10] flex items-center justify-center mb-3">
-                                        <span class="text-[#b3b3b3] text-xl font-medium tracking-wide">100.0%</span>
+                                    <div id="cr-all-circle" class="w-24 h-24 rounded-full border-[6px] border-[#cccccc] flex items-center justify-center mb-3 transition-colors duration-500">
+                                        <span id="cr-all-percent" class="text-slate-700 text-xl font-bold tracking-wide">0%</span>
                                     </div>
-                                    <h3 class="font-bold text-slate-800 text-lg mb-1">All</h3>
-                                    <p class="text-[11px] font-bold text-slate-800 text-center leading-tight">Total: 1<br>Success: 1<br>Failed: 0</p>
+                                    <h3 class="font-bold text-slate-800 text-lg mb-1">All Data</h3>
+                                    <p class="text-[11px] font-bold text-slate-800 text-center leading-tight">
+                                        <span id="cr-all-total">Total: 0</span><br>
+                                        <span id="cr-all-success" class="text-emerald-600">Success: 0</span><br>
+                                        <span id="cr-all-failed" class="text-rose-600">Failed: 0</span>
+                                    </p>
                                 </div>
                             </div>
                             
@@ -571,7 +583,6 @@
         }
 
         function showSection(sectionName, pushState = true) {
-            // Updated Sections array to include 'courier'
             const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing', 'courier'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
             sections.forEach(sec => {
@@ -581,7 +592,7 @@
                 if (navEl) {
                     if(sec === 'landing') {
                         navEl.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-purple-400";
-                    } else if(sec === 'courier') {
+                    } else if (sec === 'courier') {
                         navEl.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-teal-400";
                     } else {
                         navEl.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition flex items-center gap-3 text-slate-300";
@@ -1181,7 +1192,6 @@
             const targetUrl = `https://portal.packzy.com/api/v1/customer_delivery_record/${phone}`;
 
             try {
-                // Direct Fetch - No Proxy
                 const response = await fetch(targetUrl, {
                     method: 'GET',
                     headers: {
@@ -1226,6 +1236,98 @@
                 btnElement.disabled = false;
             }
         }
+
+        /*=========================================
+          NEW: COURIER SUCCESS RATE SEARCH LOGIC
+        ===========================================*/
+        async function searchCourierRate() {
+            const phone = document.getElementById('csPhoneInput').value.trim();
+            if(!phone) { showToast('Please enter a customer phone number', 'error'); return; }
+            if (!globalCourierApiKey || !globalCourierSecretKey) {
+                showToast('Configure Courier API keys in Site Settings first!', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnCsSearch');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`https://portal.packzy.com/api/v1/customer_delivery_record/${phone}`, {
+                    method: 'GET',
+                    headers: {
+                        'Api-Key': globalCourierApiKey,
+                        'Secret-Key': globalCourierSecretKey,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const text = await response.text();
+                let result;
+                try { result = JSON.parse(text); } catch(e) { throw new Error("Invalid Response from API"); }
+
+                if (response.ok && (result.status === 200 || result.status === 'success' || result.status === true)) {
+                    let data = result.data || result;
+                    let delivered = parseInt(data.delivered_count || data.delivered || data.success || 0);
+                    let cancelled = parseInt(data.returned_count || data.cancelled || data.returned || data.failed || 0);
+                    let total = delivered + cancelled;
+                    let rate = total > 0 ? ((delivered / total) * 100).toFixed(1) : 0;
+
+                    // Update ALL Circle stats
+                    document.getElementById('cr-all-percent').innerText = `${rate}%`;
+                    document.getElementById('cr-all-total').innerText = `Total: ${total}`;
+                    document.getElementById('cr-all-success').innerText = `Success: ${delivered}`;
+                    document.getElementById('cr-all-failed').innerText = `Failed: ${cancelled}`;
+                    
+                    const circleDiv = document.getElementById('cr-all-circle');
+                    if(rate >= 80) circleDiv.style.borderColor = '#107c10';
+                    else if(rate >= 50) circleDiv.style.borderColor = '#f59e0b';
+                    else circleDiv.style.borderColor = '#ef4444';
+
+                    // Update the generic Table Row 
+                    // (Assuming REDx or Pathao as default since API only provides total counts)
+                    updateCRRow('redx', total, delivered, cancelled);
+                    
+                    showToast('Record fetched successfully!', 'success');
+                } else {
+                    showToast(result.message || 'No record found for this number.', 'error');
+                    resetCRUI();
+                }
+            } catch (error) {
+                showToast('Search Error: ' + error.message, 'error');
+                resetCRUI();
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        }
+
+        function updateCRRow(id, total, su, fa) {
+            let rate = total > 0 ? Math.round((su/total)*100) : 0;
+            let bar = document.getElementById(`cr-${id}-bar`);
+            bar.style.width = `${rate}%`;
+            bar.innerText = rate > 0 ? `${rate}%` : '';
+            
+            if(rate >= 80) bar.style.backgroundColor = '#28a745';
+            else if(rate >= 50) bar.style.backgroundColor = '#f59e0b';
+            else bar.style.backgroundColor = '#dc3545';
+
+            document.getElementById(`cr-${id}-to`).innerText = total;
+            document.getElementById(`cr-${id}-su`).innerText = su;
+            document.getElementById(`cr-${id}-fa`).innerText = fa;
+        }
+
+        function resetCRUI() {
+            document.getElementById('cr-all-percent').innerText = `0%`;
+            document.getElementById('cr-all-total').innerText = `Total: 0`;
+            document.getElementById('cr-all-success').innerText = `Success: 0`;
+            document.getElementById('cr-all-failed').innerText = `Failed: 0`;
+            document.getElementById('cr-all-circle').style.borderColor = '#cccccc';
+            updateCRRow('redx', 0, 0, 0);
+        }
+        /*=========================================*/
+
 
         async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { if(newStatus === oldStatus) return; try { if (newStatus === 'Returned') { if(!await customConfirm('Mark order as Returned? This will automatically restock the item and log a delivery loss.')) { loadOrders(); return; } const pSnap = await db.collection('products').where('name', '==', productName).get(); if(!pSnap.empty) { const pDoc = pSnap.docs[0]; const currentStock = parseInt(pDoc.data().stock) || 0; await db.collection('products').doc(pDoc.id).update({ stock: currentStock + (parseInt(qty) || 1) }); showToast(`Restocked ${qty || 1} unit(s) of ${productName}`, 'info'); } } const timestamp = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); showToast("Status updated successfully", "success"); } catch (err) { showToast("Status Error: " + err.message, "error"); loadOrders(); } }
         async function bookParcel(btnElement, orderId, name, phone, address, amount) { if(!await customConfirm('Auto-book this parcel via Courier API?')) return; const originalHtml = btnElement.innerHTML; btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btnElement.disabled = true; try { const settingsDoc = await db.collection('siteSettings').doc('global').get(); const settingsData = settingsDoc.data(); const apiKey = settingsData?.courierApiKey; const secretKey = settingsData?.courierSecretKey; if(!apiKey || !secretKey) { showToast('Please configure Courier API keys in Site Settings!', 'error'); btnElement.innerHTML = originalHtml; btnElement.disabled = false; return; } const apiUrl = 'https://portal.packzy.com/api/v1/create_order'; const payload = { invoice: orderId, recipient_name: name || "Customer", recipient_phone: phone || "00000000000", recipient_address: address || "N/A", cod_amount: parseFloat(amount) || 0, note: "Booked via ST Mart Dashboard" }; const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Api-Key': apiKey, 'Secret-Key': secretKey }, body: JSON.stringify(payload) }); const responseText = await response.text(); let result; try { result = JSON.parse(responseText); } catch (e) { throw new Error("Server Error!"); } if(result.status === 200 || result.status === 'success') { showToast('Parcel booked successfully!', 'success'); await db.collection('orders').doc(orderId).update({ courierBooked: true, trackingCode: result?.data?.tracking_code || result?.tracking_code || '' }); } else { showToast('Booking Failed: ' + (result?.message || "Check settings."), 'error'); } } catch (error) { showToast("Connection Error: " + error.message, "error"); } finally { btnElement.innerHTML = originalHtml; btnElement.disabled = false; } }
