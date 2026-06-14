@@ -712,21 +712,21 @@
             document.getElementById('bkash-payment-modal').classList.remove('hidden');
         }
 
-        function validateBkashNumber() {
-            const accNo = document.getElementById('bkash-account-number').value.trim();
-            const btn = document.getElementById('btn-bkash-confirm');
-            const warning = document.getElementById('bkash-warning');
-            
-            if (/^01[3-9]\d{8}$/.test(accNo)) {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                warning.classList.add('opacity-0');
-            } else {
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                warning.classList.remove('opacity-0');
-            }
-        }
+       function validateBkashNumber() {
+    const accNo = document.getElementById('bkash-account-number').value.trim();
+    const btn = document.getElementById('btn-bkash-confirm');
+    const warning = document.getElementById('bkash-warning');
+    
+    if (/^01[3-9]\d{8}$/.test(accNo)) {
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        if(warning) warning.classList.add('opacity-0'); // এই লাইনটি ঠিক করা হয়েছে
+    } else {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        if(warning) warning.classList.remove('opacity-0'); // এই লাইনটি ঠিক করা হয়েছে
+    }
+}
 
         function closeBkashModal() {
             document.getElementById('bkash-payment-modal').classList.add('hidden');
