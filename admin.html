@@ -872,9 +872,10 @@
                     } 
 
                     // ব্রাউজারের CORS ব্লক বাইপাস করার জন্য Proxy যুক্ত করা হলো
-                    const targetUrl = 'https://developers.carrybee.com/api/v2/orders'; 
-                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+const targetUrl = 'https://developers.carrybee.com/api/v2/orders'; 
 
+// corsproxy.io এর বদলে corsproxy.org ব্যবহার করা হলো
+const proxyUrl = 'https://corsproxy.org/?' + encodeURIComponent(targetUrl);
                     const payload = { 
                         store_id: storeId,
                         merchant_order_id: orderId,
