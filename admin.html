@@ -309,10 +309,11 @@
                             <!-- Carrybee & Paperfly -->
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                                 <div class="bg-slate-50 p-4 border border-slate-200 rounded-lg">
-                                    <h4 class="font-bold text-slate-700 mb-3 border-b pb-2">Carrybee</h4>
+                                    <h4 class="font-bold text-slate-700 mb-3 border-b pb-2">Carrybee Courier</h4>
                                     <div class="grid grid-cols-1 gap-4">
-                                        <div><label class="form-label">API Key / Token</label><input type="text" id="setCarrybeeToken" class="form-input" placeholder="API Token"></div>
-                                        <div><label class="form-label">Store ID</label><input type="text" id="setCarrybeeStoreId" class="form-input" placeholder="Store ID"></div>
+                                        <div><label class="form-label">Client ID</label><input type="text" id="setCarrybeeClientId" class="form-input" placeholder="Client ID"></div>
+                                        <div><label class="form-label">Client Secret</label><input type="text" id="setCarrybeeClientSecret" class="form-input" placeholder="Client Secret"></div>
+                                        <div><label class="form-label">Client Context</label><input type="text" id="setCarrybeeClientContext" class="form-input" placeholder="Client Context"></div>
                                     </div>
                                 </div>
                                 <div class="bg-slate-50 p-4 border border-slate-200 rounded-lg">
@@ -513,8 +514,11 @@
                     document.getElementById('setPathaoStoreId').value = data.pathaoStoreId || ''; 
                     document.getElementById('setRedxToken').value = data.redxToken || ''; 
                     document.getElementById('setRedxStoreId').value = data.redxStoreId || ''; 
-                    document.getElementById('setCarrybeeToken').value = data.carrybeeToken || ''; 
-                    document.getElementById('setCarrybeeStoreId').value = data.carrybeeStoreId || ''; 
+                    
+                    document.getElementById('setCarrybeeClientId').value = data.carrybeeClientId || ''; 
+                    document.getElementById('setCarrybeeClientSecret').value = data.carrybeeClientSecret || ''; 
+                    document.getElementById('setCarrybeeClientContext').value = data.carrybeeClientContext || ''; 
+                    
                     document.getElementById('setPaperflyUser').value = data.paperflyUser || ''; 
                     document.getElementById('setPaperflyPass').value = data.paperflyPass || ''; 
                     
@@ -545,7 +549,9 @@
                     steadfastApiKey: document.getElementById('setSteadfastKey').value.trim(), steadfastSecretKey: document.getElementById('setSteadfastSecret').value.trim(),
                     pathaoToken: document.getElementById('setPathaoToken').value.trim(), pathaoSecret: document.getElementById('setPathaoSecret').value.trim(), pathaoStoreId: document.getElementById('setPathaoStoreId').value.trim(),
                     redxToken: document.getElementById('setRedxToken').value.trim(), redxStoreId: document.getElementById('setRedxStoreId').value.trim(),
-                    carrybeeToken: document.getElementById('setCarrybeeToken').value.trim(), carrybeeStoreId: document.getElementById('setCarrybeeStoreId').value.trim(),
+                    
+                    carrybeeClientId: document.getElementById('setCarrybeeClientId').value.trim(), carrybeeClientSecret: document.getElementById('setCarrybeeClientSecret').value.trim(), carrybeeClientContext: document.getElementById('setCarrybeeClientContext').value.trim(),
+                    
                     paperflyUser: document.getElementById('setPaperflyUser').value.trim(), paperflyPass: document.getElementById('setPaperflyPass').value.trim(),
 
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
