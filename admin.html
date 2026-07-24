@@ -311,9 +311,10 @@
                             </div>
                             <!-- Carrybee & Paperfly -->
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                                <div class="bg-slate-50 p-4 border border-slate-200 rounded-lg">
+                                <div class="bg-slate-50 p-4 border border-slate-200 rounded-lg border-l-4 border-l-yellow-400">
                                     <h4 class="font-bold text-slate-700 mb-3 border-b pb-2">Carrybee Courier</h4>
                                     <div class="grid grid-cols-1 gap-4">
+                                        <div><label class="form-label">Store ID</label><input type="text" id="setCarrybeeStoreId" class="form-input" placeholder="Store ID (Required)"></div>
                                         <div><label class="form-label">Client ID</label><input type="text" id="setCarrybeeClientId" class="form-input" placeholder="Client ID"></div>
                                         <div><label class="form-label">Client Secret</label><input type="text" id="setCarrybeeClientSecret" class="form-input" placeholder="Client Secret"></div>
                                         <div><label class="form-label">Client Context</label><input type="text" id="setCarrybeeClientContext" class="form-input" placeholder="Client Context"></div>
@@ -459,7 +460,7 @@
         </div>
     </div>
 
-    <!-- NEW: BOOK COURIER MODAL -->
+    <!-- BOOK COURIER MODAL -->
     <div id="bookCourierModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[70]">
         <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
             <h3 class="text-xl font-bold mb-4 text-slate-800 border-b border-slate-100 pb-2">Book Parcel to Courier</h3>
@@ -473,10 +474,10 @@
                     <label class="form-label">Select Courier Service</label>
                     <select id="bcCourierSelect" class="form-input" required>
                         <option value="Packzy">Packzy</option>
+                        <option value="Carrybee">Carrybee</option>
                         <option value="Steadfast">Steadfast</option>
                         <option value="Pathao">Pathao</option>
                         <option value="REDx">REDx</option>
-                        <option value="Carrybee">Carrybee</option>
                         <option value="Paperfly">Paperfly</option>
                     </select>
                 </div>
@@ -607,9 +608,12 @@
                     document.getElementById('setPathaoStoreId').value = data.pathaoStoreId || ''; 
                     document.getElementById('setRedxToken').value = data.redxToken || ''; 
                     document.getElementById('setRedxStoreId').value = data.redxStoreId || ''; 
+                    
+                    document.getElementById('setCarrybeeStoreId').value = data.carrybeeStoreId || ''; 
                     document.getElementById('setCarrybeeClientId').value = data.carrybeeClientId || ''; 
                     document.getElementById('setCarrybeeClientSecret').value = data.carrybeeClientSecret || ''; 
                     document.getElementById('setCarrybeeClientContext').value = data.carrybeeClientContext || ''; 
+                    
                     document.getElementById('setPaperflyUser').value = data.paperflyUser || ''; 
                     document.getElementById('setPaperflyPass').value = data.paperflyPass || ''; 
                     
@@ -638,7 +642,12 @@
                     steadfastApiKey: document.getElementById('setSteadfastKey').value.trim(), steadfastSecretKey: document.getElementById('setSteadfastSecret').value.trim(),
                     pathaoToken: document.getElementById('setPathaoToken').value.trim(), pathaoSecret: document.getElementById('setPathaoSecret').value.trim(), pathaoStoreId: document.getElementById('setPathaoStoreId').value.trim(),
                     redxToken: document.getElementById('setRedxToken').value.trim(), redxStoreId: document.getElementById('setRedxStoreId').value.trim(),
-                    carrybeeClientId: document.getElementById('setCarrybeeClientId').value.trim(), carrybeeClientSecret: document.getElementById('setCarrybeeClientSecret').value.trim(), carrybeeClientContext: document.getElementById('setCarrybeeClientContext').value.trim(),
+                    
+                    carrybeeStoreId: document.getElementById('setCarrybeeStoreId').value.trim(),
+                    carrybeeClientId: document.getElementById('setCarrybeeClientId').value.trim(), 
+                    carrybeeClientSecret: document.getElementById('setCarrybeeClientSecret').value.trim(), 
+                    carrybeeClientContext: document.getElementById('setCarrybeeClientContext').value.trim(),
+                    
                     paperflyUser: document.getElementById('setPaperflyUser').value.trim(), paperflyPass: document.getElementById('setPaperflyPass').value.trim(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
                 };
@@ -725,7 +734,6 @@
             }
         });
 
-        // --- NEW: Add Manual Order Functionality ---
         function calcManualOrderTotal() { 
             let price = parseFloat(document.getElementById('aoUnitPrice').value) || 0; 
             let qty = parseInt(document.getElementById('aoQty').value) || 1; 
@@ -774,7 +782,6 @@
             }
         });
 
-        // --- NEW: Open Courier Booking Modal ---
         function openBookCourierModal(orderId, name, phone, address, amount, currentCourier) { 
             document.getElementById('bcOrderId').value = orderId; 
             document.getElementById('bcName').value = name; 
@@ -790,6 +797,7 @@
             document.getElementById('bookCourierModal').classList.remove('hidden'); 
         }
 
+        // --- UPDATED COURIER BOOKING WITH CARRYBEE API ---
         document.getElementById('bookCourierForm').addEventListener('submit', async (e) => { 
             e.preventDefault(); 
             const btn = e.target.querySelector('button[type="submit"]'); 
@@ -846,7 +854,64 @@
                     } else { 
                         showToast('Packzy Booking Failed: ' + (result?.message || "Check settings."), 'error'); 
                     } 
-                } else { 
+                } 
+                else if (courier === 'Carrybee') {
+                    // Carrybee API Logic
+                    const settingsDoc = await db.collection('siteSettings').doc('global').get(); 
+                    const settingsData = settingsDoc.data(); 
+                    const storeId = settingsData?.carrybeeStoreId;
+                    const clientId = settingsData?.carrybeeClientId; 
+                    const clientSecret = settingsData?.carrybeeClientSecret; 
+                    const clientContext = settingsData?.carrybeeClientContext;
+
+                    if(!clientId || !clientSecret || !clientContext || !storeId) { 
+                        showToast('Please configure ALL Carrybee API keys & Store ID in Site Settings!', 'error'); 
+                        btn.innerHTML = originalHtml; 
+                        btn.disabled = false; 
+                        return; 
+                    } 
+
+                    const apiUrl = 'https://developers.carrybee.com/api/v2/orders'; 
+                    const payload = { 
+                        store_id: storeId,
+                        merchant_order_id: orderId,
+                        delivery_type: 1, // 1 = Normal
+                        product_type: 1, // 1 = Parcel
+                        recipient_phone: phone || "00000000000",
+                        recipient_name: name || "Customer",
+                        recipient_address: address || "N/A",
+                        city_id: 1, // Default (changeable if API restricts it)
+                        zone_id: 1, // Default (changeable if API restricts it)
+                        product_description: "Order via ST Mart Dashboard",
+                        item_weight: 500, // By default 500 grams
+                        item_quantity: 1,
+                        collectable_amount: parseFloat(amount) || 0
+                    }; 
+
+                    const response = await fetch(apiUrl, { 
+                        method: 'POST', 
+                        headers: { 
+                            'Content-Type': 'application/json', 
+                            'Client-ID': clientId, 
+                            'Client-Secret': clientSecret,
+                            'Client-Context': clientContext
+                        }, 
+                        body: JSON.stringify(payload) 
+                    }); 
+                    
+                    const responseText = await response.text(); 
+                    let result; 
+                    try { result = JSON.parse(responseText); } catch (err) { throw new Error("Server Error! Response: " + responseText); } 
+                    
+                    if(response.ok) { 
+                        showToast('Parcel booked via Carrybee API!', 'success'); 
+                        await db.collection('orders').doc(orderId).update({ courierBooked: true, trackingCode: result?.tracking_code || result?.id || '' }); 
+                    } else { 
+                        // Show specific Carrybee error message
+                        showToast('Carrybee Booking Failed: ' + (result?.message || result?.error || "Check your API credentials/settings"), 'error'); 
+                    } 
+                } 
+                else { 
                     await db.collection('orders').doc(orderId).update({ courierBooked: true }); 
                     showToast(`${courier} selected & marked as booked!`, 'success'); 
                 } 
