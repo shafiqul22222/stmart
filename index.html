@@ -1098,8 +1098,28 @@
 
         document.getElementById('registerForm')?.addEventListener('submit', async (e) => { e.preventDefault(); const name = document.getElementById('regName').value; const email = document.getElementById('regEmail').value; const phone = document.getElementById('regPhone').value; const password = document.getElementById('regPassword').value; const submitBtn = e.target.querySelector('button[type="submit"]'); if(!/^01[3-9]\d{8}$/.test(phone)) { showErrorToast("Failed", "দয়া করে সঠিক ১১ ডিজিটের বাংলাদেশী মোবাইল নাম্বার দিন।"); return; } submitBtn.innerText = "অপেক্ষা করুন..."; submitBtn.disabled = true; try { const res = await auth.createUserWithEmailAndPassword(email, password); await res.user.updateProfile({displayName: name}); await db.collection('users').doc(res.user.uid).set({ name: name, email: email, phone: phone, isBlocked: false, addresses: [], createdAt: firebase.firestore.FieldValue.serverTimestamp() }); const guestOrders = await db.collection('orders').where('phone', '==', phone).get(); if(!guestOrders.empty) { let batch = db.batch(); let hasUpdates = false; guestOrders.forEach(doc => { if(!doc.data().userId) { batch.update(doc.ref, { userId: res.user.uid }); hasUpdates = true; } }); if(hasUpdates) await batch.commit(); } showDynamicToast('Success!', 'Account Registration Successfully!', () => { showPage('home'); }); } catch(err) { showErrorToast('Error!', err.message); } finally { submitBtn.innerText = "রেজিস্ট্রেশন সম্পূর্ণ করুন"; submitBtn.disabled = false; } });
         document.getElementById('loginForm')?.addEventListener('submit', (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value).then(() => showPage('home')).catch(err => { showErrorToast('Error!', err.message); }); });
-        function logout() { auth.signOut().then(() => location.reload()); }
-        auth.onAuthStateChanged(user => { if (user) { document.getElementById('auth-nav-text').innerText = 'My Account'; document.getElementById('auth-nav-item').onclick = () => showPage('my-account'); document.getElementById('userDisplayName').innerText = user.displayName || 'ইউজার'; document.getElementById('userEmailDisplay').innerText = user.email; loadUserDashboardData(); } else { document.getElementById('auth-nav-text').innerText = 'Sign In'; document.getElementById('auth-nav-item').onclick = () => showPage('signin'); } });
+        // আপডেট করা লগআউট ফাংশন (লগআউট হলে হোমপেজে নিয়ে যাবে)
+        function logout() { auth.signOut().then(() => { window.location.href = window.location.origin + spaBasePath; }); }
+        
+        // আপডেট করা Auth State (লগআউট অবস্থায় অ্যাকাউন্ট পেজে থাকলে সাইন-ইন পেজে পাঠিয়ে দিবে)
+        auth.onAuthStateChanged(user => { 
+            if (user) { 
+                document.getElementById('auth-nav-text').innerText = 'My Account'; 
+                document.getElementById('auth-nav-item').onclick = () => showPage('my-account'); 
+                document.getElementById('userDisplayName').innerText = user.displayName || 'ইউজার'; 
+                document.getElementById('userEmailDisplay').innerText = user.email; 
+                loadUserDashboardData(); 
+            } else { 
+                document.getElementById('auth-nav-text').innerText = 'Sign In'; 
+                document.getElementById('auth-nav-item').onclick = () => showPage('signin'); 
+                
+                // ইউজার লগআউট থাকলে এবং My Account পেজে ঢোকার চেষ্টা করলে তাকে Sign In পেজে রিডাইরেক্ট করবে
+                const accountPage = document.getElementById('my-account-page');
+                if (accountPage && !accountPage.classList.contains('hidden')) {
+                    showPage('signin');
+                }
+            } 
+        });
 
         // Initialize Call (Cache will immediately render UI while Firebase loads in background)
         initBasePath(); handleInitialRoute(); loadSiteSettings(); loadHeaderCategories(); loadProducts(); updateCartUI(); 
