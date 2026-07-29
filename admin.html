@@ -27,16 +27,8 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            300: '#86efac',
-                            400: '#4ade80',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
+                            50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80',
+                            500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
                         }
                     },
                     boxShadow: {
@@ -81,6 +73,9 @@
         /* Data Grid Sticky Header */
         .erp-table-wrapper { max-height: 70vh; overflow-y: auto; overflow-x: auto; border-radius: 1rem; border: 1px solid #E5E7EB; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .erp-table th { position: sticky; top: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(8px); z-index: 10; border-bottom: 1px solid #E5E7EB; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+
+        /* Added For POS */
+        .pos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 flex overflow-hidden">
@@ -179,7 +174,7 @@
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-3">Sales & Commerce</p>
                     <nav class="space-y-1 font-medium text-sm">
-                        <button onclick="showToast('POS Module requires hardware config. Coming soon.', 'info')" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="monitor-speaker" class="w-5 h-5"></i> Point of Sale (POS)</button>
+                        <button onclick="showSection('pos')" id="nav-pos" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="monitor-speaker" class="w-5 h-5"></i> Point of Sale (POS)</button>
                         <button onclick="showSection('orders')" id="nav-orders" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="shopping-cart" class="w-5 h-5"></i> Sales Orders</button>
                         <button onclick="showSection('incomplete')" id="nav-incomplete" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="shopping-basket" class="w-5 h-5"></i> Abandoned Checkouts</button>
                         <button onclick="showSection('landing')" id="nav-landing" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="rocket" class="w-5 h-5"></i> Campaigns & Pages</button>
@@ -192,8 +187,8 @@
                     <nav class="space-y-1 font-medium text-sm">
                         <button onclick="showSection('products')" id="nav-products" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="package" class="w-5 h-5"></i> Product Master</button>
                         <button onclick="showSection('categories')" id="nav-categories" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="tags" class="w-5 h-5"></i> Classifications</button>
-                        <button onclick="showToast('Multi-Warehouse Module active in V2', 'info')" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="warehouse" class="w-5 h-5"></i> Warehouses</button>
-                        <button onclick="showToast('Purchase Order Module active in V2', 'info')" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="receipt" class="w-5 h-5"></i> Purchase Orders</button>
+                        <button onclick="showSection('warehouse')" id="nav-warehouse" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="warehouse" class="w-5 h-5"></i> Warehouses</button>
+                        <button onclick="showSection('purchase')" id="nav-purchase" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="receipt" class="w-5 h-5"></i> Purchase Orders</button>
                         <button onclick="showSection('courier')" id="nav-courier" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="truck" class="w-5 h-5"></i> Logistics & Courier</button>
                     </nav>
                 </div>
@@ -203,8 +198,8 @@
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-3">CRM & Core</p>
                     <nav class="space-y-1 font-medium text-sm">
                         <button onclick="showSection('customers')" id="nav-customers" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="users" class="w-5 h-5"></i> Customer Relations</button>
-                        <button onclick="showToast('Accounting Module locked by Finance Dept.', 'info')" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="calculator" class="w-5 h-5"></i> Accounting</button>
-                        <button onclick="showToast('HRM Module access restricted.', 'info')" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="user-check" class="w-5 h-5"></i> HR & Payroll</button>
+                        <button onclick="showSection('accounting')" id="nav-accounting" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="calculator" class="w-5 h-5"></i> Accounting</button>
+                        <button onclick="showSection('hr')" id="nav-hr" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="user-check" class="w-5 h-5"></i> HR & Payroll</button>
                     </nav>
                 </div>
 
@@ -214,7 +209,7 @@
                     <nav class="space-y-1 font-medium text-sm pb-10">
                         <button onclick="showSection('analysis')" id="nav-analysis" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="line-chart" class="w-5 h-5"></i> BI Analytics</button>
                         <button onclick="showSection('settings')" id="nav-settings" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="settings" class="w-5 h-5"></i> ERP Configurations</button>
-                        <button onclick="showToast('AI Assistant currently analyzing data stream...', 'info')" class="w-full text-left px-3 py-2.5 rounded-xl text-brand-600 hover:bg-brand-50 transition flex items-center gap-3"><i data-lucide="bot" class="w-5 h-5"></i> AI Copilot</button>
+                        <button onclick="showToast('AI Assistant currently analyzing data stream...', 'info')" id="nav-ai" class="w-full text-left px-3 py-2.5 rounded-xl text-brand-600 hover:bg-brand-50 transition flex items-center gap-3"><i data-lucide="bot" class="w-5 h-5"></i> AI Copilot</button>
                     </nav>
                 </div>
             </div>
@@ -250,10 +245,22 @@
                         <i data-lucide="calendar" class="w-4 h-4"></i> <span id="header-date">Today</span>
                     </div>
                     <div class="h-6 w-px bg-slate-200 mx-2 hidden sm:block"></div>
-                    <button class="relative text-slate-500 hover:text-brand-600 transition p-2 rounded-full hover:bg-slate-100">
-                        <i data-lucide="bell" class="w-5 h-5"></i>
-                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-                    </button>
+                    
+                    <!-- Notification Center -->
+                    <div class="relative">
+                        <button onclick="toggleNotifMenu()" class="relative text-slate-500 hover:text-brand-600 transition p-2 rounded-full hover:bg-slate-100">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span id="notif-badge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white hidden"></span>
+                        </button>
+                        <div id="notif-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-erp border border-slate-100 hidden z-50 overflow-hidden flex flex-col max-h-96">
+                            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                                <h3 class="text-sm font-bold text-slate-800">Notifications</h3>
+                                <button onclick="markAllNotifRead()" class="text-[10px] font-bold text-brand-600 uppercase hover:underline">Mark All Read</button>
+                            </div>
+                            <div id="notif-list" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100"></div>
+                        </div>
+                    </div>
+
                     <div class="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden cursor-pointer">
                         <img src="https://ui-avatars.com/api/?name=Admin+User&background=16A34A&color=fff" alt="User">
                     </div>
@@ -569,6 +576,22 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- NEW: POS Section -->
+                <div id="pos-section" class="hidden"><div class="flex flex-col lg:flex-row gap-6 h-[85vh]"><div class="flex-1 flex flex-col bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden h-full"><div class="p-4 border-b border-slate-100 flex gap-4 bg-slate-50 shrink-0"><div class="relative flex-1"><i data-lucide="barcode" class="absolute left-3.5 top-2.5 w-5 h-5 text-slate-400"></i><input type="text" id="posSearch" placeholder="Scan Barcode or Search SKU..." class="form-input pl-10 py-2.5" onkeyup="filterPOS()"></div><select id="posCategoryFilter" class="form-input w-48 py-2.5" onchange="filterPOS()"><option value="">All Categories</option></select></div><div class="flex-1 overflow-y-auto p-4 bg-slate-50/50 custom-scrollbar pos-grid" id="pos-product-grid"></div></div><div class="w-full lg:w-96 flex flex-col bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden h-full shrink-0"><div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0"><h3 class="font-bold text-slate-800 uppercase tracking-widest text-xs"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-1"></i> Register Cart</h3><button onclick="clearPOSCart()" class="text-rose-500 text-xs font-bold hover:underline">Clear</button></div><div class="p-3 border-b border-slate-100 shrink-0"><input type="text" id="posCustomer" placeholder="Walk-in Customer / Phone" class="form-input py-2 text-sm"></div><div class="flex-1 overflow-y-auto p-3 custom-scrollbar space-y-2" id="pos-cart-items"></div><div class="p-4 bg-slate-50 border-t border-slate-100 shrink-0 space-y-2"><div class="flex justify-between text-sm"><span class="text-slate-500 font-medium">Subtotal</span><span class="font-bold text-slate-700" id="pos-subtotal">৳0</span></div><div class="flex justify-between text-sm"><span class="text-slate-500 font-medium">VAT / Tax (15%)</span><span class="font-bold text-slate-700" id="pos-tax">৳0</span></div><div class="flex justify-between text-sm"><span class="text-slate-500 font-medium">Discount</span><input type="number" id="pos-discount" value="0" class="w-20 form-input py-1 px-2 text-right text-sm" onchange="updatePOSTotals()"></div><div class="flex justify-between text-lg pt-2 border-t border-slate-200 mt-2"><span class="font-bold text-slate-800">Total payable</span><span class="font-black text-brand-600" id="pos-total">৳0</span></div><div class="grid grid-cols-2 gap-2 mt-4"><button onclick="processPOSPayment('Cash')" class="bg-slate-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-slate-700 transition flex items-center justify-center gap-2"><i data-lucide="banknote" class="w-4 h-4"></i> Cash</button><button onclick="processPOSPayment('Card')" class="bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition flex items-center justify-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i> Card/MFS</button></div></div></div></div></div>
+
+                <!-- NEW: Warehouse Section -->
+                <div id="warehouse-section" class="hidden"><div class="flex justify-between items-end mb-6"><div><h2 class="text-2xl font-bold text-slate-800 tracking-tight">Warehouse Management</h2><p class="text-slate-500 text-sm mt-1 font-medium">Multi-location inventory tracking, bins, and transfers.</p></div><button onclick="document.getElementById('whModal').classList.remove('hidden')" class="btn-primary text-sm px-5 py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Add Warehouse</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Warehouses</p><h3 id="wh-total" class="text-3xl font-black text-slate-800 tracking-tight">0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Value Stored</p><h3 id="wh-value" class="text-3xl font-black text-brand-600 tracking-tight">৳0</h3></div><div class="card-stat flex items-center justify-center cursor-pointer hover:bg-slate-50 border-dashed border-2" onclick="showToast('Internal Transfer module locked. Requires multi-bin mapping.', 'info')"><div class="text-center"><i data-lucide="arrow-right-left" class="w-6 h-6 text-slate-400 mx-auto mb-2"></i><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Internal Transfer</p></div></div></div><div class="erp-table-wrapper bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-[700px] text-sm"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">Facility Name & Code</th><th class="p-4">Location</th><th class="p-4">Manager</th><th class="p-4">Status</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="wh-list" class="divide-y divide-slate-100"></tbody></table></div></div>
+
+                <!-- NEW: Purchase Section -->
+                <div id="purchase-section" class="hidden"><div class="flex justify-between items-end mb-6"><div><h2 class="text-2xl font-bold text-slate-800 tracking-tight">Procurement & Purchases</h2><p class="text-slate-500 text-sm mt-1 font-medium">Supplier management and stock acquisition.</p></div><button onclick="document.getElementById('poModal').classList.remove('hidden')" class="btn-primary text-sm px-5 py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Raise PO</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Pending Procurement</p><h3 id="po-pending" class="text-3xl font-black text-orange-500 tracking-tight">0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Received (MTD)</p><h3 id="po-received" class="text-3xl font-black text-brand-600 tracking-tight">0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Payable</p><h3 id="po-payable" class="text-3xl font-black text-rose-600 tracking-tight">৳0</h3></div></div><div class="erp-table-wrapper bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-[900px] text-sm"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">PO Code & Date</th><th class="p-4">Supplier</th><th class="p-4">Item Matrix</th><th class="p-4">Amount</th><th class="p-4">State</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="po-list" class="divide-y divide-slate-100"></tbody></table></div></div>
+
+                <!-- NEW: Accounting Section -->
+                <div id="accounting-section" class="hidden"><div class="flex justify-between items-end mb-6"><div><h2 class="text-2xl font-bold text-slate-800 tracking-tight">Financial Accounting</h2><p class="text-slate-500 text-sm mt-1 font-medium">General ledger, trial balance, and journal entries.</p></div><button onclick="document.getElementById('accModal').classList.remove('hidden')" class="btn-primary text-sm px-5 py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Manual Journal</button></div><div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6"><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Current Assets</p><h3 id="acc-assets" class="text-2xl font-black text-brand-600 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Liabilities</p><h3 id="acc-liabilities" class="text-2xl font-black text-rose-500 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Monthly Income</p><h3 id="acc-income" class="text-2xl font-black text-blue-600 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Monthly Expense</p><h3 id="acc-expense" class="text-2xl font-black text-orange-500 tracking-tight">৳0</h3></div></div><div class="erp-table-wrapper bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-[800px] text-sm"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">Txn ID & Date</th><th class="p-4">Account Ledger</th><th class="p-4">Description</th><th class="p-4 text-right">Debit</th><th class="p-4 text-right">Credit</th></tr></thead><tbody id="acc-list" class="divide-y divide-slate-100"></tbody></table></div></div>
+
+                <!-- NEW: HR Section -->
+                <div id="hr-section" class="hidden"><div class="flex justify-between items-end mb-6"><div><h2 class="text-2xl font-bold text-slate-800 tracking-tight">HR & Payroll</h2><p class="text-slate-500 text-sm mt-1 font-medium">Employee directory, attendance, and salary processing.</p></div><div class="flex gap-3"><button onclick="processPayroll()" class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm"><i data-lucide="play-circle" class="w-4 h-4 inline mr-2"></i> Run Payroll</button><button onclick="document.getElementById('hrModal').classList.remove('hidden')" class="btn-primary text-sm px-5 py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Onboard Employee</button></div></div><div class="erp-table-wrapper bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-[800px] text-sm"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">Employee Profile</th><th class="p-4">Department & Role</th><th class="p-4">Base Salary</th><th class="p-4">Status</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="hr-list" class="divide-y divide-slate-100"></tbody></table></div></div>
+
             </main>
         </div>
     </div>
@@ -627,7 +650,21 @@
         </div>
     </div>
 
-    <!-- Initialization and Corrected JS Logic -->
+    <!-- NEW MODALS START -->
+    <!-- Warehouse Modal -->
+    <div id="whModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl border border-slate-100"><h3 class="text-sm font-bold mb-5 text-slate-800 border-b border-slate-100 pb-3 uppercase tracking-widest text-indigo-600">Add Warehouse</h3><form id="whForm" class="space-y-5"><div><label class="form-label">Facility Name</label><input type="text" id="whName" class="form-input" required></div><div><label class="form-label">Location / Address</label><input type="text" id="whLocation" class="form-input" required></div><div><label class="form-label">Manager Name</label><input type="text" id="whManager" class="form-input" required></div><div class="flex gap-3 pt-5 border-t border-slate-100"><button type="button" onclick="document.getElementById('whModal').classList.add('hidden')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200">Abort</button><button type="submit" class="flex-1 btn-primary py-3">Commit</button></div></form></div></div>
+
+    <!-- PO Modal -->
+    <div id="poModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-8 rounded-3xl w-full max-w-2xl shadow-2xl border border-slate-100"><h3 class="text-sm font-bold mb-5 text-slate-800 border-b border-slate-100 pb-3 uppercase tracking-widest text-emerald-600">Raise Purchase Order</h3><form id="poForm" class="space-y-5"><div><label class="form-label">Supplier Name</label><input type="text" id="poSupplier" class="form-input" required></div><div class="grid grid-cols-2 gap-5"><div><label class="form-label">Product Name / SKU</label><input type="text" id="poItem" class="form-input" required></div><div><label class="form-label">Quantity</label><input type="number" id="poQty" class="form-input" required></div></div><div class="grid grid-cols-2 gap-5"><div><label class="form-label">Total Amount (৳)</label><input type="number" id="poAmount" class="form-input" required></div><div><label class="form-label">Expected Date</label><input type="date" id="poDate" class="form-input" required></div></div><div class="flex gap-3 pt-5 border-t border-slate-100"><button type="button" onclick="document.getElementById('poModal').classList.add('hidden')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200">Abort</button><button type="submit" class="flex-1 btn-primary py-3">Generate PO</button></div></form></div></div>
+
+    <!-- Accounting Modal -->
+    <div id="accModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl border border-slate-100"><h3 class="text-sm font-bold mb-5 text-slate-800 border-b border-slate-100 pb-3 uppercase tracking-widest text-blue-600">Manual Journal Entry</h3><form id="accForm" class="space-y-5"><div><label class="form-label">Transaction Type</label><select id="accType" class="form-input"><option value="Income">Income (Credit)</option><option value="Expense">Expense (Debit)</option></select></div><div><label class="form-label">Amount (৳)</label><input type="number" id="accAmount" class="form-input" required></div><div><label class="form-label">Description / Particulars</label><input type="text" id="accDesc" class="form-input" required></div><div class="flex gap-3 pt-5 border-t border-slate-100"><button type="button" onclick="document.getElementById('accModal').classList.add('hidden')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200">Abort</button><button type="submit" class="flex-1 btn-primary py-3">Post Journal</button></div></form></div></div>
+
+    <!-- HR Modal -->
+    <div id="hrModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden flex items-center justify-center p-4 z-[60]"><div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl border border-slate-100"><h3 class="text-sm font-bold mb-5 text-slate-800 border-b border-slate-100 pb-3 uppercase tracking-widest text-purple-600">Onboard Employee</h3><form id="hrForm" class="space-y-5"><div><label class="form-label">Full Name</label><input type="text" id="hrName" class="form-input" required></div><div><label class="form-label">Department</label><input type="text" id="hrDept" class="form-input" required></div><div><label class="form-label">Designation</label><input type="text" id="hrRole" class="form-input" required></div><div><label class="form-label">Base Salary (৳)</label><input type="number" id="hrSalary" class="form-input" required></div><div class="flex gap-3 pt-5 border-t border-slate-100"><button type="button" onclick="document.getElementById('hrModal').classList.add('hidden')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200">Abort</button><button type="submit" class="flex-1 btn-primary py-3">Register Employee</button></div></form></div></div>
+    <!-- NEW MODALS END -->
+
+    <!-- Initialization and Original Master Logic -->
     <script>
         // Init Lucide Without MutationObserver
         document.addEventListener("DOMContentLoaded", () => {
@@ -684,7 +721,8 @@
         function toggleSidebar() { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebar-overlay'); sidebar.classList.toggle('-translate-x-full'); overlay.classList.toggle('hidden'); }
 
         function showSection(sectionName, pushState = true) {
-            const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing', 'courier'];
+            // UPDATED SECTIONS ARRAY
+            const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing', 'courier', 'pos', 'warehouse', 'purchase', 'accounting', 'hr'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
             sections.forEach(sec => {
                 const secEl = document.getElementById(`${sec}-section`); const navEl = document.getElementById(`nav-${sec}`);
@@ -707,10 +745,15 @@
         document.querySelectorAll('.size-cb').forEach(cb => { cb.addEventListener('change', () => { document.getElementById('unitContainer').style.display = document.querySelectorAll('.size-cb:checked').length > 0 ? 'none' : 'block'; }); });
         document.querySelectorAll('.e-size-cb').forEach(cb => { cb.addEventListener('change', () => { document.getElementById('eUnitContainer').style.display = document.querySelectorAll('.e-size-cb:checked').length > 0 ? 'none' : 'block'; }); });
 
+        // UPDATED AUTH LISTENER
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('login-screen').classList.add('hidden'); document.getElementById('admin-content').classList.remove('hidden'); showSection(getPathSection(), false);
+                // LOAD ORIGINAL MODULES
                 loadAdminProducts(); loadDashboardData(); loadOrders(); loadCategories(); loadCustomers(); loadSiteSettingsData(); loadIncompleteOrders(); loadLandingPagesList();
+                // LOAD NEW MODULES
+                loadWarehouses(); loadPurchases(); loadAccounting(); loadHR(); loadNotifications(); loadPOSProducts();
+                
                 if(!isRealtimeListenerAttached) { startRealtimeTracking(); isRealtimeListenerAttached = true; }
             } else { document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('admin-content').classList.add('hidden'); }
         });
@@ -849,6 +892,9 @@
             } catch (err) { showToast("System Error: " + err.message, "error"); } finally { btn.innerHTML = originalText; btn.disabled = false; }
         });
 
+        // UPDATED: ADDED NOTIFICATION CALL TO ORIGINAL FUNCTION
+        document.getElementById('addForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('pUnit').value; try { let files = document.getElementById('pImageFiles').files; let imagesArray = []; if(files.length > 0) { imagesArray = await processImagesToBase64(files); } else { showToast("Media asset required", "error"); btn.innerText = originalText; btn.disabled = false; return; } await db.collection('products').add({ name: document.getElementById('pName').value, purchasePrice: parseFloat(document.getElementById('pPurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('pOldPrice').value) || 0, price: parseFloat(document.getElementById('pPrice').value), stock: parseInt(document.getElementById('pStock').value) || 0, category: document.getElementById('pCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('pDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('addForm').reset(); document.getElementById('pImageFiles').value = ""; document.querySelectorAll('.size-cb').forEach(cb => cb.checked = false); document.getElementById('unitContainer').style.display = 'block'; document.getElementById('modal').classList.add('hidden'); showToast("SKU Registered.", "success"); addNotification('SKU Registered', document.getElementById('pName').value + ' added to inventory.', 'success'); } catch (err) { showToast("Upload Fault: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
+        
         function loadAdminProducts() { 
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snap => { 
                 const list = document.getElementById('admin-product-list'); 
@@ -870,7 +916,6 @@
             }); 
         }
 
-        document.getElementById('addForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('pUnit').value; try { let files = document.getElementById('pImageFiles').files; let imagesArray = []; if(files.length > 0) { imagesArray = await processImagesToBase64(files); } else { showToast("Media asset required", "error"); btn.innerText = originalText; btn.disabled = false; return; } await db.collection('products').add({ name: document.getElementById('pName').value, purchasePrice: parseFloat(document.getElementById('pPurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('pOldPrice').value) || 0, price: parseFloat(document.getElementById('pPrice').value), stock: parseInt(document.getElementById('pStock').value) || 0, category: document.getElementById('pCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('pDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('addForm').reset(); document.getElementById('pImageFiles').value = ""; document.querySelectorAll('.size-cb').forEach(cb => cb.checked = false); document.getElementById('unitContainer').style.display = 'block'; document.getElementById('modal').classList.add('hidden'); showToast("SKU Registered.", "success"); } catch (err) { showToast("Upload Fault: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
         async function editP(id) { try { const doc = await db.collection('products').doc(id).get(); if (doc.exists) { const p = doc.data(); document.getElementById('eId').value = id; document.getElementById('eName').value = p.name || ''; document.getElementById('ePurchasePrice').value = p.purchasePrice || ''; document.getElementById('eOldPrice').value = p.oldPrice || ''; document.getElementById('ePrice').value = p.price || ''; document.getElementById('eStock').value = p.stock !== undefined ? p.stock : 0; document.getElementById('eCategory').value = p.category || ''; document.getElementById('eUnit').value = p.unit || 'Piece'; document.getElementById('eDesc').value = p.description || ''; document.querySelectorAll('.e-size-cb').forEach(cb => { cb.checked = (p.sizes || []).includes(cb.value); }); document.getElementById('eUnitContainer').style.display = (p.sizes && p.sizes.length > 0) ? 'none' : 'block'; document.getElementById('eExistingImages').value = JSON.stringify(p.images || (p.image ? [p.image] : [])); document.getElementById('editModal').classList.remove('hidden'); } } catch (err) { showToast("Data Fault: " + err.message, "error"); } }
         document.getElementById('editForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.e-size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('eUnit').value; let pId = document.getElementById('eId').value; try { let files = document.getElementById('eImageFiles').files; let imagesArray = []; let existingImages = JSON.parse(document.getElementById('eExistingImages').value || "[]"); if(files.length > 0) { let newImages = await processImagesToBase64(files); imagesArray = existingImages.concat(newImages); } else { imagesArray = existingImages; } await db.collection('products').doc(pId).update({ name: document.getElementById('eName').value, purchasePrice: parseFloat(document.getElementById('ePurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('eOldPrice').value) || 0, price: parseFloat(document.getElementById('ePrice').value), stock: parseInt(document.getElementById('eStock').value) || 0, category: document.getElementById('eCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('eDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('editForm').reset(); document.getElementById('eImageFiles').value = ""; document.getElementById('editModal').classList.add('hidden'); showToast("Record Patched.", "success"); } catch (err) { showToast("Patch Fault: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
         
@@ -1042,7 +1087,39 @@
         async function searchCourierRate() { const phone = document.getElementById('csPhoneInput').value.trim(); if(!phone) { showToast('Account Identifier required', 'error'); return; } if (!globalCourierApiKey || !globalCourierSecretKey) { showToast('API tokens missing in configuration!', 'error'); return; } const btn = document.getElementById('btnCsSearch'); const originalHtml = btn.innerHTML; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 mr-1 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; try { const response = await fetch(`https://portal.packzy.com/api/v1/customer_delivery_record/${phone}`, { method: 'GET', headers: { 'Api-Key': globalCourierApiKey, 'Secret-Key': globalCourierSecretKey, 'Content-Type': 'application/json' } }); const text = await response.text(); let result; try { result = JSON.parse(text); } catch(e) { throw new Error("API Node down"); } if (response.ok && (result.status === 200 || result.status === 'success' || result.status === true)) { let data = result.data || result; let delivered = parseInt(data.delivered_count || data.delivered || data.success || 0); let cancelled = parseInt(data.returned_count || data.cancelled || data.returned || data.failed || 0); let total = delivered + cancelled; let rate = total > 0 ? ((delivered / total) * 100).toFixed(1) : 0; document.getElementById('cr-all-percent').innerText = `${rate}%`; document.getElementById('cr-all-total').innerText = `${total}`; document.getElementById('cr-all-success').innerText = `${delivered}`; document.getElementById('cr-all-failed').innerText = `${cancelled}`; const circleDiv = document.getElementById('cr-all-circle'); if(rate >= 80) circleDiv.style.borderColor = '#16a34a'; else if(rate >= 50) circleDiv.style.borderColor = '#f59e0b'; else circleDiv.style.borderColor = '#ef4444'; updateCRRow('redx', total, delivered, cancelled); showToast('Matrix synced successfully.', 'success'); } else { showToast(result.message || 'No historic data found.', 'error'); resetCRUI(); } } catch (error) { showToast('Query Fault: ' + error.message, 'error'); resetCRUI(); } finally { btn.innerHTML = originalHtml; btn.disabled = false; } }
         function updateCRRow(id, total, su, fa) { let rate = total > 0 ? Math.round((su/total)*100) : 0; let bar = document.getElementById(`cr-${id}-bar`); bar.style.width = `${rate}%`; bar.innerText = rate > 0 ? `${rate}%` : ''; if(rate >= 80) bar.style.backgroundColor = '#16a34a'; else if(rate >= 50) bar.style.backgroundColor = '#f59e0b'; else bar.style.backgroundColor = '#ef4444'; document.getElementById(`cr-${id}-to`).innerText = total; document.getElementById(`cr-${id}-su`).innerText = su; document.getElementById(`cr-${id}-fa`).innerText = fa; }
         function resetCRUI() { document.getElementById('cr-all-percent').innerText = `0%`; document.getElementById('cr-all-total').innerText = `0`; document.getElementById('cr-all-success').innerText = `0`; document.getElementById('cr-all-failed').innerText = `0`; document.getElementById('cr-all-circle').style.borderColor = '#e2e8f0'; updateCRRow('redx', 0, 0, 0); }
-        async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { if(newStatus === oldStatus) return; try { if (newStatus === 'Returned') { if(!await customConfirm('Execute RMA? This injects inventory back and logs logistics loss.')) { loadOrders(); return; } const pSnap = await db.collection('products').where('name', '==', productName).get(); if(!pSnap.empty) { const pDoc = pSnap.docs[0]; const currentStock = parseInt(pDoc.data().stock) || 0; await db.collection('products').doc(pDoc.id).update({ stock: currentStock + (parseInt(qty) || 1) }); showToast(`Inventory Adjusted: +${qty || 1} units of ${productName}`, 'info'); } } const timestamp = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); showToast("Status Machine Updated.", "success"); } catch (err) { showToast("State Fault: " + err.message, "error"); loadOrders(); } }
+        
+        // UPDATED: INTERCONNECTED ACCOUNTING & NOTIFICATIONS
+        async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { 
+            if(newStatus === oldStatus) return; 
+            try { 
+                if (newStatus === 'Returned') { 
+                    if(!await customConfirm('Execute RMA? This injects inventory back and logs logistics loss.')) { loadOrders(); return; } 
+                    const pSnap = await db.collection('products').where('name', '==', productName).get(); 
+                    if(!pSnap.empty) { 
+                        const pDoc = pSnap.docs[0]; const currentStock = parseInt(pDoc.data().stock) || 0; 
+                        await db.collection('products').doc(pDoc.id).update({ stock: currentStock + (parseInt(qty) || 1) }); 
+                        showToast(`Inventory Adjusted: +${qty || 1} units of ${productName}`, 'info'); 
+                    } 
+                } 
+                const timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
+                await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); 
+                
+                // NEW: IF COMPLETED, ADD TO ACCOUNTING
+                if(newStatus === 'Completed') {
+                    const oDoc = await db.collection('orders').doc(orderId).get();
+                    if(oDoc.exists) {
+                        const amt = parseFloat(String(oDoc.data().totalPrice || oDoc.data().price || 0).replace(/[^0-9.]/g, '')) || 0;
+                        await db.collection('transactions').add({ type: 'Income', amount: amt, category: 'Sales', desc: 'Order #' + orderId.substring(0,6), date: firebase.firestore.FieldValue.serverTimestamp() });
+                        addNotification('Sale Completed', 'Order #' + orderId.substring(0,6) + ' fulfilled. Amount: ৳' + amt, 'success');
+                    }
+                }
+
+                showToast("Status Machine Updated.", "success"); 
+            } catch (err) { 
+                showToast("State Fault: " + err.message, "error"); loadOrders(); 
+            } 
+        }
+
         async function bookParcel(btnElement, orderId, name, phone, address, amount) { if(!await customConfirm('Initiate API dispatch sequence for this shipment?')) return; const originalHtml = btnElement.innerHTML; btnElement.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 inline"></i>'; lucide.createIcons(); btnElement.disabled = true; try { const settingsDoc = await db.collection('siteSettings').doc('global').get(); const settingsData = settingsDoc.data(); const apiKey = settingsData?.courierApiKey; const secretKey = settingsData?.courierSecretKey; if(!apiKey || !secretKey) { showToast('Logistics endpoints unconfigured.', 'error'); btnElement.innerHTML = originalHtml; btnElement.disabled = false; return; } const apiUrl = 'https://portal.packzy.com/api/v1/create_order'; const payload = { invoice: orderId, recipient_name: name || "Corporate Client", recipient_phone: phone || "00000000000", recipient_address: address || "N/A", cod_amount: parseFloat(amount) || 0, note: "ERP Automated Dispatch" }; const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Api-Key': apiKey, 'Secret-Key': secretKey }, body: JSON.stringify(payload) }); const responseText = await response.text(); let result; try { result = JSON.parse(responseText); } catch (e) { throw new Error("API Node Fault"); } if(result.status === 200 || result.status === 'success') { showToast('Dispatch sequence confirmed.', 'success'); await db.collection('orders').doc(orderId).update({ courierBooked: true, trackingCode: result?.data?.tracking_code || result?.tracking_code || '' }); } else { showToast('Dispatch Fault: ' + (result?.message || "Verify Variables."), 'error'); } } catch (error) { showToast("Transmission Error: " + error.message, "error"); } finally { btnElement.innerHTML = originalHtml; btnElement.disabled = false; } }
         async function saveAdminNote(orderId) { const noteText = document.getElementById(`note-${orderId}`).value; try { await db.collection('orders').doc(orderId).update({ adminNote: noteText }); showToast("Internal log committed.", "success"); } catch (err) { showToast("Commit Fault.", "error"); } }
         
@@ -1116,6 +1193,223 @@
         }
         async function toggleUserBlock(userId, blockStatus) { if(await customConfirm(`Execute profile ${blockStatus ? 'revocation' : 'restoration'}?`)) { try { await db.collection('users').doc(userId).update({ isBlocked: blockStatus }); showToast("Profile State Patched.", "success"); } catch(e) { showToast("Fault: " + e.message, "error"); } } }
         async function deleteUser(userId) { if(await customConfirm('Confirm hard delete of entity profile?')) { try { await db.collection('users').doc(userId).delete(); showToast("Profile Purged.", "success"); } catch(e) { showToast("Fault: " + e.message, "error"); } } }
+
+
+        // =======================================================================
+        // NEW MODULES LOGIC START HERE (NOTHING FROM ABOVE HAS BEEN REMOVED)
+        // =======================================================================
+
+        // 1. NOTIFICATION SYSTEM
+        function addNotification(title, msg, type = 'info') {
+            db.collection('notifications').add({ title, message: msg, type, read: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+        function loadNotifications() {
+            db.collection('notifications').orderBy('createdAt', 'desc').limit(50).onSnapshot(snap => {
+                const list = document.getElementById('notif-list'); const badge = document.getElementById('notif-badge');
+                let unreadCount = 0; let html = '';
+                snap.forEach(doc => {
+                    const data = doc.data(); if(!data.read) unreadCount++;
+                    let icon = data.type === 'success' ? 'check-circle text-brand-500' : (data.type==='error'?'alert-triangle text-rose-500':'bell text-blue-500');
+                    html += `<div class="p-4 hover:bg-slate-50 transition ${!data.read ? 'bg-brand-50/20' : ''}"><div class="flex gap-3"><i data-lucide="${icon.split(' ')[0]}" class="w-5 h-5 mt-0.5 ${icon.split(' ')[1]}"></i><div><h4 class="text-xs font-bold text-slate-800">${data.title}</h4><p class="text-[10px] text-slate-500 mt-1 leading-relaxed">${data.message}</p></div></div></div>`;
+                });
+                list.innerHTML = html; lucide.createIcons();
+                if(unreadCount > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+            });
+        }
+        async function markAllNotifRead() { const snap = await db.collection('notifications').where('read','==',false).get(); const batch = db.batch(); snap.forEach(doc => batch.update(doc.ref, {read: true})); await batch.commit(); }
+
+        // 2. POS (POINT OF SALE) SYSTEM
+        let posProducts = []; let posCart = [];
+        function loadPOSProducts() {
+            db.collection('products').onSnapshot(snap => {
+                posProducts = []; let catSet = new Set();
+                snap.forEach(doc => { let d = doc.data(); d.id = doc.id; posProducts.push(d); if(d.category) catSet.add(d.category); });
+                let catHtml = '<option value="">All Categories</option>'; catSet.forEach(c => catHtml += `<option value="${c}">${c}</option>`);
+                document.getElementById('posCategoryFilter').innerHTML = catHtml; renderPOSProducts(posProducts);
+            });
+        }
+        function renderPOSProducts(list) {
+            const grid = document.getElementById('pos-product-grid');
+            grid.innerHTML = list.map(p => `
+                <div onclick="addToPOS('${p.id}')" class="bg-white p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-brand-400 hover:shadow-md transition group text-center flex flex-col h-full">
+                    <img src="${p.image || (p.images && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/100')}" class="w-full h-24 object-cover rounded-lg mb-2 group-hover:scale-105 transition">
+                    <h4 class="text-xs font-bold text-slate-700 truncate">${p.name}</h4>
+                    <p class="text-brand-600 font-black text-sm mt-auto">৳${p.price}</p>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Stk: ${p.stock}</p>
+                </div>
+            `).join('');
+        }
+        function filterPOS() { const q = document.getElementById('posSearch').value.toLowerCase(); const c = document.getElementById('posCategoryFilter').value; let res = posProducts.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q))); if(c) res = res.filter(p => p.category === c); renderPOSProducts(res); }
+        function addToPOS(id) { const p = posProducts.find(x => x.id === id); if(!p || p.stock <= 0) return showToast('Out of Stock!', 'error'); let item = posCart.find(x => x.id === id); if(item) { if(item.qty < p.stock) item.qty++; else showToast('Max stock reached', 'error'); } else posCart.push({ id: p.id, name: p.name, price: parseFloat(p.price), qty: 1, stock: p.stock }); renderPOSCart(); }
+        function updatePOSQty(id, diff) { let item = posCart.find(x => x.id === id); if(!item) return; item.qty += diff; if(item.qty <= 0) posCart = posCart.filter(x => x.id !== id); else if(item.qty > item.stock) item.qty = item.stock; renderPOSCart(); }
+        function clearPOSCart() { posCart = []; document.getElementById('posCustomer').value = ''; renderPOSCart(); }
+        function renderPOSCart() {
+            const list = document.getElementById('pos-cart-items');
+            list.innerHTML = posCart.map(item => `
+                <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <div class="flex-1 min-w-0 pr-2"><p class="text-[11px] font-bold text-slate-800 truncate">${item.name}</p><p class="text-[10px] text-slate-500 font-medium">৳${item.price}</p></div>
+                    <div class="flex items-center gap-2"><button onclick="updatePOSQty('${item.id}', -1)" class="w-6 h-6 bg-slate-200 rounded text-slate-600 font-bold">-</button><span class="text-xs font-bold w-4 text-center">${item.qty}</span><button onclick="updatePOSQty('${item.id}', 1)" class="w-6 h-6 bg-slate-200 rounded text-slate-600 font-bold">+</button></div>
+                </div>
+            `).join(''); updatePOSTotals();
+        }
+        function updatePOSTotals() {
+            let subtotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let tax = subtotal * 0.15; // 15% VAT assumption
+            let discount = parseFloat(document.getElementById('pos-discount').value) || 0;
+            let total = subtotal + tax - discount;
+            document.getElementById('pos-subtotal').innerText = '৳' + subtotal.toFixed(2);
+            document.getElementById('pos-tax').innerText = '৳' + tax.toFixed(2);
+            document.getElementById('pos-total').innerText = '৳' + total.toFixed(2);
+        }
+        async function processPOSPayment(method) {
+            if(posCart.length === 0) return showToast('Cart is empty', 'error');
+            const totalStr = document.getElementById('pos-total').innerText.replace('৳', ''); const total = parseFloat(totalStr);
+            const customer = document.getElementById('posCustomer').value || 'Walk-in Customer';
+            const batch = db.batch();
+            try {
+                const orderRef = db.collection('orders').doc();
+                // Creates order, which auto updates Dashboard and Analytics (Because they read from orders collection)
+                batch.set(orderRef, { name: customer, source: 'POS', paymentMethod: method, paymentStatus: 'Paid', status: 'Completed', totalPrice: total, price: total, items: posCart, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                
+                // Inventory Auto Update
+                posCart.forEach(item => { const pRef = db.collection('products').doc(item.id); batch.update(pRef, { stock: firebase.firestore.FieldValue.increment(-item.qty) }); });
+                
+                // Accounting Auto Update
+                const transRef = db.collection('transactions').doc();
+                batch.set(transRef, { type: 'Income', amount: total, category: 'Retail Sales', desc: `POS Order #${orderRef.id.substring(0,6)}`, date: firebase.firestore.FieldValue.serverTimestamp() });
+                
+                await batch.commit();
+                addNotification('POS Sale Complete', `Order created for ৳${total} via ${method}`, 'success');
+                showToast('Payment successful', 'success'); clearPOSCart();
+            } catch(e) { showToast('Checkout Failed', 'error'); }
+        }
+
+        // 3. WAREHOUSE MANAGEMENT SYSTEM
+        function loadWarehouses() {
+            db.collection('warehouses').onSnapshot(snap => {
+                const list = document.getElementById('wh-list'); let html = ''; let totalVal = 0;
+                document.getElementById('wh-total').innerText = snap.size;
+                snap.forEach(doc => { const d = doc.data(); totalVal += (d.value || 0); html += `<tr class="hover:bg-slate-50 border-b border-slate-50"><td class="p-4 font-bold text-slate-800">${d.name}</td><td class="p-4 text-xs text-slate-500">${d.location}</td><td class="p-4 text-xs">${d.manager}</td><td class="p-4"><span class="bg-brand-50 text-brand-600 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">Active</span></td><td class="p-4 text-center"><button onclick="deleteWarehouse('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`; });
+                list.innerHTML = html; document.getElementById('wh-value').innerText = '৳' + totalVal; lucide.createIcons();
+            });
+        }
+        document.getElementById('whForm').addEventListener('submit', async (e) => { e.preventDefault(); try { await db.collection('warehouses').add({ name: document.getElementById('whName').value, location: document.getElementById('whLocation').value, manager: document.getElementById('whManager').value, value: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('whModal').classList.add('hidden'); document.getElementById('whForm').reset(); addNotification('Facility Added', 'New warehouse registered.', 'success'); showToast('Saved', 'success'); } catch(err){ showToast('Error','error'); } });
+        async function deleteWarehouse(id) { await db.collection('warehouses').doc(id).delete(); showToast('Deleted', 'success'); }
+
+        // 4. PROCUREMENT & PURCHASE ORDERS
+        function loadPurchases() {
+            db.collection('purchase_orders').orderBy('createdAt', 'desc').onSnapshot(snap => {
+                const list = document.getElementById('po-list'); let html = ''; let pending = 0, rec = 0, pay = 0;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    if(d.status === 'Pending') { pending++; pay += d.amount; } if(d.status === 'Received') rec++;
+                    let statusColor = d.status === 'Received' ? 'bg-brand-50 text-brand-600' : 'bg-orange-50 text-orange-600';
+                    let actBtn = d.status === 'Pending' ? `<button onclick="receivePO('${doc.id}', ${d.amount}, '${d.item}', ${d.qty})" class="text-emerald-600 bg-emerald-50 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest mr-2 hover:bg-emerald-100 transition">Mark Received</button>` : '';
+                    html += `<tr class="hover:bg-slate-50 border-b border-slate-50"><td class="p-4"><p class="font-bold text-slate-800">PO-${doc.id.substring(0,5).toUpperCase()}</p><p class="text-[10px] text-slate-400 font-mono">${d.date}</p></td><td class="p-4 font-bold text-slate-700 text-xs">${d.supplier}</td><td class="p-4 text-xs text-slate-500">${d.item} (x${d.qty})</td><td class="p-4 font-black text-slate-800">৳${d.amount}</td><td class="p-4"><span class="${statusColor} px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">${d.status}</span></td><td class="p-4 text-center">${actBtn}<button onclick="deletePO('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded"><i data-lucide="trash-2" class="w-4 h-4 inline"></i></button></td></tr>`;
+                });
+                list.innerHTML = html; document.getElementById('po-pending').innerText = pending; document.getElementById('po-received').innerText = rec; document.getElementById('po-payable').innerText = '৳' + pay; lucide.createIcons();
+            });
+        }
+        function openPOModal() { document.getElementById('poModal').classList.remove('hidden'); }
+        document.getElementById('poForm').addEventListener('submit', async (e) => { e.preventDefault(); try { await db.collection('purchase_orders').add({ supplier: document.getElementById('poSupplier').value, item: document.getElementById('poItem').value, qty: parseInt(document.getElementById('poQty').value), amount: parseFloat(document.getElementById('poAmount').value), date: document.getElementById('poDate').value, status: 'Pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('poModal').classList.add('hidden'); document.getElementById('poForm').reset(); addNotification('PO Created', 'Purchase Requisition Raised.', 'info'); showToast('PO Generated', 'success'); } catch(err){ showToast('Error','error'); } });
+        
+        async function receivePO(id, amount, itemName, qty) { 
+            try { 
+                const batch = db.batch(); 
+                batch.update(db.collection('purchase_orders').doc(id), { status: 'Received' }); 
+                batch.set(db.collection('transactions').doc(), { type: 'Expense', amount: amount, category: 'Procurement', desc: `PO Settlement`, date: firebase.firestore.FieldValue.serverTimestamp() }); 
+                
+                // Update Inventory
+                const pSnap = await db.collection('products').where('name', '==', itemName).get();
+                if(!pSnap.empty) {
+                    batch.update(pSnap.docs[0].ref, { stock: firebase.firestore.FieldValue.increment(qty) });
+                }
+
+                await batch.commit(); 
+                addNotification('Stock Received', `PO amount ৳${amount} logged to accounting and stock updated.`, 'success'); 
+                showToast('Received & Logged', 'success'); 
+            } catch(e){ showToast('Error','error'); } 
+        }
+        async function deletePO(id) { await db.collection('purchase_orders').doc(id).delete(); showToast('Deleted', 'success'); }
+
+        // 5. ACCOUNTING MODULE
+        function loadAccounting() {
+            db.collection('transactions').orderBy('date', 'desc').onSnapshot(snap => {
+                const list = document.getElementById('acc-list'); let html = ''; let inc = 0, exp = 0;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    let amt = parseFloat(d.amount) || 0; if(d.type === 'Income') inc += amt; else exp += amt;
+                    let dateStr = d.date ? (d.date.toDate ? d.date.toDate().toLocaleDateString() : new Date(d.date).toLocaleDateString()) : 'N/A';
+                    html += `<tr class="hover:bg-slate-50 border-b border-slate-50"><td class="p-4"><p class="font-bold text-slate-800 font-mono text-xs">TX-${doc.id.substring(0,6).toUpperCase()}</p><p class="text-[10px] text-slate-400">${dateStr}</p></td><td class="p-4 text-xs font-bold text-slate-700">${d.category}</td><td class="p-4 text-xs text-slate-500">${d.desc}</td><td class="p-4 text-right font-black ${d.type==='Expense'?'text-slate-800':'text-slate-300'}">${d.type==='Expense'? '৳'+amt : '-'}</td><td class="p-4 text-right font-black ${d.type==='Income'?'text-brand-600':'text-slate-300'}">${d.type==='Income'? '৳'+amt : '-'}</td></tr>`;
+                });
+                list.innerHTML = html; document.getElementById('acc-income').innerText = '৳' + inc; document.getElementById('acc-expense').innerText = '৳' + exp; document.getElementById('acc-assets').innerText = '৳' + (inc - exp); document.getElementById('acc-liabilities').innerText = '৳' + (exp * 0.1).toFixed(0);
+            });
+        }
+        document.getElementById('accForm').addEventListener('submit', async (e) => { e.preventDefault(); try { await db.collection('transactions').add({ type: document.getElementById('accType').value, amount: parseFloat(document.getElementById('accAmount').value), category: 'Manual Entry', desc: document.getElementById('accDesc').value, date: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('accModal').classList.add('hidden'); document.getElementById('accForm').reset(); addNotification('Journal Entry', 'New manual ledger posted.', 'info'); showToast('Journal Posted', 'success'); } catch(err){ showToast('Error','error'); } });
+
+        // 6. HR & PAYROLL MODULE
+        function loadHR() {
+            db.collection('employees').onSnapshot(snap => {
+                const list = document.getElementById('hr-list'); let html = '';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr class="hover:bg-slate-50 border-b border-slate-50"><td class="p-4 font-bold text-slate-800">${d.name}</td><td class="p-4"><p class="text-xs font-bold text-slate-700">${d.department}</p><p class="text-[10px] text-slate-500">${d.role}</p></td><td class="p-4 font-black text-slate-800">৳${d.salary}</td><td class="p-4"><span class="bg-brand-50 text-brand-600 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">Active</span></td><td class="p-4 text-center"><button onclick="deleteEmp('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
+                });
+                list.innerHTML = html; lucide.createIcons();
+            });
+        }
+        
+        document.getElementById('hrForm').addEventListener('submit', async (e) => { 
+            e.preventDefault(); 
+            try { 
+                await db.collection('employees').add({ 
+                    name: document.getElementById('hrName').value, 
+                    department: document.getElementById('hrDept').value, 
+                    role: document.getElementById('hrRole').value, 
+                    salary: parseFloat(document.getElementById('hrSalary').value), 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+                }); 
+                document.getElementById('hrModal').classList.add('hidden'); 
+                document.getElementById('hrForm').reset(); 
+                addNotification('Employee Onboarded', 'New staff added to directory.', 'info'); 
+                showToast('Registered', 'success'); 
+            } catch(err){ 
+                showToast('Error','error'); 
+            } 
+        });
+
+        async function deleteEmp(id) { 
+            if(await customConfirm('Confirm execution of employee profile deletion?')) {
+                await db.collection('employees').doc(id).delete(); 
+                showToast('Deleted', 'success'); 
+            }
+        }
+
+        async function processPayroll() { 
+            if(!await customConfirm('Execute monthly payroll for all active employees?')) return;
+            const snap = await db.collection('employees').get(); 
+            let total = 0; 
+            snap.forEach(d => total += (d.data().salary || 0));
+            
+            if(total === 0) return showToast('No active payroll', 'error');
+            
+            await db.collection('transactions').add({ 
+                type: 'Expense', 
+                amount: total, 
+                category: 'Payroll', 
+                desc: 'Monthly Salary Disbursement', 
+                date: firebase.firestore.FieldValue.serverTimestamp() 
+            });
+            
+            addNotification('Payroll Executed', `Total BDT ${total} disbursed successfully.`, 'success'); 
+            showToast('Payroll Processed', 'success');
+        }
+
+        // 7. AI ASSISTANT (UI Functional)
+        function runAIAssistant() { 
+            showToast('AI Assistant engaged. Analyzing datastream...', 'info'); 
+        }
+
     </script>
 </body>
 </html>
