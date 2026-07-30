@@ -882,6 +882,10 @@ if(document.getElementById(`nav-${sectionName}`)) { document.getElementById(`nav
             if (user) {
                 // Fetch User RBAC Info
                 const docSnap = await db.collection('system_users').doc(user.uid).get();
+                
+                let userNameEl = document.getElementById('current-user-name');
+                let userRoleEl = document.getElementById('current-user-role');
+
                 if(docSnap.exists) {
                     const data = docSnap.data();
                     if(data.isActive === false) {
@@ -892,15 +896,17 @@ if(document.getElementById(`nav-${sectionName}`)) { document.getElementById(`nav
                     systemPermissions.menus = data.menus || [];
                     systemPermissions.actions = data.actions || [];
                     currentUserRole = data.role || 'Staff';
-                    document.getElementById('current-user-name').innerText = data.name || 'User';
-                    document.getElementById('current-user-role').innerText = currentUserRole;
+                    
+                    if(userNameEl) userNameEl.innerText = data.name || 'User';
+                    if(userRoleEl) userRoleEl.innerText = currentUserRole;
                 } else {
                     // Fallback for default primary admin
                     systemPermissions.menus = ['all'];
                     systemPermissions.actions = ['all'];
                     currentUserRole = 'Super Admin';
-                    document.getElementById('current-user-name').innerText = 'Super Admin';
-                    document.getElementById('current-user-role').innerText = 'Admin';
+                    
+                    if(userNameEl) userNameEl.innerText = 'Super Admin';
+                    if(userRoleEl) userRoleEl.innerText = 'Admin';
                 }
 
                 applyMenuPermissions();
