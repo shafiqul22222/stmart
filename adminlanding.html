@@ -144,7 +144,7 @@
                         এখন দেখছেন <span id="liveVisitor" class="text-lg mx-1">২৩</span> জন
                     </div>
                     <div class="flex items-center gap-2 text-slate-700 font-bold text-sm bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
-                        <i class="fas fa-fire text-orange-500 animate-pulse"></i> আজকে অর্ডার হয়েছে <span id="todayOrder" class="text-green-600 text-lg mx-1">৫৮</span> টি
+                        <i class="fas fa-fire text-orange-500 animate-pulse"></i> আজকে অর্ডার হয়েছে <span id="todayOrder" class="text-green-600 text-lg mx-1">২৬</span> টি
                     </div>
                 </div>
 
@@ -545,16 +545,31 @@
             });
         }, { threshold: 0.1 });
         
-        // Random Counters logic
-        setInterval(() => {
-            let currentLive = parseInt(document.getElementById('liveVisitor').innerText);
-            let offset = Math.floor(Math.random() * 5) - 2;
-            let newVal = currentLive + offset;
-            if(newVal < 15) newVal = 15;
-            if(newVal > 45) newVal = 45;
-            document.getElementById('liveVisitor').innerText = newVal;
-        }, 5000);
+        // English to Bengali Number Converter
+function toBengaliNum(num) {
+    const banglaDigits = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
+    return num.toString().split('').map(digit => banglaDigits[digit] || digit).join('');
+}
 
+// Variables to keep track of counters
+let liveCount = 23;
+let orderCount = 58;
+
+// Random Counters logic
+setInterval(() => {
+    let offset = Math.floor(Math.random() * 5) - 2;
+    liveCount = liveCount + offset;
+    if(liveCount < 15) liveCount = 15;
+    if(liveCount > 45) liveCount = 45;
+    document.getElementById('liveVisitor').innerText = toBengaliNum(liveCount);
+}, 5000);
+
+setInterval(() => {
+    if(Math.random() > 0.7) {
+        orderCount = orderCount + 1;
+        document.getElementById('todayOrder').innerText = toBengaliNum(orderCount);
+    }
+}, 15000);
         setInterval(() => {
             let currentOrders = parseInt(document.getElementById('todayOrder').innerText);
             if(Math.random() > 0.7) {
