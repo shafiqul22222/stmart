@@ -335,6 +335,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <!-- Orders & Logistics -->
                         <div class="card-stat">
                             <div class="flex items-center justify-between"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Orders</p><i data-lucide="shopping-bag" class="text-slate-300 w-5 h-5"></i></div>
@@ -598,6 +600,8 @@
                 <div id="accounting-section" class="hidden"><div class="flex justify-between items-end mb-6"><div><h2 class="text-2xl font-bold text-slate-800 tracking-tight">Financial Accounting</h2><p class="text-slate-500 text-sm mt-1 font-medium">General ledger, trial balance, and journal entries.</p></div><button onclick="document.getElementById('accModal').classList.remove('hidden')" class="btn-primary text-sm px-5 py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Manual Journal</button></div><div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6"><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Current Assets</p><h3 id="acc-assets" class="text-2xl font-black text-brand-600 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Liabilities</p><h3 id="acc-liabilities" class="text-2xl font-black text-rose-500 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Monthly Income</p><h3 id="acc-income" class="text-2xl font-black text-blue-600 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Monthly Expense</p><h3 id="acc-expense" class="text-2xl font-black text-orange-500 tracking-tight">৳0</h3></div></div><div class="erp-table-wrapper bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-[800px] text-sm"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">Txn ID & Date</th><th class="p-4">Account Ledger</th><th class="p-4">Description</th><th class="p-4 text-right">Debit</th><th class="p-4 text-right">Credit</th></tr></thead><tbody id="acc-list" class="divide-y divide-slate-100"></tbody></table></div></div>
 
                 <!-- NEW: HR Section -->
+                <div id="hr-section" class="hidden"><div class="flex justify-between items-end mb-6"><div><h2 class="text-2xl font-bold text-slate-800 tracking-tight">HR & Payroll</h2><p class="text-slate-500 text-sm mt-1 font-medium">Employee directory, attendance, and salary processing.</p></div><div class="flex gap-3"><button onclick="processPayroll()" class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm"><i data-lucide="play-circle" class="w-4 h-4 inline mr-2"></i> Run Payroll</button><button onclick="document.getElementById('hrModal').classList.remove('hidden')" class="btn-primary text-sm px-5 py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Onboard Employee</button></div></div><div class="erp-table-wrapper bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-[800px] text-sm"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">Employee Profile</th><th class="p-4">Department & Role</th><th class="p-4">Base Salary</th><th class="p-4">Status</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="hr-list" class="divide-y divide-slate-100"></tbody></table></div></div>
+
                 <!-- EXPENSE MANAGEMENT SECTION -->
                 <div id="expense-section" class="hidden" id="expense-export-wrapper">
                     <div class="flex justify-between items-end mb-6">
@@ -685,6 +689,7 @@
                         </div>
                     </div>
                 </div>
+
             </main>
         </div>
     </div>
@@ -799,22 +804,23 @@
             lucide.createIcons();
             setTimeout(() => toast.classList.remove('translate-x-full'), 10); setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
+        
         // নোটিফিকেশন মেনু ওপেন/ক্লোজ করার ফাংশন
-function toggleNotifMenu() {
-    const notifDropdown = document.getElementById('notif-dropdown');
-    notifDropdown.classList.toggle('hidden');
-}
+        function toggleNotifMenu() {
+            const notifDropdown = document.getElementById('notif-dropdown');
+            notifDropdown.classList.toggle('hidden');
+        }
 
-// স্ক্রিনের অন্য কোথাও (বাইরে) ক্লিক করলে নোটিফিকেশন প্যানেলটি যেন নিজে থেকে বন্ধ হয়ে যায়
-document.addEventListener('click', function(event) {
-    const notifDropdown = document.getElementById('notif-dropdown');
-    const notifButton = event.target.closest('button[onclick="toggleNotifMenu()"]');
-    
-    // যদি নোটিফিকেশন বাটন বা মেনুর বাইরে ক্লিক করা হয়, তাহলে মেনুটি হাইড করে দিবে
-    if (!notifButton && notifDropdown && !notifDropdown.contains(event.target)) {
-        notifDropdown.classList.add('hidden');
-    }
-});
+        // স্ক্রিনের অন্য কোথাও (বাইরে) ক্লিক করলে নোটিফিকেশন প্যানেলটি যেন নিজে থেকে বন্ধ হয়ে যায়
+        document.addEventListener('click', function(event) {
+            const notifDropdown = document.getElementById('notif-dropdown');
+            const notifButton = event.target.closest('button[onclick="toggleNotifMenu()"]');
+            
+            // যদি নোটিফিকেশন বাটন বা মেনুর বাইরে ক্লিক করা হয়, তাহলে মেনুটি হাইড করে দিবে
+            if (!notifButton && notifDropdown && !notifDropdown.contains(event.target)) {
+                notifDropdown.classList.add('hidden');
+            }
+        });
 
         function customConfirm(message) { 
             return new Promise((resolve) => { 
@@ -830,7 +836,6 @@ document.addEventListener('click', function(event) {
         function toggleSidebar() { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebar-overlay'); sidebar.classList.toggle('-translate-x-full'); overlay.classList.toggle('hidden'); }
 
         function showSection(sectionName, pushState = true) {
-            // UPDATED SECTIONS ARRAY
             // UPDATED SECTIONS ARRAY WITH EXPENSE
             const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing', 'courier', 'pos', 'warehouse', 'purchase', 'accounting', 'hr', 'expense'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
@@ -1028,6 +1033,7 @@ document.addEventListener('click', function(event) {
 
         async function editP(id) { try { const doc = await db.collection('products').doc(id).get(); if (doc.exists) { const p = doc.data(); document.getElementById('eId').value = id; document.getElementById('eName').value = p.name || ''; document.getElementById('ePurchasePrice').value = p.purchasePrice || ''; document.getElementById('eOldPrice').value = p.oldPrice || ''; document.getElementById('ePrice').value = p.price || ''; document.getElementById('eStock').value = p.stock !== undefined ? p.stock : 0; document.getElementById('eCategory').value = p.category || ''; document.getElementById('eUnit').value = p.unit || 'Piece'; document.getElementById('eDesc').value = p.description || ''; document.querySelectorAll('.e-size-cb').forEach(cb => { cb.checked = (p.sizes || []).includes(cb.value); }); document.getElementById('eUnitContainer').style.display = (p.sizes && p.sizes.length > 0) ? 'none' : 'block'; document.getElementById('eExistingImages').value = JSON.stringify(p.images || (p.image ? [p.image] : [])); document.getElementById('editModal').classList.remove('hidden'); } } catch (err) { showToast("Data Fault: " + err.message, "error"); } }
         document.getElementById('editForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.e-size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('eUnit').value; let pId = document.getElementById('eId').value; try { let files = document.getElementById('eImageFiles').files; let imagesArray = []; let existingImages = JSON.parse(document.getElementById('eExistingImages').value || "[]"); if(files.length > 0) { let newImages = await processImagesToBase64(files); imagesArray = existingImages.concat(newImages); } else { imagesArray = existingImages; } await db.collection('products').doc(pId).update({ name: document.getElementById('eName').value, purchasePrice: parseFloat(document.getElementById('ePurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('eOldPrice').value) || 0, price: parseFloat(document.getElementById('ePrice').value), stock: parseInt(document.getElementById('eStock').value) || 0, category: document.getElementById('eCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('eDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('editForm').reset(); document.getElementById('eImageFiles').value = ""; document.getElementById('editModal').classList.add('hidden'); showToast("Record Patched.", "success"); } catch (err) { showToast("Patch Fault: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
+        
         function openAdminReview(productId) { document.getElementById('arProductId').value = productId; document.getElementById('adminReviewForm').reset(); document.getElementById('adminReviewModal').classList.remove('hidden'); }
         document.getElementById('adminReviewForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; try { let imageUrl = null; let file = document.getElementById('arImageFile').files[0]; if(file) { imageUrl = await compressAndConvertToBase64(file); } await db.collection('reviews').add({ productId: document.getElementById('arProductId').value, orderId: "admin_manual_" + new Date().getTime(), userId: "admin_manual_user", userName: document.getElementById('arCustomerName').value, rating: parseInt(document.getElementById('arRating').value), comment: document.getElementById('arComment').value, imageUrl: imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('adminReviewModal').classList.add('hidden'); showToast("Feedback injected into CRM.", "success"); } catch (err) { showToast("Injection Fault: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
         async function deleteP(id) { if(await customConfirm('Confirm hard delete of SKU record?')) { try { await db.collection('products').doc(id).delete(); showToast("Record Purged.", "success"); } catch (err) { showToast("Access Denied.", "error"); } } }
@@ -1196,7 +1202,6 @@ document.addEventListener('click', function(event) {
         function updateCRRow(id, total, su, fa) { let rate = total > 0 ? Math.round((su/total)*100) : 0; let bar = document.getElementById(`cr-${id}-bar`); bar.style.width = `${rate}%`; bar.innerText = rate > 0 ? `${rate}%` : ''; if(rate >= 80) bar.style.backgroundColor = '#16a34a'; else if(rate >= 50) bar.style.backgroundColor = '#f59e0b'; else bar.style.backgroundColor = '#ef4444'; document.getElementById(`cr-${id}-to`).innerText = total; document.getElementById(`cr-${id}-su`).innerText = su; document.getElementById(`cr-${id}-fa`).innerText = fa; }
         function resetCRUI() { document.getElementById('cr-all-percent').innerText = `0%`; document.getElementById('cr-all-total').innerText = `0`; document.getElementById('cr-all-success').innerText = `0`; document.getElementById('cr-all-failed').innerText = `0`; document.getElementById('cr-all-circle').style.borderColor = '#e2e8f0'; updateCRRow('redx', 0, 0, 0); }
         
-        // UPDATED: INTERCONNECTED ACCOUNTING & NOTIFICATIONS
         async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { 
             if(newStatus === oldStatus) return; 
             try { 
@@ -1212,7 +1217,6 @@ document.addEventListener('click', function(event) {
                 const timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
                 await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); 
                 
-                // NEW: IF COMPLETED, ADD TO ACCOUNTING
                 if(newStatus === 'Completed') {
                     const oDoc = await db.collection('orders').doc(orderId).get();
                     if(oDoc.exists) {
@@ -1303,10 +1307,6 @@ document.addEventListener('click', function(event) {
         async function deleteUser(userId) { if(await customConfirm('Confirm hard delete of entity profile?')) { try { await db.collection('users').doc(userId).delete(); showToast("Profile Purged.", "success"); } catch(e) { showToast("Fault: " + e.message, "error"); } } }
 
 
-        // =======================================================================
-        // NEW MODULES LOGIC START HERE (NOTHING FROM ABOVE HAS BEEN REMOVED)
-        // =======================================================================
-
         // 1. NOTIFICATION SYSTEM
         function addNotification(title, msg, type = 'info') {
             db.collection('notifications').add({ title, message: msg, type, read: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
@@ -1376,7 +1376,7 @@ document.addEventListener('click', function(event) {
             const batch = db.batch();
             try {
                 const orderRef = db.collection('orders').doc();
-                // Creates order, which auto updates Dashboard and Analytics (Because they read from orders collection)
+                // Creates order, which auto updates Dashboard and Analytics
                 batch.set(orderRef, { name: customer, source: 'POS', paymentMethod: method, paymentStatus: 'Paid', status: 'Completed', totalPrice: total, price: total, items: posCart, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                 
                 // Inventory Auto Update
@@ -1513,10 +1513,6 @@ document.addEventListener('click', function(event) {
             showToast('Payroll Processed', 'success');
         }
 
-        // 7. AI ASSISTANT (UI Functional)
-        function runAIAssistant() { 
-            showToast('AI Assistant engaged. Analyzing datastream...', 'info'); 
-        }
         // =======================================================================
         // 8. EXPENSE MANAGEMENT & ADVANCED PNL DASHBOARD
         // =======================================================================
@@ -1878,6 +1874,12 @@ document.addEventListener('click', function(event) {
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels:{usePointStyle:true, font:{size:10}} } } }
             });
         }
+
+        // 7. AI ASSISTANT (UI Functional)
+        function runAIAssistant() { 
+            showToast('AI Assistant engaged. Analyzing datastream...', 'info'); 
+        }
+
     </script>
 </body>
 </html>
