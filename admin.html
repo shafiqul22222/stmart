@@ -200,6 +200,7 @@
                         <button onclick="showSection('customers')" id="nav-customers" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="users" class="w-5 h-5"></i> Customer Relations</button>
                         <button onclick="showSection('accounting')" id="nav-accounting" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="calculator" class="w-5 h-5"></i> Accounting</button>
                         <button onclick="showSection('hr')" id="nav-hr" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="user-check" class="w-5 h-5"></i> HR & Payroll</button>
+                        <button onclick="showSection('expense')" id="nav-expense" class="w-full text-left px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition flex items-center gap-3"><i data-lucide="receipt" class="w-5 h-5"></i> Expense Manager</button>
                     </nav>
                 </div>
 
@@ -292,41 +293,48 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <!-- Sales & Revenue -->
-                        <div class="card-stat">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-brand-50 rounded-xl text-brand-600"><i data-lucide="banknote" class="w-6 h-6"></i></div>
-                                <span class="bg-brand-100 text-brand-700 text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> Lifetime</span>
+                    <!-- PnL (Profit & Loss) & Advanced Finance Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+                        <div class="card-stat bg-slate-900 border-none text-white relative overflow-hidden">
+                            <div class="absolute right-0 top-0 w-32 h-32 bg-brand-500 rounded-full blur-3xl opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
+                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Gross Sales (MTD)</p>
+                            <h3 id="dash-month-sales" class="text-3xl font-black tracking-tight mb-2">৳0</h3>
+                            <div class="flex justify-between text-xs font-medium border-t border-slate-700 pt-2 mt-2">
+                                <span class="text-slate-400">Today: <span class="text-white font-bold" id="dash-today-sales">৳0</span></span>
+                                <span class="text-slate-400">Life: <span class="text-white font-bold" id="dash-total-sales">৳0</span></span>
                             </div>
-                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Gross Sales</p>
-                            <h3 id="dash-total-sales" class="text-3xl font-black text-slate-800 tracking-tight">৳0</h3>
-                        </div>
-                        <div class="card-stat">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-blue-50 rounded-xl text-blue-600"><i data-lucide="wallet" class="w-6 h-6"></i></div>
-                                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1">Today</span>
-                            </div>
-                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Today's Sales</p>
-                            <h3 id="dash-today-sales" class="text-3xl font-black text-slate-800 tracking-tight">৳0</h3>
-                        </div>
-                        <div class="card-stat">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600"><i data-lucide="pie-chart" class="w-6 h-6"></i></div>
-                                <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded-md">Net</span>
-                            </div>
-                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Net Profit</p>
-                            <h3 id="dash-total-profit" class="text-3xl font-black text-slate-800 tracking-tight">৳0</h3>
-                        </div>
-                        <div class="card-stat">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-purple-50 rounded-xl text-purple-600"><i data-lucide="bar-chart-3" class="w-6 h-6"></i></div>
-                                <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded-md">Today</span>
-                            </div>
-                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Today's Profit</p>
-                            <h3 id="dash-today-profit" class="text-3xl font-black text-slate-800 tracking-tight">৳0</h3>
                         </div>
 
+                        <div class="card-stat bg-white border border-rose-100 shadow-sm relative overflow-hidden">
+                            <div class="absolute right-0 top-0 w-1 h-full bg-rose-500"></div>
+                            <p class="text-rose-500 text-xs font-bold uppercase tracking-wider mb-1">Total Expenses (MTD)</p>
+                            <h3 id="dash-month-expense" class="text-3xl font-black text-slate-800 tracking-tight mb-2">৳0</h3>
+                            <div class="flex justify-between text-xs font-medium border-t border-slate-100 pt-2 mt-2">
+                                <span class="text-slate-500">Today: <span class="text-rose-600 font-bold" id="dash-today-expense">৳0</span></span>
+                                <span class="text-slate-500">Life: <span class="text-slate-800 font-bold" id="dash-total-expense">৳0</span></span>
+                            </div>
+                        </div>
+
+                        <div class="card-stat bg-white border border-blue-100 shadow-sm relative overflow-hidden">
+                            <div class="absolute right-0 top-0 w-1 h-full bg-blue-500"></div>
+                            <p class="text-blue-500 text-xs font-bold uppercase tracking-wider mb-1">Gross Profit (MTD)</p>
+                            <h3 id="dash-month-gp" class="text-3xl font-black text-slate-800 tracking-tight mb-2">৳0</h3>
+                            <div class="flex justify-between text-xs font-medium border-t border-slate-100 pt-2 mt-2">
+                                <span class="text-slate-500" title="Cost of Goods Sold">COGS: <span class="text-slate-800 font-bold" id="dash-month-cogs">৳0</span></span>
+                                <span class="text-slate-500">Life GP: <span class="text-blue-600 font-bold" id="dash-total-gp">৳0</span></span>
+                            </div>
+                        </div>
+
+                        <div class="card-stat bg-brand-50 border border-brand-200 shadow-sm relative overflow-hidden">
+                            <div class="absolute right-0 top-0 w-1 h-full bg-brand-500"></div>
+                            <p class="text-brand-600 text-xs font-bold uppercase tracking-wider mb-1">Net Profit (MTD)</p>
+                            <h3 id="dash-month-np" class="text-3xl font-black text-slate-800 tracking-tight mb-2">৳0</h3>
+                            <div class="flex justify-between text-xs font-medium border-t border-brand-200/50 pt-2 mt-2">
+                                <span class="text-slate-500">Margin: <span class="text-brand-700 font-bold" id="dash-profit-margin">0%</span></span>
+                                <span class="text-slate-500">Exp Ratio: <span class="text-rose-600 font-bold" id="dash-expense-ratio">0%</span></span>
+                            </div>
+                        </div>
+                    </div>
                         <!-- Orders & Logistics -->
                         <div class="card-stat">
                             <div class="flex items-center justify-between"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Orders</p><i data-lucide="shopping-bag" class="text-slate-300 w-5 h-5"></i></div>
@@ -590,8 +598,93 @@
                 <div id="accounting-section" class="hidden"><div class="flex justify-between items-end mb-6"><div><h2 class="text-2xl font-bold text-slate-800 tracking-tight">Financial Accounting</h2><p class="text-slate-500 text-sm mt-1 font-medium">General ledger, trial balance, and journal entries.</p></div><button onclick="document.getElementById('accModal').classList.remove('hidden')" class="btn-primary text-sm px-5 py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Manual Journal</button></div><div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6"><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Current Assets</p><h3 id="acc-assets" class="text-2xl font-black text-brand-600 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Liabilities</p><h3 id="acc-liabilities" class="text-2xl font-black text-rose-500 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Monthly Income</p><h3 id="acc-income" class="text-2xl font-black text-blue-600 tracking-tight">৳0</h3></div><div class="card-stat"><p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Monthly Expense</p><h3 id="acc-expense" class="text-2xl font-black text-orange-500 tracking-tight">৳0</h3></div></div><div class="erp-table-wrapper bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-[800px] text-sm"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">Txn ID & Date</th><th class="p-4">Account Ledger</th><th class="p-4">Description</th><th class="p-4 text-right">Debit</th><th class="p-4 text-right">Credit</th></tr></thead><tbody id="acc-list" class="divide-y divide-slate-100"></tbody></table></div></div>
 
                 <!-- NEW: HR Section -->
-                <div id="hr-section" class="hidden"><div class="flex justify-between items-end mb-6"><div><h2 class="text-2xl font-bold text-slate-800 tracking-tight">HR & Payroll</h2><p class="text-slate-500 text-sm mt-1 font-medium">Employee directory, attendance, and salary processing.</p></div><div class="flex gap-3"><button onclick="processPayroll()" class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm"><i data-lucide="play-circle" class="w-4 h-4 inline mr-2"></i> Run Payroll</button><button onclick="document.getElementById('hrModal').classList.remove('hidden')" class="btn-primary text-sm px-5 py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Onboard Employee</button></div></div><div class="erp-table-wrapper bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-[800px] text-sm"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">Employee Profile</th><th class="p-4">Department & Role</th><th class="p-4">Base Salary</th><th class="p-4">Status</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="hr-list" class="divide-y divide-slate-100"></tbody></table></div></div>
+                <!-- EXPENSE MANAGEMENT SECTION -->
+                <div id="expense-section" class="hidden" id="expense-export-wrapper">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Expense Management</h2>
+                            <p class="text-slate-500 text-sm mt-1 font-medium">Track operational costs, vendor payments, and generate profitability reports.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="exportExpensesPDF()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-xl shadow-sm transition font-semibold text-sm flex items-center"><i data-lucide="file-text" class="text-rose-500 w-4 h-4 mr-2"></i> Export PDF</button>
+                            <button onclick="exportExpensesExcel()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-xl shadow-sm transition font-semibold text-sm flex items-center"><i data-lucide="sheet" class="text-brand-600 w-4 h-4 mr-2"></i> Export Excel</button>
+                        </div>
+                    </div>
 
+                    <!-- Expense Analytics Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="card-stat lg:col-span-2">
+                            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-100 pb-3">Monthly Expense vs Profit Trend</h3>
+                            <div class="h-64"><canvas id="expenseTrendChart"></canvas></div>
+                        </div>
+                        <div class="card-stat">
+                            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-100 pb-3">Expense Distribution</h3>
+                            <div class="h-64"><canvas id="expenseCategoryChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                        <!-- Expense Form -->
+                        <div class="xl:col-span-1">
+                            <div class="bg-white rounded-2xl shadow-erp border border-slate-100 p-6 sticky top-24">
+                                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="plus-circle" class="w-4 h-4 mr-2 text-brand-600"></i> Record New Expense</h3>
+                                <form id="expenseForm" class="space-y-4">
+                                    <input type="hidden" id="expId">
+                                    <div><label class="form-label">Expense Date</label><input type="date" id="expDate" class="form-input" required></div>
+                                    <div><label class="form-label">Category</label><select id="expCategory" class="form-input" required></select></div>
+                                    <div><label class="form-label">Amount (৳)</label><input type="number" id="expAmount" class="form-input border-rose-200 bg-rose-50/30 text-rose-700 font-bold" required></div>
+                                    <div><label class="form-label">Supplier / Vendor</label><input type="text" id="expVendor" class="form-input" placeholder="Name of vendor (Optional)"></div>
+                                    <div><label class="form-label">Reference Number</label><input type="text" id="expRef" class="form-input" placeholder="Invoice / Memo #"></div>
+                                    <div><label class="form-label">Payment Method</label>
+                                        <select id="expMethod" class="form-input" required>
+                                            <option value="Cash">Cash</option><option value="Bank">Bank Transfer</option><option value="Bkash">bKash</option><option value="Nagad">Nagad</option><option value="Rocket">Rocket</option><option value="Card">Card / MFS</option>
+                                        </select>
+                                    </div>
+                                    <div><label class="form-label">Description / Remarks</label><textarea id="expDesc" rows="2" class="form-input"></textarea></div>
+                                    <div><label class="form-label">Attachment Proof (Optional)</label><input type="file" id="expFile" accept="image/*" class="form-input p-2 bg-white text-xs"></div>
+                                    <div class="pt-4 border-t border-slate-100 flex gap-3">
+                                        <button type="button" onclick="clearExpenseForm()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition text-sm">Clear</button>
+                                        <button type="submit" class="flex-[2] btn-primary py-3 !bg-slate-800 hover:!bg-slate-900 shadow-xl text-sm">Save Expense</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Expense List -->
+                        <div class="xl:col-span-2 flex flex-col">
+                            <div class="bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden flex-1 flex flex-col">
+                                <div class="p-5 border-b border-slate-100 bg-slate-50 flex flex-wrap gap-4 items-center justify-between shrink-0">
+                                    <div class="relative w-full md:w-64">
+                                        <i data-lucide="search" class="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400"></i>
+                                        <input type="text" id="expSearch" placeholder="Search expenses..." class="form-input pl-10 py-2 text-sm" onkeyup="filterExpenses()">
+                                    </div>
+                                    <div class="flex gap-3 w-full md:w-auto">
+                                        <select id="expFilterMonth" class="form-input py-2 text-sm" onchange="filterExpenses()">
+                                            <option value="all">All Months</option>
+                                        </select>
+                                        <select id="expFilterCategory" class="form-input py-2 text-sm" onchange="filterExpenses()">
+                                            <option value="all">All Categories</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="flex-1 overflow-y-auto">
+                                    <table class="erp-table w-full text-left whitespace-nowrap min-w-[800px] text-sm">
+                                        <thead class="bg-white text-slate-500 uppercase tracking-widest text-[10px] font-bold">
+                                            <tr>
+                                                <th class="p-4">Date & Ref</th>
+                                                <th class="p-4">Category & Vendor</th>
+                                                <th class="p-4">Payment Info</th>
+                                                <th class="p-4 text-right">Amount (৳)</th>
+                                                <th class="p-4 text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="expense-list" class="divide-y divide-slate-100"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -738,7 +831,8 @@ document.addEventListener('click', function(event) {
 
         function showSection(sectionName, pushState = true) {
             // UPDATED SECTIONS ARRAY
-            const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing', 'courier', 'pos', 'warehouse', 'purchase', 'accounting', 'hr'];
+            // UPDATED SECTIONS ARRAY WITH EXPENSE
+            const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing', 'courier', 'pos', 'warehouse', 'purchase', 'accounting', 'hr', 'expense'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
             sections.forEach(sec => {
                 const secEl = document.getElementById(`${sec}-section`); const navEl = document.getElementById(`nav-${sec}`);
@@ -934,8 +1028,6 @@ document.addEventListener('click', function(event) {
 
         async function editP(id) { try { const doc = await db.collection('products').doc(id).get(); if (doc.exists) { const p = doc.data(); document.getElementById('eId').value = id; document.getElementById('eName').value = p.name || ''; document.getElementById('ePurchasePrice').value = p.purchasePrice || ''; document.getElementById('eOldPrice').value = p.oldPrice || ''; document.getElementById('ePrice').value = p.price || ''; document.getElementById('eStock').value = p.stock !== undefined ? p.stock : 0; document.getElementById('eCategory').value = p.category || ''; document.getElementById('eUnit').value = p.unit || 'Piece'; document.getElementById('eDesc').value = p.description || ''; document.querySelectorAll('.e-size-cb').forEach(cb => { cb.checked = (p.sizes || []).includes(cb.value); }); document.getElementById('eUnitContainer').style.display = (p.sizes && p.sizes.length > 0) ? 'none' : 'block'; document.getElementById('eExistingImages').value = JSON.stringify(p.images || (p.image ? [p.image] : [])); document.getElementById('editModal').classList.remove('hidden'); } } catch (err) { showToast("Data Fault: " + err.message, "error"); } }
         document.getElementById('editForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.e-size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('eUnit').value; let pId = document.getElementById('eId').value; try { let files = document.getElementById('eImageFiles').files; let imagesArray = []; let existingImages = JSON.parse(document.getElementById('eExistingImages').value || "[]"); if(files.length > 0) { let newImages = await processImagesToBase64(files); imagesArray = existingImages.concat(newImages); } else { imagesArray = existingImages; } await db.collection('products').doc(pId).update({ name: document.getElementById('eName').value, purchasePrice: parseFloat(document.getElementById('ePurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('eOldPrice').value) || 0, price: parseFloat(document.getElementById('ePrice').value), stock: parseInt(document.getElementById('eStock').value) || 0, category: document.getElementById('eCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('eDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('editForm').reset(); document.getElementById('eImageFiles').value = ""; document.getElementById('editModal').classList.add('hidden'); showToast("Record Patched.", "success"); } catch (err) { showToast("Patch Fault: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
-        
-        function loadDashboardData() { db.collection('orders').onSnapshot(snap => { let totalSales = 0, todaySales = 0, totalProfit = 0, todayProfit = 0; let returnLoss = 0, returnedCount = 0; let totalOrders = 0, todayOrders = 0, pendingCount = 0, processingCount = 0, completeCount = 0; let customers = new Set(); let today = new Date(); today.setHours(0, 0, 0, 0); snap.forEach(doc => { const order = doc.data(); const status = order.status || 'Pending'; totalOrders++; if(status === 'Pending') pendingCount++; else if(status === 'Processing') processingCount++; else if(status === 'Completed') completeCount++; else if(status === 'Returned') { returnedCount++; returnLoss += parseFloat(order.deliveryCharge) || 0; } let amount = parseFloat(String(order.totalPrice || order.price || 0).replace(/[^0-9.]/g, '')) || 0; let orderProfit = parseFloat(order.totalProfit) || 0; if(status === 'Completed') { totalSales += amount; totalProfit += orderProfit; } if(order.phone) customers.add(order.phone); else if(order.email) customers.add(order.email); if(order.createdAt) { let orderDate = order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt); if(orderDate >= today) { todayOrders++; if(status === 'Completed') { todaySales += amount; todayProfit += orderProfit; } } } }); document.getElementById('dash-total-sales').innerText = '৳' + totalSales; document.getElementById('dash-today-sales').innerText = '৳' + todaySales; document.getElementById('dash-total-profit').innerText = '৳' + totalProfit; document.getElementById('dash-today-profit').innerText = '৳' + todayProfit; document.getElementById('dash-return-loss').innerText = '৳' + returnLoss; document.getElementById('dash-returned-orders').innerText = returnedCount; document.getElementById('dash-total-orders').innerText = totalOrders; document.getElementById('dash-today-orders').innerText = todayOrders; document.getElementById('dash-total-customers').innerText = customers.size; document.getElementById('dash-pending-orders').innerText = pendingCount; document.getElementById('dash-processing-orders').innerText = processingCount; document.getElementById('dash-complete-orders').innerText = completeCount; }); }
         function openAdminReview(productId) { document.getElementById('arProductId').value = productId; document.getElementById('adminReviewForm').reset(); document.getElementById('adminReviewModal').classList.remove('hidden'); }
         document.getElementById('adminReviewForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; try { let imageUrl = null; let file = document.getElementById('arImageFile').files[0]; if(file) { imageUrl = await compressAndConvertToBase64(file); } await db.collection('reviews').add({ productId: document.getElementById('arProductId').value, orderId: "admin_manual_" + new Date().getTime(), userId: "admin_manual_user", userName: document.getElementById('arCustomerName').value, rating: parseInt(document.getElementById('arRating').value), comment: document.getElementById('arComment').value, imageUrl: imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('adminReviewModal').classList.add('hidden'); showToast("Feedback injected into CRM.", "success"); } catch (err) { showToast("Injection Fault: " + err.message, "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
         async function deleteP(id) { if(await customConfirm('Confirm hard delete of SKU record?')) { try { await db.collection('products').doc(id).delete(); showToast("Record Purged.", "success"); } catch (err) { showToast("Access Denied.", "error"); } } }
@@ -1425,7 +1517,367 @@ document.addEventListener('click', function(event) {
         function runAIAssistant() { 
             showToast('AI Assistant engaged. Analyzing datastream...', 'info'); 
         }
+        // =======================================================================
+        // 8. EXPENSE MANAGEMENT & ADVANCED PNL DASHBOARD
+        // =======================================================================
+        
+        const EXPENSE_CATEGORIES = [
+            "Product Purchase Cost", "Courier Cost", "Vehicle / Transport Cost", 
+            "Facebook Ads Cost", "Google Ads Cost", "Staff Salary", "Office Rent", 
+            "Electricity Bill", "Internet Bill", "Packaging Cost", "Cashback", 
+            "Refund", "Misc Expense"
+        ];
+        
+        let globalDashData = { orders: [], expenses: [], products: {} };
+        let activeExpenses = [];
 
+        // Pre-fill categories and set dates
+        document.addEventListener('DOMContentLoaded', () => {
+            let catHtml = '<option value="">Select Category</option>';
+            let filterHtml = '<option value="all">All Categories</option>';
+            EXPENSE_CATEGORIES.forEach(c => { catHtml += `<option value="${c}">${c}</option>`; filterHtml += `<option value="${c}">${c}</option>`; });
+            if(document.getElementById('expCategory')) document.getElementById('expCategory').innerHTML = catHtml;
+            if(document.getElementById('expFilterCategory')) document.getElementById('expFilterCategory').innerHTML = filterHtml;
+            if(document.getElementById('expDate')) document.getElementById('expDate').valueAsDate = new Date();
+            
+            // Build Month Filter
+            let mHtml = '<option value="all">All Months</option>';
+            for(let i=0; i<12; i++) {
+                let d = new Date(); d.setMonth(d.getMonth() - i);
+                let val = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                let label = d.toLocaleDateString('en-US', {month: 'long', year: 'numeric'});
+                mHtml += `<option value="${val}">${label}</option>`;
+            }
+            if(document.getElementById('expFilterMonth')) document.getElementById('expFilterMonth').innerHTML = mHtml;
+        });
+
+        // The Master Dashboard Loader
+        function loadDashboardData() {
+            // Fetch Products mapping for COGS
+            db.collection('products').onSnapshot(snap => {
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    globalDashData.products[p.name] = parseFloat(p.purchasePrice) || 0;
+                });
+                renderAdvancedDashboard();
+            });
+
+            // Fetch Orders
+            db.collection('orders').onSnapshot(snap => {
+                globalDashData.orders = [];
+                snap.forEach(doc => {
+                    const order = doc.data(); order.id = doc.id;
+                    order.dateObj = order.createdAt ? (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)) : new Date(0);
+                    globalDashData.orders.push(order);
+                });
+                renderAdvancedDashboard();
+            });
+
+            // Fetch Expenses
+            db.collection('expenses').onSnapshot(snap => {
+                globalDashData.expenses = []; activeExpenses = [];
+                snap.forEach(doc => {
+                    const ex = doc.data(); ex.id = doc.id;
+                    ex.dateObj = ex.date ? new Date(ex.date) : new Date(0);
+                    globalDashData.expenses.push(ex); activeExpenses.push(ex);
+                });
+                renderAdvancedDashboard();
+                filterExpenses(); // Render Expense List
+            });
+        }
+
+        function renderAdvancedDashboard() {
+            let today = new Date(); today.setHours(0,0,0,0);
+            let firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            let mSales = 0, tSales = 0, lSales = 0;
+            let mCOGS = 0, lCOGS = 0;
+            let pendingOrders = 0, procOrders = 0, compOrders = 0, totalOrders = 0, todayOrders = 0;
+            let returnLoss = 0, returnedCount = 0;
+            let customers = new Set();
+
+            // Process Orders
+            globalDashData.orders.forEach(o => {
+                const status = o.status || 'Pending';
+                totalOrders++;
+                if(status === 'Pending') pendingOrders++;
+                else if(status === 'Processing') procOrders++;
+                else if(status === 'Completed') compOrders++;
+                else if(status === 'Returned') { returnedCount++; returnLoss += parseFloat(o.deliveryCharge) || 0; }
+                
+                let amount = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0;
+                let qty = parseInt(o.qty) || 1;
+                let cogsVal = (globalDashData.products[o.productName] || 0) * qty;
+
+                if(o.phone) customers.add(o.phone); else if(o.email) customers.add(o.email);
+
+                if(status === 'Completed') {
+                    lSales += amount; lCOGS += cogsVal;
+                    if(o.dateObj >= firstDayOfMonth) { mSales += amount; mCOGS += cogsVal; }
+                    if(o.dateObj >= today) { tSales += amount; }
+                }
+
+                if(o.dateObj >= today) todayOrders++;
+            });
+
+            // Process Expenses
+            let mExp = 0, tExp = 0, lExp = 0;
+            globalDashData.expenses.forEach(e => {
+                let amount = parseFloat(e.amount) || 0;
+                lExp += amount;
+                if(e.dateObj >= firstDayOfMonth) mExp += amount;
+                if(e.dateObj >= today) tExp += amount;
+            });
+
+            // Calculations
+            let mGP = mSales - mCOGS;
+            let lGP = lSales - lCOGS;
+            let mNP = mGP - mExp;
+            
+            let expRatio = mSales > 0 ? ((mExp / mSales) * 100).toFixed(1) : 0;
+            let profitMargin = mSales > 0 ? ((mNP / mSales) * 100).toFixed(1) : 0;
+
+            // DOM Updates for Sales & Logistics Counters (Preserving old structure mappings)
+            if(document.getElementById('dash-return-loss')) document.getElementById('dash-return-loss').innerText = '৳' + returnLoss;
+            if(document.getElementById('dash-returned-orders')) document.getElementById('dash-returned-orders').innerText = returnedCount;
+            if(document.getElementById('dash-total-orders')) document.getElementById('dash-total-orders').innerText = totalOrders;
+            if(document.getElementById('dash-today-orders')) document.getElementById('dash-today-orders').innerText = todayOrders;
+            if(document.getElementById('dash-total-customers')) document.getElementById('dash-total-customers').innerText = customers.size;
+            if(document.getElementById('dash-pending-orders')) document.getElementById('dash-pending-orders').innerText = pendingOrders;
+            if(document.getElementById('dash-processing-orders')) document.getElementById('dash-processing-orders').innerText = procOrders;
+            if(document.getElementById('dash-complete-orders')) document.getElementById('dash-complete-orders').innerText = compOrders;
+
+            // New Financial DOM Updates
+            if(document.getElementById('dash-month-sales')) document.getElementById('dash-month-sales').innerText = '৳' + mSales;
+            if(document.getElementById('dash-total-sales')) document.getElementById('dash-total-sales').innerText = '৳' + lSales;
+            if(document.getElementById('dash-today-sales')) document.getElementById('dash-today-sales').innerText = '৳' + tSales;
+            
+            if(document.getElementById('dash-month-expense')) document.getElementById('dash-month-expense').innerText = '৳' + mExp;
+            if(document.getElementById('dash-total-expense')) document.getElementById('dash-total-expense').innerText = '৳' + lExp;
+            if(document.getElementById('dash-today-expense')) document.getElementById('dash-today-expense').innerText = '৳' + tExp;
+
+            if(document.getElementById('dash-month-gp')) document.getElementById('dash-month-gp').innerText = '৳' + mGP;
+            if(document.getElementById('dash-month-cogs')) document.getElementById('dash-month-cogs').innerText = '৳' + mCOGS;
+            if(document.getElementById('dash-total-gp')) document.getElementById('dash-total-gp').innerText = '৳' + lGP;
+
+            let npDom = document.getElementById('dash-month-np');
+            if(npDom) {
+                npDom.innerText = '৳' + mNP;
+                npDom.className = mNP >= 0 ? "text-3xl font-black text-slate-800 tracking-tight mb-2" : "text-3xl font-black text-rose-600 tracking-tight mb-2";
+            }
+            if(document.getElementById('dash-profit-margin')) document.getElementById('dash-profit-margin').innerText = profitMargin + '%';
+            if(document.getElementById('dash-expense-ratio')) document.getElementById('dash-expense-ratio').innerText = expRatio + '%';
+
+            renderExpenseCharts();
+        }
+
+        // Expense Form Handling
+        function clearExpenseForm() {
+            document.getElementById('expId').value = '';
+            document.getElementById('expenseForm').reset();
+            document.getElementById('expDate').valueAsDate = new Date();
+        }
+
+        if(document.getElementById('expenseForm')) {
+            document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 mr-2 inline-block"></i> Saving...';
+                btn.disabled = true;
+
+                try {
+                    let fileBase64 = null;
+                    const fileInput = document.getElementById('expFile');
+                    if(fileInput.files.length > 0) {
+                        fileBase64 = await compressAndConvertToBase64(fileInput.files[0]);
+                    }
+
+                    const expData = {
+                        date: document.getElementById('expDate').value,
+                        category: document.getElementById('expCategory').value,
+                        amount: parseFloat(document.getElementById('expAmount').value),
+                        vendor: document.getElementById('expVendor').value.trim(),
+                        reference: document.getElementById('expRef').value.trim(),
+                        method: document.getElementById('expMethod').value,
+                        description: document.getElementById('expDesc').value.trim(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    if(fileBase64) expData.attachment = fileBase64;
+
+                    const expId = document.getElementById('expId').value;
+                    if(expId) {
+                        await db.collection('expenses').doc(expId).update(expData);
+                        showToast('Expense Updated Successfully', 'success');
+                    } else {
+                        expData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                        await db.collection('expenses').add(expData);
+                        showToast('Expense Recorded Successfully', 'success');
+                        
+                        // Link Accounting
+                        await db.collection('transactions').add({ type: 'Expense', amount: expData.amount, category: expData.category, desc: expData.description || 'System Expense', date: firebase.firestore.FieldValue.serverTimestamp() });
+                    }
+                    clearExpenseForm();
+                } catch(error) {
+                    showToast('Error saving expense: ' + error.message, 'error');
+                } finally {
+                    btn.innerHTML = originalText; btn.disabled = false;
+                }
+            });
+        }
+
+        function filterExpenses() {
+            const list = document.getElementById('expense-list');
+            if(!list) return;
+
+            const q = document.getElementById('expSearch').value.toLowerCase();
+            const month = document.getElementById('expFilterMonth').value;
+            const category = document.getElementById('expFilterCategory').value;
+
+            let filtered = activeExpenses.filter(e => {
+                let mMatch = true;
+                if(month !== 'all') { mMatch = e.date.substring(0,7) === month; }
+                let cMatch = (category === 'all' || e.category === category);
+                let qMatch = (e.category.toLowerCase().includes(q) || (e.vendor && e.vendor.toLowerCase().includes(q)) || (e.description && e.description.toLowerCase().includes(q)));
+                return mMatch && cMatch && qMatch;
+            });
+
+            // Sort by Date DESC
+            filtered.sort((a,b) => b.dateObj - a.dateObj);
+
+            let html = '';
+            filtered.forEach(e => {
+                html += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-50 align-top">
+                    <td class="p-4">
+                        <p class="font-bold text-slate-800 font-mono text-xs">${e.date}</p>
+                        <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">${e.reference || 'No Ref'}</p>
+                    </td>
+                    <td class="p-4">
+                        <p class="font-bold text-slate-700 text-xs">${e.category}</p>
+                        <p class="text-[11px] font-medium text-slate-500 mt-1">${e.vendor || 'N/A'}</p>
+                        ${e.description ? `<p class="text-[10px] text-slate-400 italic mt-1 max-w-[200px] truncate" title="${e.description}">${e.description}</p>` : ''}
+                    </td>
+                    <td class="p-4 text-xs font-semibold text-slate-600">
+                        <span class="bg-slate-100 border border-slate-200 px-2 py-1 rounded text-[10px] uppercase">${e.method}</span>
+                        ${e.attachment ? `<a href="${e.attachment}" target="_blank" class="block mt-2 text-brand-600 text-[10px] flex items-center hover:underline"><i data-lucide="paperclip" class="w-3 h-3 mr-1"></i> Attachment</a>` : ''}
+                    </td>
+                    <td class="p-4 text-right">
+                        <span class="font-black text-rose-600 text-base tracking-tight">৳${e.amount}</span>
+                    </td>
+                    <td class="p-4 text-center whitespace-nowrap">
+                        <button onclick="editExpense('${e.id}')" class="text-blue-600 hover:bg-blue-50 p-2 rounded-xl transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                        <button onclick="deleteExpense('${e.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded-xl transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </td>
+                </tr>`;
+            });
+            list.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        async function deleteExpense(id) {
+            if(await customConfirm("Permanently delete this expense record?")) {
+                await db.collection('expenses').doc(id).delete();
+                showToast('Expense deleted', 'success');
+            }
+        }
+
+        function editExpense(id) {
+            const e = activeExpenses.find(x => x.id === id);
+            if(!e) return;
+            document.getElementById('expId').value = e.id;
+            document.getElementById('expDate').value = e.date;
+            document.getElementById('expCategory').value = e.category;
+            document.getElementById('expAmount').value = e.amount;
+            document.getElementById('expVendor').value = e.vendor || '';
+            document.getElementById('expRef').value = e.reference || '';
+            document.getElementById('expMethod').value = e.method;
+            document.getElementById('expDesc').value = e.description || '';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function exportExpensesExcel() {
+            let table = document.getElementById("expense-list").parentNode;
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.table_to_sheet(table);
+            XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+            XLSX.writeFile(wb, `Expense_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function exportExpensesPDF() {
+            const element = document.getElementById('expense-export-wrapper');
+            const opt = { margin: 0.5, filename: `Expenses_${new Date().toISOString().split('T')[0]}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'landscape' } };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        let eTrendChart = null;
+        let eCatChart = null;
+
+        function renderExpenseCharts() {
+            if(!document.getElementById('expenseTrendChart')) return;
+            
+            // Generate Last 6 Months Labels
+            let monthsMap = {}; let monthLabels = [];
+            for(let i=5; i>=0; i--) {
+                let d = new Date(); d.setMonth(d.getMonth() - i);
+                let label = d.toLocaleDateString('en-US', {month:'short', year:'2-digit'});
+                let sortKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                monthsMap[sortKey] = { label, exp: 0, rev: 0 }; monthLabels.push(label);
+            }
+
+            // Map Expenses
+            globalDashData.expenses.forEach(e => {
+                let key = e.date.substring(0,7);
+                if(monthsMap[key]) monthsMap[key].exp += parseFloat(e.amount);
+            });
+
+            // Map Revenue (Profit calculation via COGS)
+            globalDashData.orders.forEach(o => {
+                if(o.status === 'Completed') {
+                    let d = o.dateObj;
+                    let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                    if(monthsMap[key]) {
+                        let amt = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0;
+                        let cogs = (globalDashData.products[o.productName] || 0) * (parseInt(o.qty)||1);
+                        monthsMap[key].rev += (amt - cogs); // Gross Profit mapping
+                    }
+                }
+            });
+
+            let expData = []; let profData = [];
+            Object.values(monthsMap).forEach(m => { expData.push(m.exp); profData.push(m.rev); });
+
+            if(eTrendChart) eTrendChart.destroy();
+            eTrendChart = new Chart(document.getElementById('expenseTrendChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthLabels,
+                    datasets: [
+                        { label: 'Gross Profit', data: profData, backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'Expenses', data: expData, backgroundColor: '#f43f5e', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x:{grid:{display:false}}, y:{beginAtZero:true, grid:{color:'#f1f5f9'}} } }
+            });
+
+            // Category Chart
+            let catMap = {};
+            globalDashData.expenses.forEach(e => {
+                if(!catMap[e.category]) catMap[e.category] = 0;
+                catMap[e.category] += parseFloat(e.amount);
+            });
+            let catLabels = Object.keys(catMap); let catData = Object.values(catMap);
+
+            if(eCatChart) eCatChart.destroy();
+            eCatChart = new Chart(document.getElementById('expenseCategoryChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels,
+                    datasets: [{ data: catData, backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b', '#06b6d4'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels:{usePointStyle:true, font:{size:10}} } } }
+            });
+        }
     </script>
 </body>
 </html>
