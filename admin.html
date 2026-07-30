@@ -706,6 +706,22 @@
             lucide.createIcons();
             setTimeout(() => toast.classList.remove('translate-x-full'), 10); setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
+        // নোটিফিকেশন মেনু ওপেন/ক্লোজ করার ফাংশন
+function toggleNotifMenu() {
+    const notifDropdown = document.getElementById('notif-dropdown');
+    notifDropdown.classList.toggle('hidden');
+}
+
+// স্ক্রিনের অন্য কোথাও (বাইরে) ক্লিক করলে নোটিফিকেশন প্যানেলটি যেন নিজে থেকে বন্ধ হয়ে যায়
+document.addEventListener('click', function(event) {
+    const notifDropdown = document.getElementById('notif-dropdown');
+    const notifButton = event.target.closest('button[onclick="toggleNotifMenu()"]');
+    
+    // যদি নোটিফিকেশন বাটন বা মেনুর বাইরে ক্লিক করা হয়, তাহলে মেনুটি হাইড করে দিবে
+    if (!notifButton && notifDropdown && !notifDropdown.contains(event.target)) {
+        notifDropdown.classList.add('hidden');
+    }
+});
 
         function customConfirm(message) { 
             return new Promise((resolve) => { 
