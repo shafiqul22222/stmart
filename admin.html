@@ -1512,8 +1512,11 @@
         }
 
         async function fetchCourierStats(phone, elementId, btnElement) { if (!globalCourierApiKey || !globalCourierSecretKey) { showToast('Configure Logistics API keys first!', 'error'); return; } const container = document.getElementById(elementId); const originalHtml = btnElement.innerHTML; btnElement.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-3 h-3 inline"></i>'; lucide.createIcons(); btnElement.disabled = true; const targetUrl = `https://portal.packzy.com/api/v1/customer_delivery_record/${phone}`; try { const response = await fetch(targetUrl, { method: 'GET', headers: { 'Api-Key': globalCourierApiKey, 'Secret-Key': globalCourierSecretKey, 'Content-Type': 'application/json' } }); const text = await response.text(); let result; try { result = JSON.parse(text); } catch(e) { showToast("Invalid API Response", "error"); btnElement.innerHTML = originalHtml; btnElement.disabled = false; return; } if (response.ok && (result.status === 200 || result.status === 'success' || result.status === true)) { let data = result.data || result; let delivered = data.delivered_count || data.delivered || data.success || 0; let cancelled = data.returned_count || data.cancelled || data.returned || data.failed || 0; container.innerHTML = `<div class="bg-slate-50 border border-slate-100 rounded-lg px-2.5 py-2 text-[10px] font-bold flex flex-wrap gap-2 items-center justify-between shadow-sm"><span class="text-brand-600 uppercase flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i>Pass: ${delivered}</span><span class="text-rose-500 uppercase flex items-center gap-1"><i data-lucide="x-circle" class="w-3 h-3"></i>Fail: ${cancelled}</span></div>`; lucide.createIcons(); container.classList.remove('hidden'); btnElement.style.display = 'none'; } else { showToast(result.message || result.error || 'Empty node.', 'error'); btnElement.innerHTML = originalHtml; btnElement.disabled = false; } } catch (error) { showToast('Network Fault: ' + error.message, 'error'); btnElement.innerHTML = originalHtml; btnElement.disabled = false; } }
+        
         async function searchCourierRate() { const phone = document.getElementById('csPhoneInput').value.trim(); if(!phone) { showToast('Account Identifier required', 'error'); return; } if (!globalCourierApiKey || !globalCourierSecretKey) { showToast('API tokens missing in configuration!', 'error'); return; } const btn = document.getElementById('btnCsSearch'); const originalHtml = btn.innerHTML; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 mr-1 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; try { const response = await fetch(`https://portal.packzy.com/api/v1/customer_delivery_record/${phone}`, { method: 'GET', headers: { 'Api-Key': globalCourierApiKey, 'Secret-Key': globalCourierSecretKey, 'Content-Type': 'application/json' } }); const text = await response.text(); let result; try { result = JSON.parse(text); } catch(e) { throw new Error("API Node down"); } if (response.ok && (result.status === 200 || result.status === 'success' || result.status === true)) { let data = result.data || result; let delivered = parseInt(data.delivered_count || data.delivered || data.success || 0); let cancelled = parseInt(data.returned_count || data.cancelled || data.returned || data.failed || 0); let total = delivered + cancelled; let rate = total > 0 ? ((delivered / total) * 100).toFixed(1) : 0; document.getElementById('cr-all-percent').innerText = `${rate}%`; document.getElementById('cr-all-total').innerText = `${total}`; document.getElementById('cr-all-success').innerText = `${delivered}`; document.getElementById('cr-all-failed').innerText = `${cancelled}`; const circleDiv = document.getElementById('cr-all-circle'); if(rate >= 80) circleDiv.style.borderColor = '#16a34a'; else if(rate >= 50) circleDiv.style.borderColor = '#f59e0b'; else circleDiv.style.borderColor = '#ef4444'; updateCRRow('redx', total, delivered, cancelled); showToast('Matrix synced successfully.', 'success'); } else { showToast(result.message || 'No historic data found.', 'error'); resetCRUI(); } } catch (error) { showToast('Query Fault: ' + error.message, 'error'); resetCRUI(); } finally { btn.innerHTML = originalHtml; btn.disabled = false; } }
+        
         function updateCRRow(id, total, su, fa) { let rate = total > 0 ? Math.round((su/total)*100) : 0; let bar = document.getElementById(`cr-${id}-bar`); bar.style.width = `${rate}%`; bar.innerText = rate > 0 ? `${rate}%` : ''; if(rate >= 80) bar.style.backgroundColor = '#16a34a'; else if(rate >= 50) bar.style.backgroundColor = '#f59e0b'; else bar.style.backgroundColor = '#ef4444'; document.getElementById(`cr-${id}-to`).innerText = total; document.getElementById(`cr-${id}-su`).innerText = su; document.getElementById(`cr-${id}-fa`).innerText = fa; }
+        
         function resetCRUI() { document.getElementById('cr-all-percent').innerText = `0%`; document.getElementById('cr-all-total').innerText = `0`; document.getElementById('cr-all-success').innerText = `0`; document.getElementById('cr-all-failed').innerText = `0`; document.getElementById('cr-all-circle').style.borderColor = '#e2e8f0'; updateCRRow('redx', 0, 0, 0); }
         
         async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { 
@@ -1546,7 +1549,129 @@
             } 
         }
 
-        async function bookParcel(btnElement, orderId, name, phone, address, amount) { if(!await customConfirm('Initiate API dispatch sequence for this shipment?')) return; const originalHtml = btnElement.innerHTML; btnElement.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 inline"></i>'; lucide.createIcons(); btnElement.disabled = true; try { const settingsDoc = await db.collection('siteSettings').doc('global').get(); const settingsData = settingsDoc.data(); const apiKey = settingsData?.courierApiKey; const secretKey = settingsData?.courierSecretKey; if(!apiKey || !secretKey) { showToast('Logistics endpoints unconfigured.', 'error'); btnElement.innerHTML = originalHtml; btnElement.disabled = false; return; } const apiUrl = 'https://portal.packzy.com/api/v1/create_order'; const payload = { invoice: orderId, recipient_name: name || "Corporate Client", recipient_phone: phone || "00000000000", recipient_address: address || "N/A", cod_amount: parseFloat(amount) || 0, note: "ERP Automated Dispatch" }; const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Api-Key': apiKey, 'Secret-Key': secretKey }, body: JSON.stringify(payload) }); const responseText = await response.text(); let result; try { result = JSON.parse(responseText); } catch (e) { throw new Error("API Node Fault"); } if(result.status === 200 || result.status === 'success') { showToast('Dispatch sequence confirmed.', 'success'); await db.collection('orders').doc(orderId).update({ courierBooked: true, trackingCode: result?.data?.tracking_code || result?.tracking_code || '' }); } else { showToast('Dispatch Fault: ' + (result?.message || "Verify Variables."), 'error'); } } catch (error) { showToast("Transmission Error: " + error.message, "error"); } finally { btnElement.innerHTML = originalHtml; btnElement.disabled = false; } }
+        // --- UPDATED BOOK PARCEL & AUTO LABEL FEATURE ---
+        async function bookParcel(btnElement, orderId, name, phone, address, amount) { 
+            if(!await customConfirm('Initiate API dispatch sequence for this shipment?')) return; 
+            const originalHtml = btnElement.innerHTML; 
+            btnElement.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 inline"></i>'; 
+            lucide.createIcons(); btnElement.disabled = true; 
+            try { 
+                const settingsDoc = await db.collection('siteSettings').doc('global').get(); 
+                const settingsData = settingsDoc.data(); 
+                const apiKey = settingsData?.courierApiKey; 
+                const secretKey = settingsData?.courierSecretKey; 
+                if(!apiKey || !secretKey) { showToast('Logistics endpoints unconfigured.', 'error'); btnElement.innerHTML = originalHtml; btnElement.disabled = false; return; } 
+                
+                // API Call
+                const apiUrl = 'https://portal.packzy.com/api/v1/create_order'; 
+                const payload = { invoice: orderId, recipient_name: name || "Corporate Client", recipient_phone: phone || "00000000000", recipient_address: address || "N/A", cod_amount: parseFloat(amount) || 0, note: "ERP Automated Dispatch" }; 
+                
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Api-Key': apiKey, 'Secret-Key': secretKey }, body: JSON.stringify(payload) }); 
+                const responseText = await response.text(); 
+                let result; 
+                try { result = JSON.parse(responseText); } catch (e) { throw new Error("API Node Fault"); } 
+                
+                if(result.status === 200 || result.status === 'success') { 
+                    showToast('Dispatch sequence confirmed.', 'success'); 
+                    
+                    // Get tracking code from API response
+                    let trackCode = result?.data?.tracking_code || result?.tracking_code || result?.consignment_id || `STEADFAST-${orderId.substring(0,6).toUpperCase()}`;
+                    
+                    await db.collection('orders').doc(orderId).update({ courierBooked: true, trackingCode: trackCode }); 
+                    
+                    // Auto print label feature
+                    printShippingLabel(orderId, name, phone, address, amount, trackCode);
+                    
+                } else { 
+                    showToast('Dispatch Fault: ' + (result?.message || "Verify Variables."), 'error'); 
+                } 
+            } catch (error) { 
+                showToast("Transmission Error: " + error.message, "error"); 
+            } finally { 
+                btnElement.innerHTML = originalHtml; btnElement.disabled = false; 
+            } 
+        }
+
+        // --- CUSTOM SHIPPING LABEL GENERATOR ---
+        function printShippingLabel(orderId, customerName, customerPhone, customerAddress, codAmount, trackingCode) {
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            
+            // Get logo from settings
+            const logoUrl = document.getElementById('setLogoUrl') ? document.getElementById('setLogoUrl').value : '';
+            const logoHtml = logoUrl ? `<img src="${logoUrl}" style="max-height: 50px; margin-bottom: 10px;">` : '';
+            
+            // Barcode Generation API with tracking ID
+            const barcodeUrl = `https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(trackingCode)}&scale=3&height=12&includetext`;
+
+            const html = `
+            <html>
+            <head>
+                <title>Shipping Label - ${trackingCode}</title>
+                <style>
+                    @page { size: 4in 6in; margin: 0; }
+                    body { font-family: 'Arial', sans-serif; margin: 0; padding: 15px; color: #000; background: #fff; width: 4in; height: 6in; box-sizing: border-box; border: 1px solid #ccc; }
+                    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
+                    .header h2 { margin: 0; font-size: 16px; text-transform: uppercase; font-weight: 900; }
+                    .header p { margin: 2px 0 0 0; font-size: 11px; font-weight: 600; }
+                    
+                    .barcode-section { text-align: center; margin: 10px 0; padding: 5px; border: 2px dashed #000; }
+                    .barcode-section img { max-width: 100%; height: 50px; display: block; margin: 0 auto; }
+                    
+                    .info-box { border: 1px solid #000; padding: 8px; margin-bottom: 10px; }
+                    .info-box h3 { margin: 0 0 5px 0; font-size: 12px; background: #000; color: #fff; display: inline-block; padding: 3px 6px; text-transform: uppercase; }
+                    .info-box p { margin: 3px 0; font-size: 13px; line-height: 1.4; font-weight: 600; }
+                    
+                    .cod-box { text-align: center; border: 3px solid #000; background: #f0f0f0; padding: 10px; font-size: 20px; font-weight: 900; }
+                    
+                    .footer { text-align: center; font-size: 10px; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px; font-weight: bold; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    ${logoHtml}
+                    <h2>${globalBrandName}</h2>
+                    <p>Phone: ${globalPhone}</p>
+                </div>
+                
+                <div class="barcode-section">
+                    <img src="${barcodeUrl}" alt="Barcode">
+                </div>
+
+                <div class="info-box">
+                    <h3>DELIVER TO</h3>
+                    <p style="font-size: 15px;"><strong>${customerName}</strong></p>
+                    <p>📞 ${customerPhone}</p>
+                    <p style="font-weight: normal; margin-top: 5px;">${customerAddress}</p>
+                </div>
+
+                <div class="info-box" style="border: none; border-top: 1px dashed #000; padding-top: 10px;">
+                    <p><strong>Order REF:</strong> #${orderId.substring(0,8).toUpperCase()}</p>
+                    <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+                </div>
+
+                <div class="cod-box">
+                    COD AMOUNT: ৳${codAmount}
+                </div>
+
+                <div class="footer">
+                    <p>Please do not accept if the parcel seal is broken.</p>
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        setTimeout(() => {
+                            window.print();
+                            window.close();
+                        }, 500);
+                    }
+                </script>
+            </body>
+            </html>`;
+            
+            printWindow.document.write(html);
+            printWindow.document.close();
+        }
+
         async function saveAdminNote(orderId) { const noteText = document.getElementById(`note-${orderId}`).value; try { await db.collection('orders').doc(orderId).update({ adminNote: noteText }); showToast("Internal log committed.", "success"); } catch (err) { showToast("Commit Fault.", "error"); } }
         
         function printInvoice(orderId, name, phone, address, productName, pPrice, charge, total, dateStr) { const printWindow = window.open('', '_blank'); const html = `<html><head><title>TAX INVOICE - #${orderId}</title><style>body { font-family: 'Inter', Arial, sans-serif; padding: 40px; color: #111827; background: #f8fafc; } .invoice-box { max-width: 800px; margin: auto; padding: 50px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); } .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f1f5f9; padding-bottom: 30px; margin-bottom: 40px; } .header h1 { margin: 0; font-size: 28px; color: #16a34a; font-weight: 800; letter-spacing: -1px;} .header p { margin: 5px 0 0; font-size: 13px; color: #64748b;} .info-section { display: flex; justify-content: space-between; margin-bottom: 40px; } .info-section div { width: 48%;} .info-title {font-size:10px; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; display:block; font-weight:700;} table { width: 100%; border-collapse: collapse; margin-bottom: 40px; } table th, table td { padding: 15px; text-align: left; border-bottom: 1px solid #f1f5f9; } table th { background-color: #f8fafc; font-weight: 700; color: #475569; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;} table td { font-size: 14px; } .totals { text-align: right; margin-top: 20px; border-top: 2px solid #f1f5f9; padding-top: 30px;} .totals p { margin: 0 0 10px; font-size: 14px; color: #475569;} .totals h3 { margin: 15px 0 0; font-size: 28px; color: #111827; font-weight: 800;} .footer { text-align: center; margin-top: 60px; font-size: 12px; color: #94a3b8; padding-top: 20px; border-top: 1px solid #f1f5f9; }</style></head><body><div class="invoice-box"><div class="header"><div><h1>${globalBrandName}</h1><p>COMMERCIAL INVOICE</p></div><div style="text-align:right"><p>Tel: ${globalPhone}</p><p>System Gen: ${dateStr}</p></div></div><div class="info-section"><div><strong class="info-title">Bill To Entity</strong><strong style="font-size:16px;">${name}</strong><br><span style="color:#64748b; font-size:14px; display:block; margin-top:5px;">${phone}</span><span style="color:#64748b; font-size:14px; display:block; margin-top:5px;">${address}</span></div><div style="text-align: right;"><strong class="info-title">Document Ledger</strong><span style="display:block; margin-bottom:5px;"><strong>REF:</strong> #BGD-2026-${orderId}</span><span style="display:block;"><strong>DATE:</strong> ${dateStr}</span></div></div><table><thead><tr><th>Line Item / Description</th><th style="text-align: right;">Gross (BDT)</th></tr></thead><tbody><tr><td style="font-weight:600; color:#0f172a;">${productName}</td><td style="text-align: right; font-weight:500;">${pPrice}</td></tr><tr><td style="color:#64748b;">Logistics & Handling Matrix</td><td style="text-align: right; font-weight:500;">${charge}</td></tr></tbody></table><div class="totals"><p>Subtotal: ৳${pPrice}</p><p>Tax & Shipping: ৳${charge}</p><h3>Total Due: ৳${total}</h3><p style="font-weight:700; margin-top:15px; font-size:12px; color:#16a34a; text-transform:uppercase; letter-spacing:1px;">Terms: Cash On Delivery</p></div><div class="footer"><p>Electronically generated by Enterprise ERP Suite. No physical signature required.</p></div></div><script>window.onload = function() { window.print(); window.close(); }<\/script></body></html>`; printWindow.document.write(html); printWindow.document.close(); }
