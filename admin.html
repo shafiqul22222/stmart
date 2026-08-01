@@ -186,8 +186,33 @@
             }
             body.dark-theme .erp-table td { border-bottom-color: #334155; }
             
-            /* For tables with images (like Products or Orders) */
-            .erp-table td img { width: 100%; height: auto; max-height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; }
+            /* Fix Product Images on Mobile */
+            .erp-table td > img { width: 100%; height: auto; max-height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; }
+            
+            /* =========================================
+               ORDER CARD NATIVE APP STYLE (Mobile)
+               ========================================= */
+            #admin-order-list tr { padding: 0; overflow: hidden; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; }
+            #admin-order-list td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; }
+            
+            /* 1. Header & Image Section */
+            #admin-order-list td:first-child { background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+            body.dark-theme #admin-order-list td:first-child { background-color: rgba(15,23,42,0.4); border-bottom-color: #334155; }
+            
+            /* Fix Image Overflow */
+            #admin-order-list td:first-child .flex img { width: 68px !important; height: 68px !important; min-width: 68px !important; max-height: 68px !important; border-radius: 10px; margin-bottom: 0; object-fit: cover; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+            #admin-order-list td:first-child .flex p { width: calc(100% - 80px); overflow: hidden; }
+            
+            /* 2. Financial & Dropdown Section (Side by side) */
+            #admin-order-list td:nth-child(3) { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; }
+            #admin-order-list td:nth-child(3) .flex-col { grid-column: span 2; flex-direction: row; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; margin-bottom: 4px; }
+            #admin-order-list td:nth-child(3) .mt-2 { grid-column: span 2; }
+            
+            /* 3. Action Buttons Bottom Bar */
+            #admin-order-list td:last-child { background-color: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: none; padding: 12px 16px; }
+            body.dark-theme #admin-order-list td:last-child { background-color: rgba(15,23,42,0.4); border-top-color: #334155; }
+            #admin-order-list td:last-child .flex-row { width: 100%; justify-content: space-between; gap: 10px; }
+            #admin-order-list td:last-child button { flex: 1; border-radius: 12px; min-height: 44px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
             
             /* Action Button row styling */
             .erp-table td:last-child {
