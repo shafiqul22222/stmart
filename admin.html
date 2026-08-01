@@ -433,7 +433,10 @@
                             <div id="notif-list" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100"></div>
                         </div>
                     </div>
-                    
+                    <!-- Refresh Button (Mobile Only) -->
+                    <button onclick="window.location.reload()" class="md:hidden text-slate-500 hover:text-blue-500 transition p-1 bg-slate-50 rounded-full w-8 h-8 flex items-center justify-center" title="Refresh App">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    </button>
                     <!-- Dark Mode Toggle -->
 <button onclick="toggleDarkMode()" class="text-slate-500 hover:text-brand-500 transition p-1 bg-slate-50 md:bg-transparent rounded-full md:rounded-none w-8 h-8 md:w-auto md:h-auto flex items-center justify-center">
     <i id="darkModeIcon" data-lucide="moon" class="w-4 h-4 md:w-5 md:h-5"></i>
