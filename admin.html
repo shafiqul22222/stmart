@@ -181,7 +181,7 @@
                     <div class="flex items-center gap-3 text-slate-300"><i data-lucide="check-circle-2" class="text-brand-400"></i> Automated Courier Workflows</div>
                 </div>
             </div>
-            <div class="relative z-20 text-slate-400 text-sm">© 2026 Enterprise ERP Suite. All rights reserved.</div>
+            <div class="relative z-20 text-slate-400 text-sm">© 2026 ST SPARKLE JEWELRY. All rights reserved.</div>
         </div>
         <!-- Right Login Panel -->
         <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50 relative">
@@ -229,8 +229,8 @@
                     <i data-lucide="blocks" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800 tracking-tight leading-tight">ERP Suite</h2>
-                    <p class="text-[10px] uppercase font-bold tracking-wider text-brand-700">Enterprise Edition</p>
+                    <h2 class="text-lg font-bold text-slate-800 tracking-tight leading-tight">ST SPARKLE</h2>
+                    <p class="text-[10px] uppercase font-bold tracking-wider text-brand-700">JEWELRY</p>
                 </div>
                 <button onclick="toggleSidebar()" class="lg:hidden ml-auto text-slate-400 hover:text-slate-700"><i data-lucide="x"></i></button>
             </div>
@@ -321,16 +321,14 @@
                     <button onclick="window.location.reload()" class="md:hidden text-slate-500 hover:text-blue-500 transition p-1 bg-slate-50 rounded-full w-8 h-8 flex items-center justify-center" title="Refresh App">
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="toggleDarkMode()" class="text-slate-500 hover:text-brand-500 transition p-1 bg-slate-50 md:bg-transparent rounded-full md:rounded-none w-8 h-8 md:w-auto md:h-auto flex items-center justify-center">
-                        <i id="darkModeIcon" data-lucide="moon" class="w-4 h-4 md:w-5 md:h-5"></i>
-                    </button>
-                    
-                    <div class="hidden sm:block">
-                        <select class="bg-slate-50 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg focus:ring-brand-500 focus:border-brand-500 block px-3 py-1.5 outline-none cursor-pointer">
-                            <option>বাংলা</option>
-                            <option>English</option>
-                        </select>
-                    </div>
+                    <div class="hidden sm:block relative">
+    <select id="erpLangSelector" onchange="changeLanguage(this.value)" class="bg-slate-50 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg focus:ring-brand-500 focus:border-brand-500 block px-3 py-1.5 outline-none cursor-pointer">
+        <option value="en">English</option>
+        <option value="bn">বাংলা</option>
+    </select>
+    <!-- Hidden Google Translate Element -->
+    <div id="google_translate_element" style="display:none;"></div>
+</div>
                     
                     <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
                     
@@ -1582,6 +1580,11 @@
                     .info-box p { margin: 3px 0; font-size: 13px; line-height: 1.4; font-weight: 700; }
                     .cod-box { text-align: center; border: 3px solid #000; background: #f0f0f0; padding: 10px; font-size: 20px; font-weight: 900; }
                     .footer { text-align: center; font-size: 10px; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px; font-weight: bold; }
+                    /* Google Translate Custom CSS */
+body { top: 0 !important; position: static !important; }
+.goog-te-banner-frame { display: none !important; }
+#goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+.goog-text-highlight { background: none !important; box-shadow: none !important; }
                 </style>
             </head>
             <body>
@@ -2095,5 +2098,36 @@
         // ============================================================================
 
     </script>
+    <!-- Language Translation Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,bn',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+
+        function changeLanguage(langCode) {
+            let googleSelect = document.querySelector("select.goog-te-combo");
+            if (googleSelect) {
+                googleSelect.value = langCode;
+                googleSelect.dispatchEvent(new Event("change"));
+                localStorage.setItem('erp_lang', langCode);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+                let savedLang = localStorage.getItem('erp_lang');
+                if (savedLang) {
+                    let selector = document.getElementById("erpLangSelector");
+                    if(selector) selector.value = savedLang;
+                    changeLanguage(savedLang);
+                }
+            }, 1500);
+        });
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
