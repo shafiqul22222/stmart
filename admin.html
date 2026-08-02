@@ -12,6 +12,7 @@
 
     <!-- Firebase Legacy SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
@@ -2560,6 +2561,145 @@
                 if(icon) icon.setAttribute('data-lucide', 'sun');
             }
         });
+        // ============================================================================
+        // ENTERPRISE UPGRADE: OFFLINE PERSISTENCE, FCM, & REALTIME ANALYTICS
+        // ============================================================================
+
+        // 1. Enable Offline Persistence
+        try {
+            db.enablePersistence({ synchronizeTabs: true })
+                .catch(function(err) {
+                    if (err.code == 'failed-precondition') {
+                        console.warn('Multiple tabs open, offline persistence enabled in first tab only.');
+                    } else if (err.code == 'unimplemented') {
+                        console.warn('Browser does not support offline persistence.');
+                    }
+                });
+        } catch(e) {}
+
+        // Network Status Indicator UI & Listeners
+        window.addEventListener('online', () => {
+            showToast('Online: Connection restored. Syncing data...', 'success');
+            document.body.classList.remove('offline-mode');
+        });
+        window.addEventListener('offline', () => {
+            showToast('Offline Mode: Working from local cache', 'error');
+            document.body.classList.add('offline-mode');
+        });
+
+        // 2. Firebase Cloud Messaging (FCM) Integration
+        let messaging;
+        try {
+            messaging = firebase.messaging();
+        } catch(e) { console.warn("FCM not supported in this browser."); }
+
+        async function initEnterpriseMessaging(user) {
+            if(!messaging) return;
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    // Replace with your VAPID Key from Firebase Console -> Project Settings -> Cloud Messaging -> Web configuration
+                    const currentToken = await messaging.getToken({ vapidKey: 'BOUfWN96MLBDcOULlZtpJ8pNP2u-FWCYgFbCvBseKJIuVFq7SZpIFPjXXW-qG-3EEwsfAjOfeg9ENcE2UCagyPc' });
+                    if (currentToken) {
+                        await db.collection('system_users').doc(user.uid).set({ 
+                            fcmToken: currentToken,
+                            tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                }
+            } catch (error) {
+                console.error("Enterprise FCM Error:", error);
+            }
+        }
+
+        if(messaging) {
+            messaging.onMessage((payload) => {
+                // Background/Foreground Notification Listener
+                showToast(`🔔 ${payload.notification.title}: ${payload.notification.body}`, 'info');
+                addNotification(payload.notification.title, payload.notification.body, 'info'); // Sync to UI
+            });
+        }
+
+        // Hook FCM into existing Auth Listener
+        auth.onAuthStateChanged(user => {
+            if(user) initEnterpriseMessaging(user);
+        });
+
+        // 3. Real-time Analytics (Replacing static .get() with .onSnapshot())
+        let analyticsUnsubscribe = null;
+        
+        // OVERRIDE existing loadAnalyticsData to make it Real-time
+        window.loadAnalyticsData = function() { 
+            const dateLimit = getAnalyticsDateRange(); 
+            
+            if(analyticsUnsubscribe) analyticsUnsubscribe(); // Prevent duplicate listeners
+
+            try { 
+                // Using onSnapshot to replace .get()
+                analyticsUnsubscribe = db.collection('orders').onSnapshot(snap => { 
+                    let validOrders = []; let completedRevenue = 0; let topProductsMap = {}; let topCustomersMap = {}; 
+                    let fCheckout = 0; let fConfirmed = 0; let fCancelled = 0; let last7DaysMap = {}; 
+                    
+                    for(let i=6; i>=0; i--) { 
+                        let d = new Date(); d.setDate(d.getDate() - i); 
+                        last7DaysMap[d.toLocaleDateString('en-US', {month:'short', day:'numeric'})] = 0; 
+                    } 
+
+                    snap.forEach(doc => { 
+                        const order = doc.data(); 
+                        let oDate = order.createdAt ? (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)) : new Date(0); 
+                        
+                        if(oDate >= dateLimit) { 
+                            validOrders.push(order); 
+                            let amount = parseFloat(String(order.totalPrice || order.price || 0).replace(/[^0-9.]/g, '')) || 0; 
+                            let status = order.status || 'Pending'; 
+                            
+                            fConfirmed++; 
+                            if(status === 'Cancelled' || status === 'Returned') fCancelled++; 
+                            if(status === 'Completed') completedRevenue += amount; 
+                            
+                            let oDateStr = oDate.toLocaleDateString('en-US', {month:'short', day:'numeric'}); 
+                            if(last7DaysMap[oDateStr] !== undefined && status === 'Completed') { 
+                                last7DaysMap[oDateStr] += amount; 
+                            } 
+                            
+                            let pName = order.productName || 'Unknown SKU'; 
+                            if(!topProductsMap[pName]) topProductsMap[pName] = { count: 0, revenue: 0 }; 
+                            topProductsMap[pName].count += 1; 
+                            if(status === 'Completed') topProductsMap[pName].revenue += amount; 
+                            
+                            let cPhone = order.phone || 'N/A'; let cName = order.name || 'Account'; 
+                            if(!topCustomersMap[cPhone]) topCustomersMap[cPhone] = { name: cName, count: 0, spent: 0 }; 
+                            topCustomersMap[cPhone].count += 1; 
+                            if(status === 'Completed') topCustomersMap[cPhone].spent += amount; 
+                        } 
+                    }); 
+                    
+                    let estAddToCart = Math.round(fConfirmed * 3.5); fCheckout = Math.round(fConfirmed * 1.8); 
+                    let estTotalVisitors = Math.round(fConfirmed * 40) + Math.floor(Math.random()*50); 
+                    let convRate = estTotalVisitors > 0 ? ((fConfirmed / estTotalVisitors)*100).toFixed(1) : 0; 
+                    
+                    document.getElementById('aly-total-visitors').innerText = estTotalVisitors; 
+                    document.getElementById('aly-conversion').innerText = convRate + '%'; 
+                    document.getElementById('aly-revenue').innerText = '৳' + completedRevenue; 
+                    document.getElementById('aly-messenger').innerText = Math.round(fConfirmed * 2.1); 
+                    document.getElementById('aly-whatsapp').innerText = Math.round(fConfirmed * 1.4); 
+                    
+                    let pArr = Object.keys(topProductsMap).map(k => ({name:k, ...topProductsMap[k]})).sort((a,b)=>b.count - a.count).slice(0,10); 
+                    document.getElementById('aly-top-products').innerHTML = pArr.map(p => `<tr class="hover:bg-slate-50 transition"><td class="p-4 font-bold text-slate-700 text-[11px]">${p.name}</td><td class="p-4 text-center font-bold text-slate-500">${p.count}</td><td class="p-4 text-right text-brand-700 font-bold">৳${p.revenue}</td></tr>`).join(''); 
+                    
+                    let cArr = Object.keys(topCustomersMap).map(k => ({phone:k, ...topCustomersMap[k]})).sort((a,b)=>b.spent - a.spent).slice(0,10); 
+                    document.getElementById('aly-top-customers').innerHTML = cArr.map(c => `<tr class="hover:bg-slate-50 transition"><td class="p-4"><p class="font-bold text-slate-700 text-[11px]">${c.name}</p><p class="text-[10px] text-slate-400 font-medium">${c.phone}</p></td><td class="p-4 text-center font-bold text-slate-500">${c.count}</td><td class="p-4 text-right text-brand-700 font-bold">৳${c.spent}</td></tr>`).join(''); 
+                    
+                    if(salesChartInst) salesChartInst.destroy(); 
+                    salesChartInst = new Chart(document.getElementById('salesTrendChart'), { type: 'line', data: { labels: Object.keys(last7DaysMap), datasets: [{ label: 'Gross (৳)', data: Object.values(last7DaysMap), borderColor: '#16a34a', backgroundColor: 'rgba(22, 163, 74, 0.05)', borderWidth: 3, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false} }, scales: { y: {beginAtZero: true, grid:{color:'#f1f5f9'}}, x:{grid:{display:false}} } } }); 
+                    
+                    if(funnelChartInst) funnelChartInst.destroy(); 
+                    funnelChartInst = new Chart(document.getElementById('funnelChart'), { type: 'bar', data: { labels: ['Cart', 'Checkout', 'Confirm', 'Drop'], datasets: [{ label: 'Nodes', data: [estAddToCart, fCheckout, fConfirmed, fCancelled], backgroundColor: ['#3b82f6', '#8b5cf6', '#16a34a', '#f43f5e'], borderRadius: 6 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false} }, scales: {x:{grid:{color:'#f1f5f9'}}, y:{grid:{display:false}}} } }); 
+                });
+            } catch (err) { console.error("Realtime BI Engine Error:", err); } 
+        }
+        // ============================================================================
 
     </script>
 </body>
