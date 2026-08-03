@@ -1678,9 +1678,92 @@
         async function toggleUserBlock(userId, blockStatus) { if(await customConfirm(`Execute profile ${blockStatus ? 'revocation' : 'restoration'}?`)) { try { await db.collection('users').doc(userId).update({ isBlocked: blockStatus }); showToast("Profile State Patched.", "success"); } catch(e) {} } }
         async function deleteUser(userId) { if(await customConfirm('Confirm hard delete of entity profile?')) { try { await db.collection('users').doc(userId).delete(); showToast("Profile Purged.", "success"); } catch(e) {} } }
 
-        function addNotification(title, msg, type = 'info') { db.collection('notifications').add({ title, message: msg, type, read: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); }
-        function loadNotifications() { db.collection('notifications').orderBy('createdAt', 'desc').limit(50).onSnapshot(snap => { const list = document.getElementById('notif-list'); const badge = document.getElementById('notif-badge'); let unreadCount = 0; let html = ''; snap.forEach(doc => { const data = doc.data(); if(!data.read) unreadCount++; let icon = data.type === 'success' ? 'check-circle text-brand-500' : (data.type==='error'?'alert-triangle text-rose-500':'bell text-blue-500'); html += `<div class="p-4 hover:bg-slate-50 transition ${!data.read ? 'bg-brand-50/20' : ''}"><div class="flex gap-3"><i data-lucide="${icon.split(' ')[0]}" class="w-5 h-5 mt-0.5 ${icon.split(' ')[1]}"></i><div><h4 class="text-xs font-bold text-slate-800">${data.title}</h4><p class="text-[10px] text-slate-500 mt-1 leading-relaxed">${data.message}</p></div></div></div>`; }); list.innerHTML = html; lucide.createIcons(); if(unreadCount > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden'); }); }
-        async function markAllNotifRead() { const snap = await db.collection('notifications').where('read','==',false).get(); const batch = db.batch(); snap.forEach(doc => batch.update(doc.ref, {read: true})); await batch.commit(); }
+        // ✅ ঠিক মুছে ফেলা জায়গায় নিচের এই নতুন কোডটুকু বসাবেন:
+
+function formatNotifDate(timestamp) {
+    if (!timestamp) return 'Just now';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; 
+    const formattedHours = String(hours).padStart(2, '0');
+
+    return `${day} ${month} ${year}, ${formattedHours}:${minutes} ${ampm}`;
+}
+
+function addNotification(title, msg, type = 'info') { 
+    db.collection('notifications').add({ 
+        title: title, 
+        message: msg, 
+        type: type, 
+        read: false, 
+        createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+    }); 
+}
+
+function loadNotifications() {
+    db.collection('notifications').orderBy('createdAt', 'desc').limit(50).onSnapshot(snap => {
+        const list = document.getElementById('notif-list');
+        const badge = document.getElementById('notif-badge');
+        if (!list) return;
+
+        let unreadCount = 0;
+        let html = '';
+
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (!data.read) unreadCount++;
+
+            const dateStr = formatNotifDate(data.createdAt);
+
+            // স্ক্রিনশট অনুযায়ী সবুজ/কমলা কালার সেটিং
+            let titleColor = 'text-emerald-600 dark:text-emerald-400'; 
+            if (data.type === 'low_stock' || (data.title && data.title.toLowerCase().includes('low stock'))) {
+                titleColor = 'text-amber-500 dark:text-amber-400'; 
+            } else if (data.type === 'error' || data.type === 'alert') {
+                titleColor = 'text-rose-600 dark:text-rose-400';
+            }
+
+            html += `
+            <div class="p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-100 dark:border-slate-800 ${!data.read ? 'bg-emerald-50/20' : ''}">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <h4 class="text-xs font-bold ${titleColor}">${data.title}</h4>
+                    <span class="text-[10px] font-medium text-slate-400 shrink-0">${dateStr}</span>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-300 font-normal leading-relaxed">${data.message}</p>
+            </div>`;
+        });
+
+        if (snap.empty) {
+            html = '<div class="p-6 text-center text-xs text-slate-400 font-medium">No notifications found</div>';
+        }
+
+        list.innerHTML = html;
+
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    });
+}
+
+async function markAllNotifRead() { 
+    const snap = await db.collection('notifications').where('read','==',false).get(); 
+    const batch = db.batch(); 
+    snap.forEach(doc => batch.update(doc.ref, {read: true})); 
+    await batch.commit(); 
+}
 
         let posProducts = []; let posCart = [];
         function loadPOSProducts() { db.collection('products').onSnapshot(snap => { posProducts = []; let catSet = new Set(); snap.forEach(doc => { let d = doc.data(); d.id = doc.id; posProducts.push(d); if(d.category) catSet.add(d.category); }); let catHtml = '<option value="">All Categories</option>'; catSet.forEach(c => catHtml += `<option value="${c}">${c}</option>`); document.getElementById('posCategoryFilter').innerHTML = catHtml; renderPOSProducts(posProducts); }); }
