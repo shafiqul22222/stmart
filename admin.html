@@ -760,9 +760,48 @@
                 </div>
 
                 <!-- POS Section -->
-                <div id="pos-section" class="hidden animate-scale-in"><div class="flex flex-col lg:flex-row gap-6 h-[85vh]"><div class="flex-1 flex flex-col bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden h-full"><div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 bg-slate-50 shrink-0"><div class="relative flex-1"><i data-lucide="barcode" class="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400"></i><input type="text" id="posSearch" placeholder="Scan Barcode or Search SKU..." class="form-input pl-10 py-3 md:py-2.5" onkeyup="filterPOS()"></div><select id="posCategoryFilter" class="form-input w-full sm:w-48 py-3 md:py-2.5" onchange="filterPOS()"><option value="">All Categories</option></select></div><div class="flex-1 overflow-y-auto p-4 bg-slate-50/50 pos-grid" id="pos-product-grid"></div></div><div class="w-full lg:w-96 flex flex-col bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden h-full shrink-0"><div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0"><h3 class="font-bold text-slate-800 uppercase tracking-widest text-xs"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-1"></i> Register Cart</h3><button onclick="clearPOSCart()" class="text-rose-500 text-xs font-bold hover:underline">Clear</button></div><div class="p-3 border-b border-slate-100 shrink-0"><input type="text" id="posCustomer" placeholder="Walk-in Customer / Phone" class="form-input py-3 md:py-2 text-xs"></div><div class="flex-1 overflow-y-auto p-3 space-y-2" id="pos-cart-items"></div><div class="p-4 bg-slate-50 border-t border-slate-100 shrink-0 space-y-2"><div class="flex justify-between text-xs"><span class="text-slate-500 font-medium">Subtotal</span><span class="font-bold text-slate-700" id="pos-subtotal">৳0</span></div><div class="flex justify-between text-xs items-center"><span class="text-slate-500 font-medium">VAT / Tax (0%)</span><span class="font-bold text-slate-700" id="pos-tax">৳0</span></div><div class="flex justify-between text-xs items-center"><span class="text-slate-500 font-medium">Discount</span><input type="number" id="pos-discount" value="0" class="w-24 form-input py-2 px-2 text-right text-xs" onchange="updatePOSTotals()"></div><div class="flex justify-between text-base pt-3 border-t border-slate-200 mt-2"><span class="font-bold text-slate-800">Total payable</span><span class="font-black text-brand-700" id="pos-total">৳0</span></div><div class="grid grid-cols-2 gap-3 mt-4"><button onclick="processPOSPayment('Cash')" class="bg-slate-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-slate-700 transition flex items-center justify-center gap-2 text-xs"><i data-lucide="banknote" class="w-4 h-4"></i> Cash</button><button onclick="processPOSPayment('Card')" class="bg-blue-700 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-800 transition flex items-center justify-center gap-2 text-xs"><i data-lucide="credit-card" class="w-4 h-4"></i> Card/MFS</button></div></div></div></div></div>
+                <div id="pos-section" class="hidden animate-scale-in"><div class="flex flex-col lg:flex-row gap-6 h-[85vh]"><div class="flex-1 flex flex-col bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden h-full"><div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 bg-slate-50 shrink-0"><div class="relative flex-1"><i data-lucide="barcode" class="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400"></i><input type="text" id="posSearch" placeholder="Scan Barcode or Search SKU..." class="form-input pl-10 py-3 md:py-2.5" onkeyup="filterPOS()"></div><select id="posCategoryFilter" class="form-input w-full sm:w-48 py-3 md:py-2.5" onchange="filterPOS()"><option value="">All Categories</option></select></div><div class="flex-1 overflow-y-auto p-4 bg-slate-50/50 pos-grid" id="pos-product-grid"></div></div><div class="w-full lg:w-96 flex flex-col bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden h-full shrink-0"><div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0"><h3 class="font-bold text-slate-800 uppercase tracking-widest text-xs"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-1"></i> Register Cart</h3><button onclick="clearPOSCart()" class="text-rose-500 text-xs font-bold hover:underline">Clear</button></div><div class="p-3 border-b border-slate-100 shrink-0"><input type="text" id="posCustomer" placeholder="Walk-in Customer / Phone" class="form-input py-3 md:py-2 text-xs"></div><div class="flex-1 overflow-y-auto p-3 space-y-2" id="pos-cart-items"><div class="p-4 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 space-y-3">
+    <!-- Subtotal -->
+    <div class="flex justify-between text-xs font-semibold">
+        <span class="text-slate-500 dark:text-slate-400">Subtotal</span>
+        <span class="font-bold text-slate-800 dark:text-white" id="pos-subtotal">৳0</span>
+    </div>
 
-                <!-- Warehouse Section -->
+    <!-- Delivery Charge Dropdown -->
+    <div class="flex justify-between text-xs font-semibold items-center gap-2">
+        <span class="text-slate-500 dark:text-slate-400 whitespace-nowrap">Delivery Charge</span>
+        <select id="pos-delivery" class="form-input py-1 px-2 text-xs w-36 text-right font-bold cursor-pointer" onchange="updatePOSTotals()">
+            <option value="0">পিকআপ (৳0)</option>
+            <option value="60">ঢাকার ভেতরে (৳60)</option>
+            <option value="120">ঢাকার বাইরে (৳120)</option>
+        </select>
+    </div>
+
+    <!-- Discount Field -->
+    <div class="flex justify-between text-xs font-semibold items-center gap-2">
+        <span class="text-slate-500 dark:text-slate-400">Discount (৳)</span>
+        <input type="number" id="pos-discount" value="0" min="0" class="w-24 form-input py-1 px-2 text-right text-xs font-bold" onkeyup="updatePOSTotals()" onchange="updatePOSTotals()">
+    </div>
+
+    <!-- Grand Total -->
+    <div class="flex justify-between text-base pt-3 border-t border-slate-200 dark:border-slate-700 mt-1">
+        <span class="font-extrabold text-slate-900 dark:text-white">Grand Total</span>
+        <span class="font-black text-brand-600 dark:text-brand-400" id="pos-total">৳0</span>
+    </div>
+
+    <!-- View, Save, Save & Print Buttons -->
+    <div class="grid grid-cols-3 gap-2 mt-3">
+        <button type="button" onclick="viewPOSCartModal()" class="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-300 transition flex items-center justify-center gap-1">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i> View
+        </button>
+        <button type="button" onclick="savePOSOrder(false)" class="bg-blue-600 text-white py-2.5 rounded-xl font-bold text-xs hover:bg-blue-700 transition shadow-md flex items-center justify-center gap-1">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i> Save
+        </button>
+        <button type="button" onclick="savePOSOrder(true)" class="bg-brand-600 text-white py-2.5 rounded-xl font-bold text-xs hover:bg-brand-700 transition shadow-md flex items-center justify-center gap-1">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Save & Print
+        </button>
+    </div>
+</div>
                 <div id="warehouse-section" class="hidden animate-scale-in space-y-6"><div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4"><div><h2 class="text-2xl font-black text-slate-800 tracking-tight">Warehouse Management</h2><p class="text-slate-500 text-xs mt-1 font-medium hidden md:block">Multi-location inventory tracking, bins, and transfers.</p></div><button onclick="document.getElementById('whModal').classList.remove('hidden')" class="w-full md:w-auto btn-primary text-xs px-5 py-3 md:py-2"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Add Warehouse</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="card-stat"><p class="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider mb-1">Total Warehouses</p><h3 id="wh-total" class="text-3xl font-black text-slate-800 tracking-tight">0</h3></div><div class="card-stat"><p class="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider mb-1">Total Value Stored</p><h3 id="wh-value" class="text-3xl font-black text-brand-700 tracking-tight">৳0</h3></div><div class="card-stat flex items-center justify-center cursor-pointer hover:bg-slate-50 border-dashed border-2 min-h-[100px]" onclick="showToast('Internal Transfer module active.', 'info')"><div class="text-center"><i data-lucide="arrow-right-left" class="w-6 h-6 text-slate-400 mx-auto mb-2"></i><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Internal Transfer</p></div></div></div><div class="erp-table-wrapper bg-transparent md:bg-white"><table class="erp-table w-full text-left whitespace-nowrap min-w-full md:min-w-[700px] text-xs"><thead class="text-slate-500 uppercase tracking-widest text-[10px] font-bold"><tr><th class="p-4">Facility Name & Code</th><th class="p-4">Location</th><th class="p-4">Manager</th><th class="p-4">Status</th><th class="p-4 text-center">Actions</th></tr></thead><tbody id="wh-list" class="divide-y divide-slate-100"></tbody></table></div></div>
 
                 <!-- Purchase Section -->
@@ -1776,9 +1815,143 @@ async function markAllNotifRead() {
         function updatePOSQty(id, diff) { let item = posCart.find(x => x.id === id); if(!item) return; item.qty += diff; if(item.qty <= 0) posCart = posCart.filter(x => x.id !== id); else if(item.qty > item.stock) item.qty = item.stock; renderPOSCart(); }
         function clearPOSCart() { posCart = []; document.getElementById('posCustomer').value = ''; renderPOSCart(); }
         function renderPOSCart() { const list = document.getElementById('pos-cart-items'); list.innerHTML = posCart.map(item => `<div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100"><div class="flex-1 min-w-0 pr-2"><p class="text-[11px] font-bold text-slate-800 truncate">${item.name}</p><p class="text-[10px] text-slate-500 font-medium">৳${item.price}</p></div><div class="flex items-center gap-2"><button onclick="updatePOSQty('${item.id}', -1)" class="w-6 h-6 bg-slate-200 rounded text-slate-700 font-bold text-base">-</button><span class="text-xs font-bold w-4 text-center">${item.qty}</span><button onclick="updatePOSQty('${item.id}', 1)" class="w-6 h-6 bg-slate-200 rounded text-slate-700 font-bold text-base">+</button></div></div>`).join(''); updatePOSTotals(); }
-        function updatePOSTotals() { let subtotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0); let tax = subtotal * 0; let discount = parseFloat(document.getElementById('pos-discount').value) || 0; let total = subtotal + tax - discount; document.getElementById('pos-subtotal').innerText = '৳' + subtotal.toFixed(2); document.getElementById('pos-tax').innerText = '৳' + tax.toFixed(2); document.getElementById('pos-total').innerText = '৳' + total.toFixed(2); }
-        async function processPOSPayment(method) { if(posCart.length === 0) return showToast('Cart is empty', 'error'); const totalStr = document.getElementById('pos-total').innerText.replace('৳', ''); const total = parseFloat(totalStr); const customer = document.getElementById('posCustomer').value || 'Walk-in Customer'; const batch = db.batch(); try { const orderRef = db.collection('orders').doc(); batch.set(orderRef, { name: customer, source: 'POS', paymentMethod: method, paymentStatus: 'Paid', status: 'Completed', totalPrice: total, price: total, items: posCart, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); posCart.forEach(item => { const pRef = db.collection('products').doc(item.id); batch.update(pRef, { stock: firebase.firestore.FieldValue.increment(-item.qty) }); }); const transRef = db.collection('transactions').doc(); batch.set(transRef, { type: 'Income', amount: total, category: 'Retail Sales', desc: `POS Order #${orderRef.id.substring(0,6)}`, date: firebase.firestore.FieldValue.serverTimestamp() }); await batch.commit(); addNotification('POS Sale Complete', `Order created for ৳${total} via ${method}`, 'success'); showToast('Payment successful', 'success'); clearPOSCart(); } catch(e) {} }
+        // ✅ ঠিক মুছে ফেলা জায়গায় এটি বসান
 
+function updatePOSTotals() { 
+    let subtotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0); 
+    let deliveryEl = document.getElementById('pos-delivery');
+    let deliveryCharge = deliveryEl ? (parseFloat(deliveryEl.value) || 0) : 0;
+    let discount = parseFloat(document.getElementById('pos-discount').value) || 0; 
+    
+    let grandTotal = subtotal + deliveryCharge - discount; 
+    if (grandTotal < 0) grandTotal = 0;
+
+    document.getElementById('pos-subtotal').innerText = '৳' + subtotal.toFixed(2); 
+    document.getElementById('pos-total').innerText = '৳' + grandTotal.toFixed(2); 
+}
+
+function viewPOSCartModal() {
+    if (posCart.length === 0) return showToast('Cart is empty!', 'error');
+
+    let subtotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    let deliveryEl = document.getElementById('pos-delivery');
+    let deliveryCharge = deliveryEl ? (parseFloat(deliveryEl.value) || 0) : 0;
+    let discount = parseFloat(document.getElementById('pos-discount').value) || 0;
+    let grandTotal = Math.max(0, subtotal + deliveryCharge - discount);
+    let customer = document.getElementById('posCustomer').value || 'Walk-in Customer';
+
+    let itemsList = posCart.map(i => `• ${i.name} (x${i.qty}) - ৳${i.price * i.qty}`).join('\n');
+    let summaryText = `Customer: ${customer}\n\nItems:\n${itemsList}\n\nSubtotal: ৳${subtotal}\nDelivery Charge: ৳${deliveryCharge}\nDiscount: ৳${discount}\n-----------------------\nGrand Total: ৳${grandTotal}`;
+
+    alert("--- POS CART PREVIEW ---\n\n" + summaryText);
+}
+
+async function savePOSOrder(shouldPrint = false) { 
+    if(posCart.length === 0) return showToast('Cart is empty', 'error'); 
+
+    let subtotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0); 
+    let deliveryEl = document.getElementById('pos-delivery');
+    let deliveryCharge = deliveryEl ? (parseFloat(deliveryEl.value) || 0) : 0;
+    let deliveryZone = deliveryEl ? deliveryEl.options[deliveryEl.selectedIndex].text : 'পিকআপ';
+    let discount = parseFloat(document.getElementById('pos-discount').value) || 0; 
+    let grandTotal = Math.max(0, subtotal + deliveryCharge - discount);
+
+    const customer = document.getElementById('posCustomer').value || 'Walk-in Customer'; 
+    const batch = db.batch(); 
+
+    try { 
+        const orderRef = db.collection('orders').doc(); 
+        const orderId = orderRef.id;
+
+        batch.set(orderRef, { 
+            name: customer, 
+            source: 'POS', 
+            paymentMethod: 'Cash/MFS', 
+            paymentStatus: 'Paid', 
+            status: 'Completed', 
+            productName: posCart.map(i => `${i.name} (x${i.qty})`).join(', '),
+            subtotal: subtotal,
+            deliveryCharge: deliveryCharge,
+            deliveryZone: deliveryZone,
+            discount: discount,
+            totalPrice: grandTotal, 
+            price: grandTotal, 
+            items: posCart, 
+            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+        }); 
+
+        posCart.forEach(item => { 
+            const pRef = db.collection('products').doc(item.id); 
+            batch.update(pRef, { stock: firebase.firestore.FieldValue.increment(-item.qty) }); 
+        }); 
+
+        const transRef = db.collection('transactions').doc(); 
+        batch.set(transRef, { 
+            type: 'Income', 
+            amount: grandTotal, 
+            category: 'POS Sales', 
+            desc: `POS Order #${orderId.substring(0,6)} (${customer})`, 
+            date: firebase.firestore.FieldValue.serverTimestamp() 
+        }); 
+
+        await batch.commit(); 
+
+        addNotification('POS Sale Complete', `Order created for ৳${grandTotal}`, 'success'); 
+        showToast(shouldPrint ? 'Order Saved & Printing Receipt...' : 'Order Saved Successfully', 'success'); 
+
+        if (shouldPrint) {
+            printPOSReceipt(orderId, customer, posCart, subtotal, deliveryCharge, discount, grandTotal);
+        }
+
+        clearPOSCart(); 
+        if(document.getElementById('pos-delivery')) document.getElementById('pos-delivery').value = "0";
+        if(document.getElementById('pos-discount')) document.getElementById('pos-discount').value = "0";
+    } catch(e) {
+        showToast('Error saving POS order: ' + e.message, 'error');
+    } 
+}
+
+function printPOSReceipt(orderId, customer, items, subtotal, delivery, discount, total) {
+    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    const itemsRows = items.map(i => `<tr><td>${i.name} x ${i.qty}</td><td style="text-align:right">৳${i.price * i.qty}</td></tr>`).join('');
+    
+    const html = `
+    <html>
+    <head>
+        <title>Receipt #${orderId.substring(0,6)}</title>
+        <style>
+            body { font-family: monospace; padding: 15px; width: 280px; margin: auto; font-size: 12px; }
+            h2 { text-align: center; margin: 0; font-size: 16px; }
+            p { text-align: center; margin: 2px 0 10px; font-size: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border-bottom: 1px dashed #ccc; padding: 4px 0; }
+        </style>
+    </head>
+    <body>
+        <h2>${globalBrandName || 'ST SPARKLE JEWELRY'}</h2>
+        <p>POS RECEIPT SLIP</p>
+        <div>Ref: #${orderId.substring(0,6).toUpperCase()}</div>
+        <div>Customer: ${customer}</div>
+        <div>Date: ${new Date().toLocaleDateString()}</div>
+        <table>
+            <thead><tr><th style="text-align:left">Item</th><th style="text-align:right">Price</th></tr></thead>
+            <tbody>${itemsRows}</tbody>
+        </table>
+        <div style="margin-top:10px">
+            <div style="display:flex; justify-content:space-between"><span>Subtotal:</span><span>৳${subtotal}</span></div>
+            <div style="display:flex; justify-content:space-between"><span>Delivery:</span><span>৳${delivery}</span></div>
+            <div style="display:flex; justify-content:space-between"><span>Discount:</span><span>-৳${discount}</span></div>
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px; margin-top:5px; border-top:1px solid #000; padding-top:3px">
+                <span>Grand Total:</span><span>৳${total}</span>
+            </div>
+        </div>
+        <p style="margin-top:20px; text-align:center">Thank you for shopping with us!</p>
+        <script>window.onload = function() { window.print(); window.close(); }<\/script>
+    </body>
+    </html>`;
+    printWindow.document.write(html);
+    printWindow.document.close();
+}
         function loadWarehouses() { db.collection('warehouses').onSnapshot(snap => { const list = document.getElementById('wh-list'); let html = ''; let totalVal = 0; document.getElementById('wh-total').innerText = snap.size; snap.forEach(doc => { const d = doc.data(); totalVal += (d.value || 0); html += `<tr class="hover:bg-slate-50 border-b border-slate-50"><td class="p-4 font-bold text-slate-800">${d.name}</td><td class="p-4 text-xs text-slate-500">${d.location}</td><td class="p-4 text-xs">${d.manager}</td><td class="p-4"><span class="bg-brand-50 text-brand-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">Active</span></td><td class="p-4 text-center"><button onclick="deleteWarehouse('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`; }); list.innerHTML = html; document.getElementById('wh-value').innerText = '৳' + totalVal; lucide.createIcons(); }); }
         document.getElementById('whForm').addEventListener('submit', async (e) => { e.preventDefault(); try { await db.collection('warehouses').add({ name: document.getElementById('whName').value, location: document.getElementById('whLocation').value, manager: document.getElementById('whManager').value, value: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('whModal').classList.add('hidden'); document.getElementById('whForm').reset(); showToast('Saved', 'success'); } catch(err){} });
         async function deleteWarehouse(id) { await db.collection('warehouses').doc(id).delete(); showToast('Deleted', 'success'); }
