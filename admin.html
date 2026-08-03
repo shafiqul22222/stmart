@@ -1746,6 +1746,54 @@
             for(let i=0; i<12; i++) { let d = new Date(); d.setMonth(d.getMonth() - i); let val = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); let label = d.toLocaleDateString('en-US', {month: 'long', year: 'numeric'}); mHtml += `<option value="${val}">${label}</option>`; }
             if(document.getElementById('expFilterMonth')) document.getElementById('expFilterMonth').innerHTML = mHtml;
         });
+        // ✅ ঠিক এই জায়গায় এই কোডটুকু বসিয়ে দিন (কোনো কিছু মুছতে হবে না)
+function loadAdminProducts() { 
+    db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snap => { 
+        const list = document.getElementById('admin-product-list'); 
+        const countEl = document.getElementById('total-product-count'); 
+        
+        if(countEl) { 
+            countEl.innerText = `Total SKUs: ${snap.size}`; 
+            countEl.classList.remove('hidden'); 
+        } 
+        if(!list) return;
+
+        let html = '';
+        snap.forEach(doc => { 
+            const p = doc.data(); 
+            let sizesArr = p.sizes || []; 
+            let mainImg = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'https://via.placeholder.com/100'); 
+            let sizeStr = sizesArr.length > 0 ? sizesArr.join(', ') : (p.size || ''); 
+            
+            let details = `<span class="bg-slate-100 px-2 py-1 rounded-md text-[10px] text-slate-500 font-bold uppercase tracking-wider">${p.category || 'N/A'}</span>`; 
+            if(sizeStr) details += ` <span class="bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-md text-[10px] font-bold text-indigo-700 ml-1">Dim: ${sizeStr}</span>`; 
+            if(!sizeStr) details += ` <span class="bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-md text-[10px] font-bold text-emerald-700 ml-1">UoM: ${p.unit || 'Piece'}</span>`; 
+            
+            let priceHtml = `<span class="text-slate-800 dark:text-white font-black tracking-tight text-base">৳${p.price}</span>`; 
+            if(p.oldPrice) priceHtml += `<br><span class="text-[10px] font-bold text-slate-400 line-through">MSRP ৳${p.oldPrice}</span>`; 
+            
+            let stockBadge = parseInt(p.stock) > 0 ? `<span class="bg-brand-50 text-brand-700 border border-brand-200 px-2 py-1 rounded-md text-[10px] font-bold block mt-2 w-fit uppercase tracking-widest"><i data-lucide="check" class="w-3 h-3 inline"></i> QOH: ${p.stock}</span>` : `<span class="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-1 rounded-md text-[10px] font-bold block mt-2 w-fit uppercase tracking-widest"><i data-lucide="alert-triangle" class="w-3 h-3 inline"></i> Depleted</span>`; 
+            
+            html += `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-100 dark:border-slate-800">
+                <td class="p-4 w-20"><img src="${mainImg}" class="w-14 h-14 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 object-cover"></td>
+                <td class="p-4">
+                    <p class="font-bold text-slate-800 dark:text-white mb-1">${p.name}</p>
+                    <p class="mb-1">${details}</p>
+                    <p class="text-[11px] text-slate-500 max-w-xs truncate font-medium">${p.description || 'N/A'}</p>
+                </td>
+                <td class="p-4">${priceHtml} ${stockBadge}</td>
+                <td class="p-4 text-center whitespace-nowrap">
+                    <button onclick="openAdminReview('${doc.id}')" class="text-amber-500 hover:bg-amber-50 p-2.5 rounded-xl transition mr-1" title="Append Feedback"><i data-lucide="star" class="w-4 h-4"></i></button>
+                    <button onclick="editP('${doc.id}')" class="text-blue-700 hover:bg-blue-50 p-2.5 rounded-xl transition mr-1" title="Modify Specs"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                    <button onclick="deleteP('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2.5 rounded-xl transition" title="Delete Product"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </td>
+            </tr>`; 
+        }); 
+        list.innerHTML = html; 
+        lucide.createIcons();
+    }); 
+}
 
         function loadDashboardData() {
             db.collection('products').onSnapshot(snap => { snap.forEach(doc => { const p = doc.data(); globalDashData.products[p.name] = parseFloat(p.purchasePrice) || 0; }); renderAdvancedDashboard(); });
