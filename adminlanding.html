@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Special Offer | Premium Order</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -38,6 +38,7 @@
         body { 
             background-color: #F8FFF8;
             overflow-x: hidden;
+            touch-action: manipulation;
         }
 
         /* Glassmorphism Background Blobs */
@@ -88,11 +89,6 @@
 
         /* Hide details marker for FAQ */
         details > summary::-webkit-details-marker { display: none; }
-
-        /* Zoom Effect for image */
-        .zoom-img-container { overflow: hidden; cursor: crosshair; }
-        .zoom-img-container img { transition: transform 0.5s ease; }
-        .zoom-img-container:hover img { transform: scale(1.3); }
 
         /* Star Rating Animation */
         @keyframes starPop {
@@ -167,21 +163,29 @@
                     </div>
                 </div>
 
-                <!-- Hero Section (Gallery) -->
+                <!-- Hero Section (Gallery Slider & Click-to-Zoom) -->
                 <div class="scroll-anim">
-                    <div class="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white group zoom-img-container bg-slate-50">
-                        <img id="viewImage" src="" class="w-full h-auto object-cover max-h-[500px]" alt="Product Image">
+                    <div class="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-50 group">
+                        <!-- Main Display Image -->
+                        <img id="viewImage" src="" onclick="openImageZoom(this.src)" class="w-full h-auto object-cover max-h-[500px] cursor-zoom-in transition-transform duration-300 hover:scale-105" alt="Product Image">
+                        
+                        <!-- Tap to Zoom Badge Hint -->
+                        <div class="absolute top-4 left-4 bg-black/60 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none shadow-md">
+                            <i class="fas fa-search-plus"></i> বড় করে দেখতে ক্লিক করুন
+                        </div>
+
+                        <!-- Navigation Slider Arrows -->
+                        <button id="prevImgBtn" onclick="changeImage(-1)" class="hidden absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-800 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition z-10 font-bold"><i class="fas fa-chevron-left"></i></button>
+                        <button id="nextImgBtn" onclick="changeImage(1)" class="hidden absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-800 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition z-10 font-bold"><i class="fas fa-chevron-right"></i></button>
+
                         <!-- Money Back Badge -->
-                        <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-green-800 font-extrabold px-4 py-2 rounded-xl text-sm shadow-xl flex items-center gap-2 border border-green-100">
+                        <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-green-800 font-extrabold px-4 py-2 rounded-xl text-sm shadow-xl flex items-center gap-2 border border-green-100 pointer-events-none">
                             <i class="fas fa-undo text-green-600 text-lg"></i> মানি ব্যাক গ্যারান্টি
                         </div>
                     </div>
-                    <!-- Thumbnails (Using same image to look like gallery) -->
-                    <div class="flex gap-3 mt-4 overflow-x-auto pb-2">
-                        <img id="thumb1" src="" class="w-20 h-20 rounded-xl border-2 border-green-500 object-cover cursor-pointer shadow-md">
-                        <img id="thumb2" src="" class="w-20 h-20 rounded-xl border-2 border-transparent hover:border-green-300 object-cover cursor-pointer shadow-sm opacity-80 hover:opacity-100 transition">
-                        <img id="thumb3" src="" class="w-20 h-20 rounded-xl border-2 border-transparent hover:border-green-300 object-cover cursor-pointer shadow-sm opacity-80 hover:opacity-100 transition">
-                    </div>
+
+                    <!-- Dynamic Thumbnails Gallery -->
+                    <div id="thumbContainer" class="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-none"></div>
                 </div>
 
                 <!-- Green Pricing & Stock Box -->
@@ -351,7 +355,7 @@
 
             </div>
 
-            <!-- Right Side: Sticky Checkout Form Premium -->
+            <!-- Right Side: Sticky Checkout Form Premium (Upgraded Professional Inputs) -->
             <div class="w-full lg:w-5/12 xl:w-1/3 p-5 md:p-8 relative">
                 
                 <div id="checkoutSection" class="bg-white border border-green-100 rounded-[2rem] shadow-[0_20px_50px_-10px_rgba(22,163,74,0.15)] relative overflow-hidden lg:sticky lg:top-8 mt-2 lg:mt-0">
@@ -373,32 +377,32 @@
                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white p-2 rounded-lg border border-green-50"><i class="fas fa-hand-holding-usd text-green-500"></i> Cash On Delivery</div>
                     </div>
                     
-                    <form id="orderForm" class="p-6 space-y-6 bg-white">
+                    <!-- Highly Ergonomic & Professional Order Form -->
+                    <form id="orderForm" class="p-6 space-y-5 bg-white">
                         
-                        <!-- Floating Label Inputs with Icons -->
-                        <div class="space-y-5">
-                            <div class="relative group">
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-green-500 text-lg z-20">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <input type="text" id="cName" required class="block px-4 pb-3 pt-6 w-full text-base text-slate-900 bg-slate-50 hover:bg-white border-2 border-green-100 focus:border-green-500 rounded-xl appearance-none focus:outline-none focus:ring-4 focus:ring-green-500/10 peer pl-12 transition-all shadow-sm" placeholder=" " />
-                                <label class="absolute text-sm text-slate-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-12 peer-focus:text-green-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 font-bold cursor-text">আপনার নাম <span class="text-red-500">*</span></label>
+                        <div class="space-y-4">
+                            <!-- Name Input -->
+                            <div>
+                                <label for="cName" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2">
+                                    <i class="fas fa-user text-green-600"></i> আপনার নাম <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="cName" required class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400" placeholder="যেমন: মোঃ রহিম হোসাইন" />
                             </div>
                             
-                            <div class="relative group">
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-green-500 text-lg z-20">
-                                    <i class="fas fa-phone-alt"></i>
-                                </div>
-                                <input type="tel" id="cPhone" required class="block px-4 pb-3 pt-6 w-full text-base text-slate-900 bg-slate-50 hover:bg-white border-2 border-green-100 focus:border-green-500 rounded-xl appearance-none focus:outline-none focus:ring-4 focus:ring-green-500/10 peer pl-12 transition-all shadow-sm" placeholder=" " />
-                                <label class="absolute text-sm text-slate-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-12 peer-focus:text-green-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 font-bold cursor-text">মোবাইল নাম্বার <span class="text-red-500">*</span></label>
+                            <!-- Mobile Input -->
+                            <div>
+                                <label for="cPhone" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2">
+                                    <i class="fas fa-phone-alt text-green-600"></i> মোবাইল নাম্বার <span class="text-red-500">*</span>
+                                </label>
+                                <input type="tel" id="cPhone" required class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400" placeholder="যেমন: 017XXXXXXXX" />
                             </div>
 
-                            <div class="relative group">
-                                <div class="absolute top-4 left-0 flex items-center pl-4 pointer-events-none text-green-500 text-lg z-20">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <textarea id="cAddress" required rows="2" class="block px-4 pb-3 pt-7 w-full text-base text-slate-900 bg-slate-50 hover:bg-white border-2 border-green-100 focus:border-green-500 rounded-xl appearance-none focus:outline-none focus:ring-4 focus:ring-green-500/10 peer pl-12 transition-all shadow-sm resize-none" placeholder=" "></textarea>
-                                <label class="absolute text-sm text-slate-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-12 peer-focus:text-green-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 font-bold cursor-text">সম্পূর্ণ ঠিকানা (গ্রাম/মহল্লা, থানা, জেলা) <span class="text-red-500">*</span></label>
+                            <!-- Address Input -->
+                            <div>
+                                <label for="cAddress" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2">
+                                    <i class="fas fa-map-marker-alt text-green-600"></i> সম্পূর্ণ ঠিকানা <span class="text-red-500">*</span>
+                                </label>
+                                <textarea id="cAddress" required rows="2" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400 resize-none" placeholder="গ্রাম/মহল্লা, থানা, জেলা উল্লেখ করুন"></textarea>
                             </div>
                         </div>
                         
@@ -460,21 +464,14 @@
         </div>
     </div>
 
-    <!-- Floating Action Buttons (WhatsApp, Messenger, Call) -->
-<div class="fixed bottom-28 lg:bottom-10 right-4 flex flex-col gap-3 z-50">
-    
-    <!-- Call Button (এটি ঠিক আছে) -->
-    <a href="tel:01410743441" target="_blank" class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-xl shadow-lg hover:scale-110 transition-transform"><i class="fas fa-phone-alt"></i></a>
-    
-    <!-- Messenger Button -->
-    <a href="https://m.me/61592852183338" target="_blank" class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg hover:scale-110 transition-transform"><i class="fab fa-facebook-messenger"></i></a>
-    
-    <!-- WhatsApp Button -->
-    <a href="https://wa.me/8801410743441" target="_blank" class="w-14 h-14 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl shadow-xl hover:scale-110 transition-transform pulse-dot"><i class="fab fa-whatsapp"></i></a>
+    <!-- Floating Action Buttons -->
+    <div class="fixed bottom-28 lg:bottom-10 right-4 flex flex-col gap-3 z-50">
+        <a href="tel:01410743441" target="_blank" class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-xl shadow-lg hover:scale-110 transition-transform"><i class="fas fa-phone-alt"></i></a>
+        <a href="https://m.me/61592852183338" target="_blank" class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg hover:scale-110 transition-transform"><i class="fab fa-facebook-messenger"></i></a>
+        <a href="https://wa.me/8801410743441" target="_blank" class="w-14 h-14 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl shadow-xl hover:scale-110 transition-transform pulse-dot"><i class="fab fa-whatsapp"></i></a>
+    </div>
 
-</div>
-
-    <!-- Sticky Footer CTA (Mobile Only) 🔥 মাত্র ৳ 999 Buy Now Limited Stock -->
+    <!-- Sticky Footer CTA (Mobile Only) -->
     <div class="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-3 flex justify-between items-center z-[60] shadow-[0_-5px_15px_rgba(0,0,0,0.08)] pb-4">
         <div class="flex flex-col">
             <span class="text-xs font-bold text-red-500 animate-pulse">🔥 Limited Stock</span>
@@ -527,7 +524,7 @@
         </div>
     </footer>
 
-    <!-- Success Screen (Kept exactly as requested) -->
+    <!-- Success Screen -->
     <div id="successScreen" class="hidden min-h-screen flex items-center justify-center bg-[#F8FFF8] px-5 relative overflow-hidden fixed inset-0 z-[200]">
         <div class="bg-white p-8 md:p-12 rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(22,163,74,0.3)] text-center max-w-lg w-full relative z-10 border border-green-100">
             <div class="w-28 h-28 bg-gradient-to-br from-green-500 to-emerald-400 text-white rounded-full flex items-center justify-center mx-auto mb-8 text-6xl shadow-xl shadow-green-500/40 relative">
@@ -542,6 +539,22 @@
         </div>
     </div>
 
+    <!-- Product Image Zoom Modal Lightbox (Isolates Zooming to Image Only) -->
+    <div id="imageZoomModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[300] hidden flex flex-col justify-between p-4">
+        <div class="flex justify-between items-center text-white p-2">
+            <span class="text-sm font-bold opacity-80"><i class="fas fa-info-circle text-green-400"></i> ইমেজ জুম ভিউয়ার</span>
+            <button onclick="closeImageZoom()" class="bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl transition"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="flex-1 overflow-auto flex items-center justify-center p-2">
+            <img id="zoomModalImg" src="" class="max-w-none transition-transform duration-200 cursor-grab max-h-[85vh] sm:max-h-[90vh] object-contain rounded-lg">
+        </div>
+        <div class="flex justify-center gap-3 p-2">
+            <button onclick="zoomStep(0.25)" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg"><i class="fas fa-search-plus"></i> জুম ইন</button>
+            <button onclick="zoomStep(-0.25)" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg"><i class="fas fa-search-minus"></i> জুম আউট</button>
+            <button onclick="resetZoom()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2.5 rounded-xl text-sm font-bold">রিসেট</button>
+        </div>
+    </div>
+
     <script>
         // Animations on Scroll (Intersection Observer)
         const observer = new IntersectionObserver((entries) => {
@@ -553,34 +566,28 @@
         }, { threshold: 0.1 });
         
         // English to Bengali Number Converter
-function toBengaliNum(num) {
-    const banglaDigits = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
-    return num.toString().split('').map(digit => banglaDigits[digit] || digit).join('');
-}
+        function toBengaliNum(num) {
+            const banglaDigits = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
+            return num.toString().split('').map(digit => banglaDigits[digit] || digit).join('');
+        }
 
-// Variables to keep track of counters
-let liveCount = 23;
-let orderCount = 58;
+        // Variables to keep track of counters
+        let liveCount = 23;
+        let orderCount = 58;
 
-// Random Counters logic
-setInterval(() => {
-    let offset = Math.floor(Math.random() * 5) - 2;
-    liveCount = liveCount + offset;
-    if(liveCount < 15) liveCount = 15;
-    if(liveCount > 45) liveCount = 45;
-    document.getElementById('liveVisitor').innerText = toBengaliNum(liveCount);
-}, 5000);
-
-setInterval(() => {
-    if(Math.random() > 0.7) {
-        orderCount = orderCount + 1;
-        document.getElementById('todayOrder').innerText = toBengaliNum(orderCount);
-    }
-}, 15000);
+        // Random Counters logic
         setInterval(() => {
-            let currentOrders = parseInt(document.getElementById('todayOrder').innerText);
+            let offset = Math.floor(Math.random() * 5) - 2;
+            liveCount = liveCount + offset;
+            if(liveCount < 15) liveCount = 15;
+            if(liveCount > 45) liveCount = 45;
+            document.getElementById('liveVisitor').innerText = toBengaliNum(liveCount);
+        }, 5000);
+
+        setInterval(() => {
             if(Math.random() > 0.7) {
-                document.getElementById('todayOrder').innerText = currentOrders + 1;
+                orderCount = orderCount + 1;
+                document.getElementById('todayOrder').innerText = toBengaliNum(orderCount);
             }
         }, 15000);
 
@@ -600,7 +607,7 @@ setInterval(() => {
         }
         startTimer();
 
-        // Firebase Configuration (DO NOT CHANGE)
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB3NEk6Ske5-43HEYg4dNc4OU-f9o6Xz60",
             authDomain: "shafiqul-survey.firebaseapp.com",
@@ -623,6 +630,82 @@ setInterval(() => {
             loadLandingPage();
         }
 
+        // Dynamic Product Gallery Handling
+        let productImagesList = [];
+        let currentImgIndex = 0;
+
+        function setupGallery(lpData) {
+            if (Array.isArray(lpData.images) && lpData.images.length > 0) {
+                productImagesList = lpData.images;
+            } else if (lpData.heroImage) {
+                if (typeof lpData.heroImage === 'string' && lpData.heroImage.includes(',')) {
+                    productImagesList = lpData.heroImage.split(',').map(s => s.trim());
+                } else {
+                    productImagesList = [lpData.heroImage];
+                }
+            }
+
+            if(productImagesList.length > 0) {
+                setActiveImage(0);
+            }
+
+            if(productImagesList.length > 1) {
+                document.getElementById('prevImgBtn').classList.remove('hidden');
+                document.getElementById('nextImgBtn').classList.remove('hidden');
+            }
+
+            const thumbContainer = document.getElementById('thumbContainer');
+            thumbContainer.innerHTML = productImagesList.map((imgUrl, index) => `
+                <img src="${imgUrl}" onclick="setActiveImage(${index})" class="thumb-item w-20 h-20 rounded-xl border-2 object-cover cursor-pointer shadow-sm transition-all duration-200 flex-shrink-0 ${index === 0 ? 'border-green-500 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}">
+            `).join('');
+        }
+
+        function setActiveImage(index) {
+            currentImgIndex = index;
+            const imgUrl = productImagesList[currentImgIndex];
+            document.getElementById('viewImage').src = imgUrl;
+
+            const thumbs = document.querySelectorAll('.thumb-item');
+            thumbs.forEach((thumb, idx) => {
+                if(idx === currentImgIndex) {
+                    thumb.className = "thumb-item w-20 h-20 rounded-xl border-2 border-green-500 object-cover cursor-pointer shadow-md scale-105 flex-shrink-0 transition-all duration-200";
+                } else {
+                    thumb.className = "thumb-item w-20 h-20 rounded-xl border-2 border-transparent object-cover cursor-pointer shadow-sm opacity-70 hover:opacity-100 flex-shrink-0 transition-all duration-200";
+                }
+            });
+        }
+
+        function changeImage(direction) {
+            if(productImagesList.length === 0) return;
+            currentImgIndex = (currentImgIndex + direction + productImagesList.length) % productImagesList.length;
+            setActiveImage(currentImgIndex);
+        }
+
+        // Image Zoom Modal Lightbox Logic
+        let currentZoomScale = 1;
+        function openImageZoom(src) {
+            document.getElementById('zoomModalImg').src = src;
+            currentZoomScale = 1;
+            document.getElementById('zoomModalImg').style.transform = `scale(${currentZoomScale})`;
+            document.getElementById('imageZoomModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageZoom() {
+            document.getElementById('imageZoomModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function zoomStep(amount) {
+            currentZoomScale = Math.max(0.8, Math.min(3.5, currentZoomScale + amount));
+            document.getElementById('zoomModalImg').style.transform = `scale(${currentZoomScale})`;
+        }
+
+        function resetZoom() {
+            currentZoomScale = 1;
+            document.getElementById('zoomModalImg').style.transform = `scale(1)`;
+        }
+
         async function loadLandingPage() {
             try {
                 const doc = await db.collection('landing_pages').doc(pageId).get();
@@ -636,12 +719,8 @@ setInterval(() => {
                     document.getElementById('stickyPrice').innerText = lpData.offerPrice;
                     document.getElementById('viewDesc').innerText = lpData.description;
                     
-                    // Image Setup (Gallery effect using the same image as requested)
-                    const heroSrc = lpData.heroImage;
-                    document.getElementById('viewImage').src = heroSrc;
-                    document.getElementById('thumb1').src = heroSrc;
-                    document.getElementById('thumb2').src = heroSrc;
-                    document.getElementById('thumb3').src = heroSrc;
+                    // Dynamic Gallery Setup
+                    setupGallery(lpData);
                     
                     // Features list formatting to Glass Cards
                     const featuresHtml = lpData.features.split('\n').filter(f=>f.trim()!=='').map(f => `
@@ -666,7 +745,7 @@ setInterval(() => {
                         document.getElementById('videoContainer').classList.remove('hidden');
                     }
 
-                    // Reviews mapping (Upgraded to Ultra Premium with simulated tags)
+                    // Reviews mapping
                     if(lpData.reviews && lpData.reviews.length > 0) {
                         document.getElementById('reviewsContainer').classList.remove('hidden');
                         document.getElementById('reviewsList').innerHTML = lpData.reviews.map(r => `
@@ -702,7 +781,6 @@ setInterval(() => {
                     document.getElementById('landing-content').classList.remove('hidden');
                     document.getElementById('footerContent').classList.remove('hidden');
                     
-                    // Attach observers after elements load
                     setTimeout(() => {
                         document.querySelectorAll('.scroll-anim').forEach(el => observer.observe(el));
                     }, 100);
@@ -716,7 +794,7 @@ setInterval(() => {
             }
         }
 
-        // Calculate total amount (Logic Unchanged)
+        // Calculate total amount
         function updateTotal() {
             if(!lpData) return;
             const isInside = document.querySelector('input[name="area"]:checked').value === 'Inside Dhaka';
@@ -728,7 +806,7 @@ setInterval(() => {
             document.getElementById('sumTotal').innerText = price + dCharge;
         }
 
-        // Form Submit to Firebase Orders (Logic Unchanged)
+        // Form Submit to Firebase Orders
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
