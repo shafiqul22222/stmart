@@ -672,64 +672,80 @@
                 </div>
 
                 <!-- Landing Page Section -->
-                <<form id="landingPageForm" class="space-y-6">
-    <!-- Hidden input to store ID during editing -->
-    <input type="hidden" id="lpId">
+                <div id="landing-section" class="hidden animate-scale-in space-y-6">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight">Marketing Pages</h2>
+                        <p class="text-slate-500 text-xs mt-1 font-medium hidden md:block">Generate high-converting storefronts for specific campaigns.</p>
+                    </div>
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                        <div class="xl:col-span-2">
+                            <div class="bg-white rounded-2xl shadow-erp border border-slate-100 p-6 md:p-8">
+                                <form id="landingPageForm" class="space-y-6">
+                                    <input type="hidden" id="lpId">
 
-    <div>
-        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Core Meta</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div><label class="form-label">Campaign ID (Internal)</label><input type="text" id="lpInternalName" class="form-input" required></div>
-            <div><label class="form-label">Display Product Name</label><input type="text" id="lpProductName" class="form-input" required></div>
-            <div class="md:col-span-2"><label class="form-label">Hero Copy / Hook</label><input type="text" id="lpHeadline" class="form-input" required></div>
-            
-            <!-- Cost, MSRP, Retail, and Stock Fields -->
-            <div><label class="form-label">Cost (COGS) (৳) *</label><input type="number" id="lpPurchasePrice" class="form-input" placeholder="0" required></div>
-            <div><label class="form-label">MSRP (৳) *</label><input type="number" id="lpOldPrice" class="form-input" required></div>
-            <div><label class="form-label text-brand-700">Retail / Offer Price (৳) *</label><input type="number" id="lpOfferPrice" class="form-input bg-brand-50 border-brand-200" required></div>
-            <div><label class="form-label text-rose-700">Initial Stock *</label><input type="number" id="lpStock" class="form-input border-rose-200 bg-rose-50/50" placeholder="0" required></div>
+                                    <div>
+                                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Core Meta</h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                            <div><label class="form-label">Campaign ID (Internal)</label><input type="text" id="lpInternalName" class="form-input" required></div>
+                                            <div><label class="form-label">Display Product Name</label><input type="text" id="lpProductName" class="form-input" required></div>
+                                            <div class="md:col-span-2"><label class="form-label">Hero Copy / Hook</label><input type="text" id="lpHeadline" class="form-input" required></div>
+                                            
+                                            <!-- Cost, MSRP, Retail, and Stock Fields -->
+                                            <div><label class="form-label">Cost (COGS) (৳) *</label><input type="number" id="lpPurchasePrice" class="form-input" placeholder="0" required></div>
+                                            <div><label class="form-label">MSRP (৳) *</label><input type="number" id="lpOldPrice" class="form-input" required></div>
+                                            <div><label class="form-label text-brand-700">Retail / Offer Price (৳) *</label><input type="number" id="lpOfferPrice" class="form-input bg-brand-50 border-brand-200" required></div>
+                                            <div><label class="form-label text-rose-700">Initial Stock *</label><input type="number" id="lpStock" class="form-input border-rose-200 bg-rose-50/50" placeholder="0" required></div>
 
-            <div class="md:col-span-2"><label class="form-label">Shipping Base Rates (Zone 1 | Zone 2)</label>
-                <div class="flex gap-4">
-                    <input type="number" id="lpDelInside" class="form-input" placeholder="Inside Dhaka" required>
-                    <input type="number" id="lpDelOutside" class="form-input" placeholder="Outside Dhaka" required>
+                                            <div class="md:col-span-2"><label class="form-label">Shipping Base Rates (Zone 1 | Zone 2)</label>
+                                                <div class="flex gap-4">
+                                                    <input type="number" id="lpDelInside" class="form-input" placeholder="Inside Dhaka" required>
+                                                    <input type="number" id="lpDelOutside" class="form-input" placeholder="Outside Dhaka" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="image" class="w-4 h-4 mr-2"></i> Assets</h3>
+                                        <div class="space-y-5">
+                                            <div><label class="form-label">Hero Graphic *</label><input type="file" id="lpHeroImage" accept="image/*" class="form-input p-2 bg-white" required></div>
+                                            <div><label class="form-label">Video Embed URI</label><input type="url" id="lpVideo" class="form-input"></div>
+                                            <div><label class="form-label">Rich Description</label><textarea id="lpDescription" rows="4" class="form-input" required></textarea></div>
+                                            <div><label class="form-label">Bullet Highlights</label><textarea id="lpFeatures" rows="3" class="form-input" required></textarea></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><span><i data-lucide="star" class="w-4 h-4 mr-2"></i>Social Proof</span></h3>
+                                        <div class="bg-slate-50 border border-slate-200 p-5 rounded-xl mb-4">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                <input type="text" id="revName" class="form-input text-xs" placeholder="Reviewer Profile">
+                                                <select id="revRating" class="form-input text-xs">
+                                                    <option value="5">⭐⭐⭐⭐⭐ 5 Star</option>
+                                                    <option value="4">⭐⭐⭐⭐ 4 Star</option>
+                                                </select>
+                                                <textarea id="revText" class="form-input text-xs md:col-span-2" rows="2" placeholder="Testimonial body..."></textarea>
+                                                <div class="md:col-span-2"><label class="form-label">Attachment</label><input type="file" id="revImage" accept="image/*" class="form-input p-2 text-xs bg-white"></div>
+                                            </div>
+                                            <button type="button" onclick="addLandingReview()" class="bg-slate-800 text-white px-4 py-3 rounded-xl text-xs font-semibold w-full hover:bg-slate-700 transition flex items-center justify-center shadow-md"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Append Review</button>
+                                        </div>
+                                        <div id="lpAddedReviews" class="space-y-2 max-h-40 overflow-y-auto">
+                                            <p class="text-xs text-slate-400 text-center py-4 font-medium">Awaiting inputs...</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="w-full btn-primary py-4 text-sm mt-4 shadow-glow-brand"><i data-lucide="cpu" class="w-5 h-5 mr-2"></i> Save / Update Campaign Page</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="xl:col-span-1">
+                            <div class="bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden sticky top-24">
+                                <div class="bg-slate-50/80 p-5 border-b border-slate-100"><h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Active Deployments</h3></div>
+                                <div class="overflow-y-auto max-h-[700px] p-3" id="generatedLandingPages"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-    <div>
-        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="image" class="w-4 h-4 mr-2"></i> Assets</h3>
-        <div class="space-y-5">
-            <div><label class="form-label">Hero Graphic *</label><input type="file" id="lpHeroImage" accept="image/*" class="form-input p-2 bg-white" required></div>
-            <div><label class="form-label">Video Embed URI</label><input type="url" id="lpVideo" class="form-input"></div>
-            <div><label class="form-label">Rich Description</label><textarea id="lpDescription" rows="4" class="form-input" required></textarea></div>
-            <div><label class="form-label">Bullet Highlights</label><textarea id="lpFeatures" rows="3" class="form-input" required></textarea></div>
-        </div>
-    </div>
-    
-    <div>
-        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><span><i data-lucide="star" class="w-4 h-4 mr-2"></i>Social Proof</span></h3>
-        <div class="bg-slate-50 border border-slate-200 p-5 rounded-xl mb-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <input type="text" id="revName" class="form-input text-xs" placeholder="Reviewer Profile">
-                <select id="revRating" class="form-input text-xs">
-                    <option value="5">⭐⭐⭐⭐⭐ 5 Star</option>
-                    <option value="4">⭐⭐⭐⭐ 4 Star</option>
-                </select>
-                <textarea id="revText" class="form-input text-xs md:col-span-2" rows="2" placeholder="Testimonial body..."></textarea>
-                <div class="md:col-span-2"><label class="form-label">Attachment</label><input type="file" id="revImage" accept="image/*" class="form-input p-2 text-xs bg-white"></div>
-            </div>
-            <button type="button" onclick="addLandingReview()" class="bg-slate-800 text-white px-4 py-3 rounded-xl text-xs font-semibold w-full hover:bg-slate-700 transition flex items-center justify-center shadow-md"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Append Review</button>
-        </div>
-        <div id="lpAddedReviews" class="space-y-2 max-h-40 overflow-y-auto">
-            <p class="text-xs text-slate-400 text-center py-4 font-medium">Awaiting inputs...</p>
-        </div>
-    </div>
-    
-    <button type="submit" class="w-full btn-primary py-4 text-sm mt-4 shadow-glow-brand"><i data-lucide="cpu" class="w-5 h-5 mr-2"></i> Save / Update Campaign Page</button>
-</form>
-
                 <!-- Categories Section -->
                 <div id="categories-section" class="hidden animate-scale-in space-y-6">
                     <div class="mb-6"><h2 class="text-2xl font-black text-slate-800 tracking-tight">Classifications & Taxonomies</h2><p class="text-slate-500 text-xs mt-1 font-medium hidden md:block">Structuring hierarchy for inventory routing.</p></div>
