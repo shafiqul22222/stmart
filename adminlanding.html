@@ -653,7 +653,7 @@
             } else if (data.heroImage) {
                 const extracted = getImageUrl(data.heroImage);
                 if (extracted) {
-                    if (extracted.includes(',')) {
+                    if (extracted.includes(',') && !extracted.startsWith('data:')) {
                         images = extracted.split(',').map(s => s.trim()).filter(s => s !== '');
                     } else {
                         images = [extracted];
