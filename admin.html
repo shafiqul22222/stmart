@@ -1437,144 +1437,145 @@
         function updateReviewListUI() { const container = document.getElementById('lpAddedReviews'); if(landingPageReviews.length === 0) { container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4 font-medium">Awaiting inputs...</p>'; return; } container.innerHTML = landingPageReviews.map((rev, index) => `<div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex justify-between items-start gap-3"><div class="flex gap-3">${rev.image ? `<img src="${rev.image}" class="w-12 h-12 object-cover rounded-lg">` : '<div class="w-12 h-12 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></div>'}<div><p class="text-xs font-bold text-slate-800">${rev.name} <span class="text-amber-400 ml-1">★${rev.rating}</span></p><p class="text-[10px] text-slate-500 truncate w-48 mt-1 font-medium">${rev.text}</p></div></div><button type="button" onclick="removeLandingReview(${index})" class="text-rose-400 text-xs p-2 hover:bg-rose-50 hover:text-rose-700 rounded-lg transition"><i data-lucide="x"></i></button></div>`).join(''); lucide.createIcons(); }
         function removeLandingReview(index) { landingPageReviews.splice(index, 1); updateReviewListUI(); }
         document.getElementById('landingPageForm').addEventListener('submit', async (e) => { 
-    e.preventDefault(); 
-    const btn = e.target.querySelector('button[type="submit"]'); 
-    const originalText = btn.innerHTML; 
-    btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 mr-2 inline-block"></i> Saving...'; 
-    lucide.createIcons(); 
-    btn.disabled = true; 
+            e.preventDefault(); 
+            const btn = e.target.querySelector('button[type="submit"]'); 
+            const originalText = btn.innerHTML; 
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 mr-2 inline-block"></i> Saving...'; 
+            lucide.createIcons(); 
+            btn.disabled = true; 
 
-    try { 
-        const lpId = document.getElementById('lpId').value;
-        const heroFiles = document.getElementById('lpHeroImage').files; 
-        let imagesArray = []; 
-        let heroBase64 = ""; 
+            try { 
+                const lpId = document.getElementById('lpId').value;
+                const heroFiles = document.getElementById('lpHeroImage').files; 
+                let imagesArray = []; 
+                let heroBase64 = ""; 
 
-        if (heroFiles.length > 0) {
-            imagesArray = await processImagesToBase64(heroFiles);
-            heroBase64 = imagesArray[0] || "";
-        } else if (lpId) {
-            const existingDoc = await db.collection('landing_pages').doc(lpId).get();
-            if (existingDoc.exists) {
-                const exData = existingDoc.data();
-                heroBase64 = exData.heroImage || "";
-                imagesArray = exData.images || (heroBase64 ? [heroBase64] : []);
+                if (heroFiles.length > 0) {
+                    imagesArray = await processImagesToBase64(heroFiles);
+                    heroBase64 = imagesArray[0] || "";
+                } else if (lpId) {
+                    const existingDoc = await db.collection('landing_pages').doc(lpId).get();
+                    if (existingDoc.exists) {
+                        const exData = existingDoc.data();
+                        heroBase64 = exData.heroImage || "";
+                        imagesArray = exData.images || (heroBase64 ? [heroBase64] : []);
+                    }
+                }
+
+                if (imagesArray.length === 0 && !heroBase64 && !lpId) {
+                    showToast("At least one Hero / Gallery Image is required!", "error");
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                const landingData = { 
+                    internalName: document.getElementById('lpInternalName').value, 
+                    productName: document.getElementById('lpProductName').value, 
+                    headline: document.getElementById('lpHeadline').value, 
+                    purchasePrice: parseFloat(document.getElementById('lpPurchasePrice').value) || 0,
+                    oldPrice: parseFloat(document.getElementById('lpOldPrice').value) || 0, 
+                    offerPrice: parseFloat(document.getElementById('lpOfferPrice').value) || 0, 
+                    stock: parseInt(document.getElementById('lpStock').value) || 0,
+                    deliveryInside: parseInt(document.getElementById('lpDelInside').value) || 60, 
+                    deliveryOutside: parseInt(document.getElementById('lpDelOutside').value) || 120, 
+                    video: document.getElementById('lpVideo').value, 
+                    description: document.getElementById('lpDescription').value, 
+                    features: document.getElementById('lpFeatures').value, 
+                    heroImage: heroBase64,
+                    images: imagesArray,
+                    reviews: landingPageReviews, 
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                }; 
+
+                if (lpId) {
+                    await db.collection('landing_pages').doc(lpId).update(landingData);
+                    showToast("Campaign Page Updated Successfully!", "success");
+                } else {
+                    landingData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('landing_pages').add(landingData); 
+                    showToast("Campaign Page Deployed Successfully!", "success"); 
+                }
+
+                e.target.reset(); 
+                document.getElementById('lpId').value = '';
+                document.getElementById('lpHeroImage').required = true;
+                landingPageReviews = []; 
+                updateReviewListUI(); 
+            } catch (error) { 
+                showToast("Save Error: " + error.message, "error"); 
+            } finally { 
+                btn.innerHTML = originalText; 
+                btn.disabled = false; 
+            } 
+        });
+
+        function loadLandingPagesList() { 
+            db.collection('landing_pages').orderBy('createdAt', 'desc').onSnapshot(snap => { 
+                const container = document.getElementById('generatedLandingPages'); 
+                if(snap.empty) { 
+                    container.innerHTML = '<p class="text-xs font-medium text-slate-400 text-center p-6">No nodes deployed.</p>'; 
+                    return; 
+                } 
+                let baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '').replace('#landing', '') + 'landing.html?id='; 
+                let html = ''; 
+                snap.forEach(doc => { 
+                    const data = doc.data(); 
+                    const link = baseUrl + doc.id; 
+                    html += `
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-3 hover:border-brand-300 transition group">
+                        <div class="flex items-start gap-4">
+                            <img src="${data.heroImage || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover border border-slate-100 shadow-sm">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-slate-800 truncate">${data.internalName}</p>
+                                <p class="text-xs text-brand-700 font-bold mt-1 tracking-wide">৳${data.offerPrice} <span class="text-[10px] text-slate-400 font-normal ml-1">(Stock: ${data.stock || 0})</span></p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                            <button onclick="editLandingPage('${doc.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center" title="Edit Page"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                            <button onclick="navigator.clipboard.writeText('${link}'); showToast('URI Copied to Clipboard', 'success')" class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold py-2 rounded-lg transition flex items-center justify-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Copy</button>
+                            <a href="${link}" target="_blank" class="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center"><i data-lucide="external-link" class="w-4 h-4"></i></a>
+                            <button onclick="deleteLandingPage('${doc.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>`; 
+                }); 
+                container.innerHTML = html; 
+                lucide.createIcons(); 
+            }); 
+        }
+
+        async function editLandingPage(id) {
+            try {
+                const doc = await db.collection('landing_pages').doc(id).get();
+                if(doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('lpId').value = id;
+                    document.getElementById('lpInternalName').value = data.internalName || '';
+                    document.getElementById('lpProductName').value = data.productName || '';
+                    document.getElementById('lpHeadline').value = data.headline || '';
+                    document.getElementById('lpPurchasePrice').value = data.purchasePrice !== undefined ? data.purchasePrice : '';
+                    document.getElementById('lpOldPrice').value = data.oldPrice || '';
+                    document.getElementById('lpOfferPrice').value = data.offerPrice || '';
+                    document.getElementById('lpStock').value = data.stock !== undefined ? data.stock : '';
+                    document.getElementById('lpDelInside').value = data.deliveryInside || 60;
+                    document.getElementById('lpDelOutside').value = data.deliveryOutside || 120;
+                    document.getElementById('lpVideo').value = data.video || '';
+                    document.getElementById('lpDescription').value = data.description || '';
+                    document.getElementById('lpFeatures').value = data.features || '';
+                    
+                    document.getElementById('lpHeroImage').required = false;
+
+                    landingPageReviews = data.reviews || [];
+                    updateReviewListUI();
+
+                    showToast("Editing Campaign Page: " + (data.internalName || ''), "info");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            } catch(e) {
+                showToast("Error loading page details", "error");
             }
         }
 
-        if (imagesArray.length === 0 && !heroBase64 && !lpId) {
-            showToast("At least one Hero / Gallery Image is required!", "error");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            return;
-        }
-
-        const landingData = { 
-            internalName: document.getElementById('lpInternalName').value, 
-            productName: document.getElementById('lpProductName').value, 
-            headline: document.getElementById('lpHeadline').value, 
-            purchasePrice: parseFloat(document.getElementById('lpPurchasePrice').value) || 0,
-            oldPrice: parseFloat(document.getElementById('lpOldPrice').value) || 0, 
-            offerPrice: parseFloat(document.getElementById('lpOfferPrice').value) || 0, 
-            stock: parseInt(document.getElementById('lpStock').value) || 0,
-            deliveryInside: parseInt(document.getElementById('lpDelInside').value) || 60, 
-            deliveryOutside: parseInt(document.getElementById('lpDelOutside').value) || 120, 
-            video: document.getElementById('lpVideo').value, 
-            description: document.getElementById('lpDescription').value, 
-            features: document.getElementById('lpFeatures').value, 
-            heroImage: heroBase64,
-            images: imagesArray,
-            reviews: landingPageReviews, 
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-        }; 
-
-        if (lpId) {
-            await db.collection('landing_pages').doc(lpId).update(landingData);
-            showToast("Campaign Page Updated Successfully!", "success");
-        } else {
-            landingData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-            await db.collection('landing_pages').add(landingData); 
-            showToast("Campaign Page Deployed Successfully!", "success"); 
-        }
-
-        e.target.reset(); 
-        document.getElementById('lpId').value = '';
-        document.getElementById('lpHeroImage').required = true;
-        landingPageReviews = []; 
-        updateReviewListUI(); 
-    } catch (error) { 
-        showToast("Save Error: " + error.message, "error"); 
-    } finally { 
-        btn.innerHTML = originalText; 
-        btn.disabled = false; 
-    } 
-});
-
-        function loadLandingPagesList() { 
-    db.collection('landing_pages').orderBy('createdAt', 'desc').onSnapshot(snap => { 
-        const container = document.getElementById('generatedLandingPages'); 
-        if(snap.empty) { 
-            container.innerHTML = '<p class="text-xs font-medium text-slate-400 text-center p-6">No nodes deployed.</p>'; 
-            return; 
-        } 
-        let baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '').replace('#landing', '') + 'landing.html?id='; 
-        let html = ''; 
-        snap.forEach(doc => { 
-            const data = doc.data(); 
-            const link = baseUrl + doc.id; 
-            html += `
-            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-3 hover:border-brand-300 transition group">
-                <div class="flex items-start gap-4">
-                    <img src="${data.heroImage || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover border border-slate-100 shadow-sm">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-slate-800 truncate">${data.internalName}</p>
-                        <p class="text-xs text-brand-700 font-bold mt-1 tracking-wide">৳${data.offerPrice} <span class="text-[10px] text-slate-400 font-normal ml-1">(Stock: ${data.stock || 0})</span></p>
-                    </div>
-                </div>
-                <div class="mt-4 flex gap-2">
-                    <button onclick="editLandingPage('${doc.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center" title="Edit Page"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                    <button onclick="navigator.clipboard.writeText('${link}'); showToast('URI Copied to Clipboard', 'success')" class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold py-2 rounded-lg transition flex items-center justify-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Copy</button>
-                    <a href="${link}" target="_blank" class="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center"><i data-lucide="external-link" class="w-4 h-4"></i></a>
-                    <button onclick="deleteLandingPage('${doc.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                </div>
-            </div>`; 
-        }); 
-        container.innerHTML = html; 
-        lucide.createIcons(); 
-    }); 
-}
-        async function editLandingPage(id) {
-    try {
-        const doc = await db.collection('landing_pages').doc(id).get();
-        if(doc.exists) {
-            const data = doc.data();
-            document.getElementById('lpId').value = id;
-            document.getElementById('lpInternalName').value = data.internalName || '';
-            document.getElementById('lpProductName').value = data.productName || '';
-            document.getElementById('lpHeadline').value = data.headline || '';
-            document.getElementById('lpPurchasePrice').value = data.purchasePrice !== undefined ? data.purchasePrice : '';
-            document.getElementById('lpOldPrice').value = data.oldPrice || '';
-            document.getElementById('lpOfferPrice').value = data.offerPrice || '';
-            document.getElementById('lpStock').value = data.stock !== undefined ? data.stock : '';
-            document.getElementById('lpDelInside').value = data.deliveryInside || 60;
-            document.getElementById('lpDelOutside').value = data.deliveryOutside || 120;
-            document.getElementById('lpVideo').value = data.video || '';
-            document.getElementById('lpDescription').value = data.description || '';
-            document.getElementById('lpFeatures').value = data.features || '';
-            
-            // এডিট করার সময় নতুন ছবি আপলোড করা বাধ্যতামূলক থাকবে না
-            document.getElementById('lpHeroImage').required = false;
-
-            landingPageReviews = data.reviews || [];
-            updateReviewListUI();
-
-            showToast("Editing Campaign Page: " + (data.internalName || ''), "info");
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    } catch(e) {
-        showToast("Error loading page details", "error");
-    }
-}
         async function deleteLandingPage(id) { if(await customConfirm("Eradicate this deployment node permanently? URIs will break.")) { await db.collection('landing_pages').doc(id).delete(); showToast("Node destroyed successfully.", "success"); } }
 
         function loadIncompleteOrders() { db.collection('abandoned_carts').orderBy('updatedAt', 'desc').onSnapshot(snap => { const list = document.getElementById('admin-incomplete-list'); if(snap.empty) { list.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-400 font-medium text-xs uppercase tracking-widest">No dropped sessions logged.</td></tr>'; return; } let html = ''; snap.forEach(doc => { const cart = doc.data(); let dateStr = 'Just Now'; if(cart.updatedAt) { const d = cart.updatedAt.toDate ? cart.updatedAt.toDate() : new Date(cart.updatedAt); dateStr = d.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' }); } let contactInfo = `<p class="font-bold text-slate-800">${cart.contactName || 'Anonymous Proxy'}</p>`; let hasPhone = cart.contactPhone && cart.contactPhone !== 'Not Provided' && cart.contactPhone.length >= 10; if(hasPhone) { contactInfo += `<p class="text-brand-700 font-bold text-xs mt-1.5">${cart.contactPhone}</p>`; } else { contactInfo += `<p class="text-slate-400 text-[10px] mt-1.5 uppercase font-bold tracking-wider">No Tel. Logged</p>`; } let itemsHtml = (cart.items || []).map(item => `<div class="flex items-center gap-3 mb-2 last:mb-0"><img src="${item.image}" class="w-10 h-10 rounded-lg border border-slate-100 object-cover shadow-sm"><div><p class="text-[11px] font-bold text-slate-700">${item.name}</p><p class="text-[10px] text-slate-400 font-medium mt-0.5">Vol: ${item.qty} | ৳${item.price}</p></div></div>`).join(''); let actionHtml = `<button onclick="deleteIncompleteCart('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2.5 rounded-xl transition" title="Purge Log"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`; if(hasPhone) { let phoneClean = cart.contactPhone.replace(/[^0-9]/g, ''); if(!phoneClean.startsWith('88')) phoneClean = '88' + phoneClean; let msg = encodeURIComponent(`Greetings ${cart.contactName || ''}, regarding your recent activity on ST SPARKLE JEWELRY. Any assistance required to finalize?`); actionHtml = `<a href="https://wa.me/${phoneClean}?text=${msg}" target="_blank" class="text-emerald-500 hover:bg-emerald-50 p-2.5 rounded-xl transition mr-2 inline-block" title="CRM Comms"><i data-lucide="message-circle" class="w-4 h-4"></i></a>` + actionHtml; } html += `<tr class="hover:bg-brand-50/30 transition border-b border-slate-100 align-top"><td class="p-4">${contactInfo}</td><td class="p-4 min-w-[250px]"><div class="bg-slate-50/50 p-3 rounded-xl border border-slate-100">${itemsHtml}</div></td><td class="p-4"><p class="font-black text-slate-700 tracking-tight text-base">৳${cart.totalValue || 0}</p></td><td class="p-4"><span class="text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md uppercase tracking-wider flex items-center gap-1 w-fit"><i data-lucide="clock" class="w-3 h-3"></i> ${dateStr}</span></td><td class="p-4 text-center whitespace-nowrap">${actionHtml}</td></tr>`; }); list.innerHTML = html; lucide.createIcons(); }); }
@@ -1815,182 +1816,179 @@
                 btn.disabled = false; 
             }
         });
+                    getElementById('admin-order-list'); 
+                    currentOrdersData = {}; 
+                    let html = '';
+                    const totalDocs = snap.docs.length;
 
-        function loadOrders() {
-            db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snap => {
-                const list = document.getElementById('admin-order-list'); 
-                currentOrdersData = {}; 
-                let html = '';
-                const totalDocs = snap.docs.length;
-
-                snap.docs.forEach((doc, index) => {
-                    const order = doc.data(); 
-                    currentOrdersData[doc.id] = order; 
-                    
-                    const status = order.status || 'Pending'; 
-                    const payStatus = order.paymentStatus || 'Unpaid'; 
-                    const amount = order.totalPrice || order.price || 0; 
-                    const dCharge = order.deliveryCharge || 0; 
-                    const qty = parseInt(order.qty) || 1;
-                    const unitPrice = order.unitPrice ? parseFloat(order.unitPrice) : (parseFloat(amount) / qty).toFixed(2);
-                    
-                    const numericId = order.orderNumber ? order.orderNumber : (1000 + (totalDocs - index));
-                    const shortId = String(numericId);
-                    const dateObj = order.createdAt ? (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)) : null; 
-                    const dateStr = dateObj ? dateObj.toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : 'N/A';
-                    
-                    let statusColor = "bg-amber-50 text-amber-700 border-amber-200 focus:ring-amber-500/20"; 
-                    if(status === 'Processing') statusColor = "bg-blue-50 text-blue-700 border-blue-200 focus:ring-blue-500/20"; 
-                    if(status === 'Shipped') statusColor = "bg-purple-50 text-purple-700 border-purple-200 focus:ring-purple-500/20"; 
-                    if(status === 'Completed') statusColor = "bg-emerald-50 text-emerald-700 border-emerald-200 focus:ring-emerald-500/20"; 
-                    if(status === 'Cancelled') statusColor = "bg-rose-50 text-rose-700 border-rose-200 focus:ring-rose-500/20"; 
-                    if(status === 'Returned') statusColor = "bg-slate-100 text-slate-700 border-slate-200 focus:ring-slate-500/20";
-                    
-                    let payColor = payStatus === 'Paid' ? "bg-emerald-50 text-emerald-700 border-emerald-200" : (payStatus === 'Partial Paid' ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-rose-50 text-rose-700 border-rose-200");
-                    
-                    let displayImg = 'https://via.placeholder.com/100?text=No+Media'; 
-                    if(order.productImage) { displayImg = order.productImage.includes('||') ? order.productImage.split('||')[0] : order.productImage; }
-                    
-                    const searchString = `${shortId} ${order.phone} ${order.name} ${dateStr} ${order.productName}`; 
-                    const safeProductName = (order.productName||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); 
-                    const safeName = (order.name||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); 
-                    const safePhone = (order.phone||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); 
-                    const safeAddress = (order.address||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'");
-                    
-                    let courierStatusHtml = order.courierBooked ? `<div class="mt-3"><span class="bg-teal-50 text-teal-700 border border-teal-200 px-2 py-1 rounded text-[10px] font-bold uppercase flex items-center gap-1 w-fit shadow-sm"><i data-lucide="truck" class="w-3 h-3"></i> Courier API Booked</span></div>` : '';
-                    
-                    let trackingHtml = order.trackingCode ? `
-                        <div class="mt-3 bg-slate-50 rounded-xl p-2.5 flex items-center justify-between border border-slate-200 shadow-sm group hover:border-brand-300 transition">
-                            <div class="flex items-center gap-2 overflow-hidden">
-                                <div class="bg-white p-1 rounded-md shadow-sm"><i data-lucide="qr-code" class="w-4 h-4 text-slate-500"></i></div>
-                                <div class="flex flex-col">
-                                    <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold leading-none mb-0.5">Tracking ID</span>
-                                    <span class="text-xs font-bold text-slate-700 tracking-wider font-mono truncate">${order.trackingCode}</span>
-                                </div>
-                            </div>
-                            <button onclick="navigator.clipboard.writeText('${order.trackingCode}'); showToast('Tracking ID Copied', 'success')" class="text-brand-700 hover:bg-brand-100 p-2 rounded-lg transition shrink-0" title="Copy ID">
-                                <i data-lucide="copy" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    ` : '';
-
-                    let initial = (order.name && order.name.trim().length > 0) ? order.name.trim().charAt(0).toUpperCase() : 'U';
-                    let avatarColor = ['bg-blue-100 text-blue-700', 'bg-emerald-100 text-emerald-700', 'bg-purple-100 text-purple-700', 'bg-amber-100 text-amber-700', 'bg-pink-100 text-pink-700'][Math.floor(Math.random() * 5)];
-
-                    html += `
-                        <div class="order-row bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl p-4 lg:p-0 overflow-hidden" data-search="${searchString}">
-                            
-                            <!-- Desktop Grid View -->
-                            <div class="hidden lg:grid grid-cols-12 gap-6 p-5 items-center">
-                                <div class="col-span-3 flex flex-col gap-3">
-                                    <div class="flex items-center justify-between">
-                                        <p class="font-bold text-slate-800 text-sm flex items-center gap-2 tracking-tight"><i data-lucide="hash" class="w-3.5 h-3.5 text-slate-400"></i>${shortId}</p>
-                                        <p class="text-[10px] font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md">${dateStr}</p>
+                    snap.docs.forEach((doc, index) => {
+                        const order = doc.data(); 
+                        currentOrdersData[doc.id] = order; 
+                        
+                        const status = order.status || 'Pending'; 
+                        const payStatus = order.paymentStatus || 'Unpaid'; 
+                        const amount = order.totalPrice || order.price || 0; 
+                        const dCharge = order.deliveryCharge || 0; 
+                        const qty = parseInt(order.qty) || 1;
+                        const unitPrice = order.unitPrice ? parseFloat(order.unitPrice) : (parseFloat(amount) / qty).toFixed(2);
+                        
+                        const numericId = order.orderNumber ? order.orderNumber : (1000 + (totalDocs - index));
+                        const shortId = String(numericId);
+                        const dateObj = order.createdAt ? (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)) : null; 
+                        const dateStr = dateObj ? dateObj.toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : 'N/A';
+                        
+                        let statusColor = "bg-amber-50 text-amber-700 border-amber-200 focus:ring-amber-500/20"; 
+                        if(status === 'Processing') statusColor = "bg-blue-50 text-blue-700 border-blue-200 focus:ring-blue-500/20"; 
+                        if(status === 'Shipped') statusColor = "bg-purple-50 text-purple-700 border-purple-200 focus:ring-purple-500/20"; 
+                        if(status === 'Completed') statusColor = "bg-emerald-50 text-emerald-700 border-emerald-200 focus:ring-emerald-500/20"; 
+                        if(status === 'Cancelled') statusColor = "bg-rose-50 text-rose-700 border-rose-200 focus:ring-rose-500/20"; 
+                        if(status === 'Returned') statusColor = "bg-slate-100 text-slate-700 border-slate-200 focus:ring-slate-500/20";
+                        
+                        let payColor = payStatus === 'Paid' ? "bg-emerald-50 text-emerald-700 border-emerald-200" : (payStatus === 'Partial Paid' ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-rose-50 text-rose-700 border-rose-200");
+                        
+                        let displayImg = 'https://via.placeholder.com/100?text=No+Media'; 
+                        if(order.productImage) { displayImg = order.productImage.includes('||') ? order.productImage.split('||')[0] : order.productImage; }
+                        
+                        const searchString = `${shortId} ${order.phone} ${order.name} ${dateStr} ${order.productName}`; 
+                        const safeProductName = (order.productName||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); 
+                        const safeName = (order.name||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); 
+                        const safePhone = (order.phone||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); 
+                        const safeAddress = (order.address||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'");
+                        
+                        let courierStatusHtml = order.courierBooked ? `<div class="mt-3"><span class="bg-teal-50 text-teal-700 border border-teal-200 px-2 py-1 rounded text-[10px] font-bold uppercase flex items-center gap-1 w-fit shadow-sm"><i data-lucide="truck" class="w-3 h-3"></i> Courier API Booked</span></div>` : '';
+                        
+                        let trackingHtml = order.trackingCode ? `
+                            <div class="mt-3 bg-slate-50 rounded-xl p-2.5 flex items-center justify-between border border-slate-200 shadow-sm group hover:border-brand-300 transition">
+                                <div class="flex items-center gap-2 overflow-hidden">
+                                    <div class="bg-white p-1 rounded-md shadow-sm"><i data-lucide="qr-code" class="w-4 h-4 text-slate-500"></i></div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold leading-none mb-0.5">Tracking ID</span>
+                                        <span class="text-xs font-bold text-slate-700 tracking-wider font-mono truncate">${order.trackingCode}</span>
                                     </div>
-                                    <div class="flex items-start gap-3">
-                                        <img src="${displayImg}" class="w-14 h-14 object-cover rounded-xl shadow-sm shrink-0 border border-slate-100">
-                                        <div>
-                                            <p class="text-xs font-bold text-slate-700 leading-tight mb-1 line-clamp-2">${order.productName || ''}</p>
-                                            <div class="flex items-center gap-2 text-[10px] font-bold">
-                                                <span class="text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded">Qty: ${qty}</span>
-                                                <span class="text-slate-500">৳${unitPrice}/ea</span>
+                                </div>
+                                <button onclick="navigator.clipboard.writeText('${order.trackingCode}'); showToast('Tracking ID Copied', 'success')" class="text-brand-700 hover:bg-brand-100 p-2 rounded-lg transition shrink-0" title="Copy ID">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        ` : '';
+
+                        let initial = (order.name && order.name.trim().length > 0) ? order.name.trim().charAt(0).toUpperCase() : 'U';
+                        let avatarColor = ['bg-blue-100 text-blue-700', 'bg-emerald-100 text-emerald-700', 'bg-purple-100 text-purple-700', 'bg-amber-100 text-amber-700', 'bg-pink-100 text-pink-700'][Math.floor(Math.random() * 5)];
+
+                        html += `
+                            <div class="order-row bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl p-4 lg:p-0 overflow-hidden" data-search="${searchString}">
+                                
+                                <!-- Desktop Grid View -->
+                                <div class="hidden lg:grid grid-cols-12 gap-6 p-5 items-center">
+                                    <div class="col-span-3 flex flex-col gap-3">
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-bold text-slate-800 text-sm flex items-center gap-2 tracking-tight"><i data-lucide="hash" class="w-3.5 h-3.5 text-slate-400"></i>${shortId}</p>
+                                            <p class="text-[10px] font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md">${dateStr}</p>
+                                        </div>
+                                        <div class="flex items-start gap-3">
+                                            <img src="${displayImg}" class="w-14 h-14 object-cover rounded-xl shadow-sm shrink-0 border border-slate-100">
+                                            <div>
+                                                <p class="text-xs font-bold text-slate-700 leading-tight mb-1 line-clamp-2">${order.productName || ''}</p>
+                                                <div class="flex items-center gap-2 text-[10px] font-bold">
+                                                    <span class="text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded">Qty: ${qty}</span>
+                                                    <span class="text-slate-500">৳${unitPrice}/ea</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="col-span-3 flex items-start gap-3 border-l border-slate-100 pl-6">
-                                    <div class="w-10 h-10 rounded-full ${avatarColor} flex items-center justify-center font-bold text-lg shrink-0 mt-1 shadow-sm border border-white/50">${initial}</div>
-                                    <div class="min-w-0">
-                                        <p class="font-bold text-slate-800 text-sm truncate">${order.name || 'Unknown Entity'}</p>
-                                        <div class="flex items-center gap-2 mt-1 mb-2">
-                                            <p class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-mono">${order.phone || 'N/A'}</p>
-                                            ${order.phone ? `
-                                            <button onclick="fetchCourierStats('${order.phone}', 'stats-${doc.id}', this)" class="text-slate-400 hover:text-blue-600 transition" title="Network Score"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i></button>
-                                            ` : ''}
+                                    <div class="col-span-3 flex items-start gap-3 border-l border-slate-100 pl-6">
+                                        <div class="w-10 h-10 rounded-full ${avatarColor} flex items-center justify-center font-bold text-lg shrink-0 mt-1 shadow-sm border border-white/50">${initial}</div>
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-slate-800 text-sm truncate">${order.name || 'Unknown Entity'}</p>
+                                            <div class="flex items-center gap-2 mt-1 mb-2">
+                                                <p class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-mono">${order.phone || 'N/A'}</p>
+                                                ${order.phone ? `
+                                                <button onclick="fetchCourierStats('${order.phone}', 'stats-${doc.id}', this)" class="text-slate-400 hover:text-blue-600 transition" title="Network Score"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i></button>
+                                                ` : ''}
+                                            </div>
+                                            <div id="stats-${doc.id}" class="hidden mb-2 w-full"></div>
+                                            <p class="text-[10px] font-medium text-slate-500 line-clamp-2 leading-relaxed bg-slate-50 p-1.5 rounded-md">${order.address || 'No Address'}</p>
                                         </div>
-                                        <div id="stats-${doc.id}" class="hidden mb-2 w-full"></div>
-                                        <p class="text-[10px] font-medium text-slate-500 line-clamp-2 leading-relaxed bg-slate-50 p-1.5 rounded-md">${order.address || 'No Address'}</p>
+                                    </div>
+
+                                    <div class="col-span-2 flex flex-col gap-2 border-l border-slate-100 pl-6">
+                                        <div class="flex items-end justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 mb-1">
+                                            <div>
+                                                <span class="block text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Total Payable</span>
+                                                <span class="font-black text-slate-800 text-base tracking-tight leading-none">৳${amount}</span>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="block text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Delivery</span>
+                                                <span class="font-bold text-slate-600 text-xs">৳${dCharge}</span>
+                                            </div>
+                                        </div>
+                                        <select onchange="updatePaymentStatus('${doc.id}', this.value)" class="w-full border border-slate-200 py-1.5 px-2 rounded-lg outline-none cursor-pointer text-[10px] font-bold uppercase tracking-wider shadow-sm ${payColor} focus:ring-2 transition"><option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid / COD</option><option value="Partial Paid" ${payStatus === 'Partial Paid' ? 'selected' : ''}>Partial Clearing</option><option value="Paid" ${payStatus === 'Paid' ? 'selected' : ''}>Cleared</option></select>
+                                        <select onchange="handleOrderStatusChange('${doc.id}', this.value, '${status}', '${safeProductName}', ${order.qty || 1})" class="w-full border py-1.5 px-2 rounded-lg outline-none cursor-pointer text-[10px] font-bold uppercase tracking-wider shadow-sm ${statusColor} transition focus:ring-2"><option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option><option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option><option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Dispatched</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Fulfilled</option><option value="Returned" ${status === 'Returned' ? 'selected' : ''}>RMA (Stock +)</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Voided</option></select>
+                                    </div>
+
+                                    <div class="col-span-2 flex flex-col justify-center border-l border-slate-100 pl-6 h-full">
+                                        <div class="relative group h-16 mb-2">
+                                            <textarea id="note-${doc.id}" class="w-full h-full text-[10px] p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-brand-400 focus:bg-white resize-none font-medium text-slate-600 transition" placeholder="Add internal note...">${order.adminNote || ''}</textarea>
+                                            <button onclick="saveAdminNote('${doc.id}')" class="absolute right-1 bottom-1 bg-white border border-slate-200 p-1 rounded text-slate-500 hover:text-brand-600 shadow-sm opacity-0 group-hover:opacity-100 transition"><i data-lucide="check" class="w-3 h-3"></i></button>
+                                        </div>
+                                        ${trackingHtml}
+                                        ${!trackingHtml ? courierStatusHtml : ''}
+                                    </div>
+
+                                    <div class="col-span-2 flex flex-wrap items-center justify-end gap-2 border-l border-slate-100 pl-6 h-full">
+                                        <button onclick="bookParcel(this, '${doc.id}', '${safeName}', '${safePhone}', '${safeAddress}', ${amount})" class="w-9 h-9 bg-slate-50 hover:bg-teal-50 border border-slate-200 text-slate-500 hover:text-teal-600 hover:border-teal-200 rounded-xl flex items-center justify-center shadow-sm transition" title="API Dispatch to Courier"><i data-lucide="send" class="w-4 h-4"></i></button>
+                                        <button onclick="openEditOrderModal('${doc.id}')" class="w-9 h-9 bg-slate-50 hover:bg-amber-50 border border-slate-200 text-slate-500 hover:text-amber-600 hover:border-amber-200 rounded-xl flex items-center justify-center shadow-sm transition" title="Override Record"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                        <button onclick="printInvoice('${shortId}', '${safeName}', '${safePhone}', '${safeAddress}', '${safeProductName}', ${amount - dCharge}, ${dCharge}, ${amount}, '${dateStr}')" class="w-9 h-9 bg-slate-50 hover:bg-blue-50 border border-slate-200 text-slate-500 hover:text-blue-600 hover:border-blue-200 rounded-xl flex items-center justify-center shadow-sm transition" title="Print Invoice"><i data-lucide="printer" class="w-4 h-4"></i></button>
+                                        <button onclick="deleteOrder('${doc.id}')" class="w-9 h-9 bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-500 hover:text-rose-600 hover:border-rose-200 rounded-xl flex items-center justify-center shadow-sm transition" title="Void Entry"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                     </div>
                                 </div>
 
-                                <div class="col-span-2 flex flex-col gap-2 border-l border-slate-100 pl-6">
-                                    <div class="flex items-end justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 mb-1">
-                                        <div>
-                                            <span class="block text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Total Payable</span>
-                                            <span class="font-black text-slate-800 text-base tracking-tight leading-none">৳${amount}</span>
+                                <!-- Mobile App View -->
+                                <div class="lg:hidden flex flex-col w-full">
+                                    <div class="flex justify-between items-start bg-slate-50/50 p-4 border-b border-slate-100">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-xl border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm"><img src="${displayImg}" class="w-full h-full object-cover"></div>
+                                            <div>
+                                                <p class="font-bold text-slate-800 text-sm leading-tight mb-1 tracking-tight">#${shortId}</p>
+                                                <p class="text-[10px] text-slate-400 font-medium">${dateStr}</p>
+                                            </div>
                                         </div>
                                         <div class="text-right">
-                                            <span class="block text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Delivery</span>
-                                            <span class="font-bold text-slate-600 text-xs">৳${dCharge}</span>
+                                            <p class="font-black text-brand-700 text-base tracking-tight">৳${amount}</p>
                                         </div>
                                     </div>
-                                    <select onchange="updatePaymentStatus('${doc.id}', this.value)" class="w-full border border-slate-200 py-1.5 px-2 rounded-lg outline-none cursor-pointer text-[10px] font-bold uppercase tracking-wider shadow-sm ${payColor} focus:ring-2 transition"><option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid / COD</option><option value="Partial Paid" ${payStatus === 'Partial Paid' ? 'selected' : ''}>Partial Clearing</option><option value="Paid" ${payStatus === 'Paid' ? 'selected' : ''}>Cleared</option></select>
-                                    <select onchange="handleOrderStatusChange('${doc.id}', this.value, '${status}', '${safeProductName}', ${order.qty || 1})" class="w-full border py-1.5 px-2 rounded-lg outline-none cursor-pointer text-[10px] font-bold uppercase tracking-wider shadow-sm ${statusColor} transition focus:ring-2"><option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option><option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option><option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Dispatched</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Fulfilled</option><option value="Returned" ${status === 'Returned' ? 'selected' : ''}>RMA (Stock +)</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Voided</option></select>
-                                </div>
 
-                                <div class="col-span-2 flex flex-col justify-center border-l border-slate-100 pl-6 h-full">
-                                    <div class="relative group h-16 mb-2">
-                                        <textarea id="note-${doc.id}" class="w-full h-full text-[10px] p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-brand-400 focus:bg-white resize-none font-medium text-slate-600 transition" placeholder="Add internal note...">${order.adminNote || ''}</textarea>
-                                        <button onclick="saveAdminNote('${doc.id}')" class="absolute right-1 bottom-1 bg-white border border-slate-200 p-1 rounded text-slate-500 hover:text-brand-600 shadow-sm opacity-0 group-hover:opacity-100 transition"><i data-lucide="check" class="w-3 h-3"></i></button>
-                                    </div>
-                                    ${trackingHtml}
-                                    ${!trackingHtml ? courierStatusHtml : ''}
-                                </div>
-
-                                <div class="col-span-2 flex flex-wrap items-center justify-end gap-2 border-l border-slate-100 pl-6 h-full">
-                                    <button onclick="bookParcel(this, '${doc.id}', '${safeName}', '${safePhone}', '${safeAddress}', ${amount})" class="w-9 h-9 bg-slate-50 hover:bg-teal-50 border border-slate-200 text-slate-500 hover:text-teal-600 hover:border-teal-200 rounded-xl flex items-center justify-center shadow-sm transition" title="API Dispatch to Courier"><i data-lucide="send" class="w-4 h-4"></i></button>
-                                    <button onclick="openEditOrderModal('${doc.id}')" class="w-9 h-9 bg-slate-50 hover:bg-amber-50 border border-slate-200 text-slate-500 hover:text-amber-600 hover:border-amber-200 rounded-xl flex items-center justify-center shadow-sm transition" title="Override Record"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                    <button onclick="printInvoice('${shortId}', '${safeName}', '${safePhone}', '${safeAddress}', '${safeProductName}', ${amount - dCharge}, ${dCharge}, ${amount}, '${dateStr}')" class="w-9 h-9 bg-slate-50 hover:bg-blue-50 border border-slate-200 text-slate-500 hover:text-blue-600 hover:border-blue-200 rounded-xl flex items-center justify-center shadow-sm transition" title="Print Invoice"><i data-lucide="printer" class="w-4 h-4"></i></button>
-                                    <button onclick="deleteOrder('${doc.id}')" class="w-9 h-9 bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-500 hover:text-rose-600 hover:border-rose-200 rounded-xl flex items-center justify-center shadow-sm transition" title="Void Entry"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                </div>
-                            </div>
-
-                            <!-- Mobile App View -->
-                            <div class="lg:hidden flex flex-col w-full">
-                                <div class="flex justify-between items-start bg-slate-50/50 p-4 border-b border-slate-100">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 rounded-xl border border-slate-200 bg-white overflow-hidden shrink-0 shadow-sm"><img src="${displayImg}" class="w-full h-full object-cover"></div>
+                                    <div class="p-4 flex flex-col gap-4">
                                         <div>
-                                            <p class="font-bold text-slate-800 text-sm leading-tight mb-1 tracking-tight">#${shortId}</p>
-                                            <p class="text-[10px] text-slate-400 font-medium">${dateStr}</p>
+                                            <p class="text-xs font-bold text-slate-800 mb-1 flex items-center gap-2"><i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i> ${order.name || 'Unknown'}</p>
+                                            <p class="text-[11px] font-bold text-blue-600 mb-1 flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-slate-400"></i> ${order.phone || 'N/A'}</p>
+                                            <p class="text-[10px] text-slate-500 bg-slate-50 p-2 rounded border border-slate-100">${order.address || 'N/A'}</p>
                                         </div>
+
+                                        <div class="flex gap-2">
+                                            <select onchange="updatePaymentStatus('${doc.id}', this.value)" class="flex-1 border py-2.5 px-2 rounded-xl outline-none text-[10px] font-bold uppercase text-center shadow-sm ${payColor}"><option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid</option><option value="Paid" ${payStatus === 'Paid' ? 'selected' : ''}>Paid</option></select>
+                                            <select onchange="handleOrderStatusChange('${doc.id}', this.value, '${status}', '${safeProductName}', ${order.qty || 1})" class="flex-[1.5] border py-2.5 px-2 rounded-xl outline-none text-[10px] font-bold uppercase text-center shadow-sm ${statusColor}"><option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option><option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option><option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Shipped</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option><option value="Returned" ${status === 'Returned' ? 'selected' : ''}>Returned</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option></select>
+                                        </div>
+                                        
+                                        ${trackingHtml}
+                                        ${!trackingHtml ? courierStatusHtml : ''}
                                     </div>
-                                    <div class="text-right">
-                                        <p class="font-black text-brand-700 text-base tracking-tight">৳${amount}</p>
+
+                                    <div class="bg-slate-50 p-3 border-t border-slate-100 flex justify-between gap-2 action-btn-group">
+                                        <button onclick="bookParcel(this, '${doc.id}', '${safeName}', '${safePhone}', '${safeAddress}', ${amount})" class="flex-1 bg-white border border-slate-200 text-teal-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-sm"><i data-lucide="send" class="w-4 h-4"></i><span class="text-[9px] font-bold uppercase">Send</span></button>
+                                        <button onclick="printInvoice('${shortId}', '${safeName}', '${safePhone}', '${safeAddress}', '${safeProductName}', ${amount - dCharge}, ${dCharge}, ${amount}, '${dateStr}')" class="flex-1 bg-white border border-slate-200 text-blue-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-sm"><i data-lucide="printer" class="w-4 h-4"></i><span class="text-[9px] font-bold uppercase">Print</span></button>
+                                        <button onclick="openEditOrderModal('${doc.id}')" class="flex-1 bg-white border border-slate-200 text-amber-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-sm"><i data-lucide="edit-2" class="w-4 h-4"></i><span class="text-[9px] font-bold uppercase">Edit</span></button>
+                                        <button onclick="deleteOrder('${doc.id}')" class="flex-1 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-sm"><i data-lucide="trash-2" class="w-4 h-4"></i><span class="text-[9px] font-bold uppercase">Delete</span></button>
                                     </div>
                                 </div>
 
-                                <div class="p-4 flex flex-col gap-4">
-                                    <div>
-                                        <p class="text-xs font-bold text-slate-800 mb-1 flex items-center gap-2"><i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i> ${order.name || 'Unknown'}</p>
-                                        <p class="text-[11px] font-bold text-blue-600 mb-1 flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-slate-400"></i> ${order.phone || 'N/A'}</p>
-                                        <p class="text-[10px] text-slate-500 bg-slate-50 p-2 rounded border border-slate-100">${order.address || 'N/A'}</p>
-                                    </div>
-
-                                    <div class="flex gap-2">
-                                        <select onchange="updatePaymentStatus('${doc.id}', this.value)" class="flex-1 border py-2.5 px-2 rounded-xl outline-none text-[10px] font-bold uppercase text-center shadow-sm ${payColor}"><option value="Unpaid" ${payStatus === 'Unpaid' ? 'selected' : ''}>Unpaid</option><option value="Paid" ${payStatus === 'Paid' ? 'selected' : ''}>Paid</option></select>
-                                        <select onchange="handleOrderStatusChange('${doc.id}', this.value, '${status}', '${safeProductName}', ${order.qty || 1})" class="flex-[1.5] border py-2.5 px-2 rounded-xl outline-none text-[10px] font-bold uppercase text-center shadow-sm ${statusColor}"><option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option><option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option><option value="Shipped" ${status === 'Shipped' ? 'selected' : ''}>Shipped</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option><option value="Returned" ${status === 'Returned' ? 'selected' : ''}>Returned</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option></select>
-                                    </div>
-                                    
-                                    ${trackingHtml}
-                                    ${!trackingHtml ? courierStatusHtml : ''}
-                                </div>
-
-                                <div class="bg-slate-50 p-3 border-t border-slate-100 flex justify-between gap-2 action-btn-group">
-                                    <button onclick="bookParcel(this, '${doc.id}', '${safeName}', '${safePhone}', '${safeAddress}', ${amount})" class="flex-1 bg-white border border-slate-200 text-teal-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-sm"><i data-lucide="send" class="w-4 h-4"></i><span class="text-[9px] font-bold uppercase">Send</span></button>
-                                    <button onclick="printInvoice('${shortId}', '${safeName}', '${safePhone}', '${safeAddress}', '${safeProductName}', ${amount - dCharge}, ${dCharge}, ${amount}, '${dateStr}')" class="flex-1 bg-white border border-slate-200 text-blue-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-sm"><i data-lucide="printer" class="w-4 h-4"></i><span class="text-[9px] font-bold uppercase">Print</span></button>
-                                    <button onclick="openEditOrderModal('${doc.id}')" class="flex-1 bg-white border border-slate-200 text-amber-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-sm"><i data-lucide="edit-2" class="w-4 h-4"></i><span class="text-[9px] font-bold uppercase">Edit</span></button>
-                                    <button onclick="deleteOrder('${doc.id}')" class="flex-1 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-sm"><i data-lucide="trash-2" class="w-4 h-4"></i><span class="text-[9px] font-bold uppercase">Delete</span></button>
-                                </div>
-                            </div>
-
-                        </div>`;
+                            </div>`;
+                    });
+                    list.innerHTML = html;
+                    lucide.createIcons();
                 });
-                list.innerHTML = html;
-                lucide.createIcons();
-            });
-        }
+            }
 
         async function fetchCourierStats(phone, elementId, btnElement) { 
             if (!globalCourierApiKey || !globalCourierSecretKey) { 
@@ -2102,7 +2100,7 @@
             document.getElementById('cr-all-failed').innerText = `0`; 
             document.getElementById('cr-all-circle').style.borderColor = '#e2e8f0'; 
             updateCRRow('redx', 0, 0, 0); 
-        }
+        } 
         
         async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { 
             if(newStatus === oldStatus) return; 
@@ -2298,7 +2296,7 @@
                     showToast("Node Purged.", "success"); 
                 } catch (err) {} 
             } 
-        }
+        } 
         
         function loadCustomers() { 
             db.collection('users').orderBy('createdAt', 'desc').onSnapshot(snap => { 
