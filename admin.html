@@ -1510,18 +1510,6 @@
     } 
 });
 
-        e.target.reset(); 
-        document.getElementById('lpId').value = '';
-        document.getElementById('lpHeroImage').required = true;
-        landingPageReviews = []; 
-        updateReviewListUI(); 
-    } catch (error) { 
-        showToast("Save Error: " + error.message, "error"); 
-    } finally { 
-        btn.innerHTML = originalText; 
-        btn.disabled = false; 
-    } 
-});
         function loadLandingPagesList() { 
     db.collection('landing_pages').orderBy('createdAt', 'desc').onSnapshot(snap => { 
         const container = document.getElementById('generatedLandingPages'); 
