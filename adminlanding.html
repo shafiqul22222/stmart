@@ -355,7 +355,7 @@
 
             </div>
 
-            <!-- Right Side: Sticky Checkout Form Premium (Upgraded Professional Inputs) -->
+            <!-- Right Side: Sticky Checkout Form Premium -->
             <div class="w-full lg:w-5/12 xl:w-1/3 p-5 md:p-8 relative">
                 
                 <div id="checkoutSection" class="bg-white border border-green-100 rounded-[2rem] shadow-[0_20px_50px_-10px_rgba(22,163,74,0.15)] relative overflow-hidden lg:sticky lg:top-8 mt-2 lg:mt-0">
@@ -377,7 +377,7 @@
                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white p-2 rounded-lg border border-green-50"><i class="fas fa-hand-holding-usd text-green-500"></i> Cash On Delivery</div>
                     </div>
                     
-                    <!-- Highly Ergonomic & Professional Order Form -->
+                    <!-- Order Form -->
                     <form id="orderForm" class="p-6 space-y-5 bg-white">
                         
                         <div class="space-y-4">
@@ -539,7 +539,7 @@
         </div>
     </div>
 
-    <!-- Product Image Zoom Modal Lightbox (Isolates Zooming to Image Only) -->
+    <!-- Product Image Zoom Modal Lightbox -->
     <div id="imageZoomModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[300] hidden flex flex-col justify-between p-4">
         <div class="flex justify-between items-center text-white p-2">
             <span class="text-sm font-bold opacity-80"><i class="fas fa-info-circle text-green-400"></i> ইমেজ জুম ভিউয়ার</span>
@@ -556,7 +556,7 @@
     </div>
 
     <script>
-        // Animations on Scroll (Intersection Observer)
+        // Animations on Scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -571,11 +571,10 @@
             return num.toString().split('').map(digit => banglaDigits[digit] || digit).join('');
         }
 
-        // Variables to keep track of counters
+        // Live Counter Logic
         let liveCount = 23;
         let orderCount = 58;
 
-        // Random Counters logic
         setInterval(() => {
             let offset = Math.floor(Math.random() * 5) - 2;
             liveCount = liveCount + offset;
@@ -630,37 +629,74 @@
             loadLandingPage();
         }
 
-        // Dynamic Product Gallery Handling
+        // Safe Image URL Extraction Helper (Fixes [object Object] and broken images)
+        function getImageUrl(item) {
+            if (!item) return '';
+            if (typeof item === 'string') return item.trim();
+            if (typeof item === 'object') {
+                return item.url || item.src || item.link || item.image || item.secure_url || '';
+            }
+            return '';
+        }
+
+        // Dynamic Gallery Processor
         let productImagesList = [];
         let currentImgIndex = 0;
 
-        function setupGallery(lpData) {
-            if (Array.isArray(lpData.images) && lpData.images.length > 0) {
-                productImagesList = lpData.images;
-            } else if (lpData.heroImage) {
-                if (typeof lpData.heroImage === 'string' && lpData.heroImage.includes(',')) {
-                    productImagesList = lpData.heroImage.split(',').map(s => s.trim());
-                } else {
-                    productImagesList = [lpData.heroImage];
+        function setupGallery(data) {
+            let images = [];
+
+            if (Array.isArray(data.images) && data.images.length > 0) {
+                images = data.images.map(getImageUrl).filter(url => url !== '');
+            } else if (Array.isArray(data.galleryImages) && data.galleryImages.length > 0) {
+                images = data.galleryImages.map(getImageUrl).filter(url => url !== '');
+            } else if (data.heroImage) {
+                const extracted = getImageUrl(data.heroImage);
+                if (extracted) {
+                    if (extracted.includes(',')) {
+                        images = extracted.split(',').map(s => s.trim()).filter(s => s !== '');
+                    } else {
+                        images = [extracted];
+                    }
                 }
+            }
+
+            // Fallback if no images found
+            if (images.length === 0) {
+                const fallback = getImageUrl(data.heroImage);
+                if (fallback) images = [fallback];
+            }
+
+            // If only 1 image found, duplicate for thumbnails display
+            if (images.length === 1) {
+                productImagesList = [images[0], images[0], images[0]];
+            } else {
+                productImagesList = images;
             }
 
             if(productImagesList.length > 0) {
                 setActiveImage(0);
             }
 
-            if(productImagesList.length > 1) {
+            // Show arrows if multiple distinct images exist
+            const uniqueImages = new Set(productImagesList);
+            if(uniqueImages.size > 1) {
                 document.getElementById('prevImgBtn').classList.remove('hidden');
                 document.getElementById('nextImgBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('prevImgBtn').classList.add('hidden');
+                document.getElementById('nextImgBtn').classList.add('hidden');
             }
 
+            // Render Thumbnails
             const thumbContainer = document.getElementById('thumbContainer');
             thumbContainer.innerHTML = productImagesList.map((imgUrl, index) => `
-                <img src="${imgUrl}" onclick="setActiveImage(${index})" class="thumb-item w-20 h-20 rounded-xl border-2 object-cover cursor-pointer shadow-sm transition-all duration-200 flex-shrink-0 ${index === 0 ? 'border-green-500 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}">
+                <img src="${imgUrl}" onclick="setActiveImage(${index})" onerror="this.style.display='none'" class="thumb-item w-20 h-20 rounded-xl border-2 object-cover cursor-pointer shadow-sm transition-all duration-200 flex-shrink-0 ${index === 0 ? 'border-green-500 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}">
             `).join('');
         }
 
         function setActiveImage(index) {
+            if (!productImagesList[index]) return;
             currentImgIndex = index;
             const imgUrl = productImagesList[currentImgIndex];
             document.getElementById('viewImage').src = imgUrl;
@@ -684,6 +720,7 @@
         // Image Zoom Modal Lightbox Logic
         let currentZoomScale = 1;
         function openImageZoom(src) {
+            if (!src) return;
             document.getElementById('zoomModalImg').src = src;
             currentZoomScale = 1;
             document.getElementById('zoomModalImg').style.transform = `scale(${currentZoomScale})`;
@@ -719,10 +756,10 @@
                     document.getElementById('stickyPrice').innerText = lpData.offerPrice;
                     document.getElementById('viewDesc').innerText = lpData.description;
                     
-                    // Dynamic Gallery Setup
+                    // Setup Gallery safely
                     setupGallery(lpData);
                     
-                    // Features list formatting to Glass Cards
+                    // Features
                     const featuresHtml = lpData.features.split('\n').filter(f=>f.trim()!=='').map(f => `
                         <div class="bg-white/60 backdrop-blur-lg p-5 rounded-2xl border border-white shadow-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex items-start gap-4 group">
                             <div class="bg-gradient-to-br from-green-500 to-emerald-400 text-white w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
@@ -733,7 +770,7 @@
                     `).join('');
                     document.getElementById('viewFeatures').innerHTML = featuresHtml;
 
-                    // Video embed formatting
+                    // Video
                     if(lpData.video) {
                         let embedUrl = lpData.video;
                         if(lpData.video.includes('watch?v=')) {
@@ -745,12 +782,12 @@
                         document.getElementById('videoContainer').classList.remove('hidden');
                     }
 
-                    // Reviews mapping
+                    // Reviews
                     if(lpData.reviews && lpData.reviews.length > 0) {
                         document.getElementById('reviewsContainer').classList.remove('hidden');
                         document.getElementById('reviewsList').innerHTML = lpData.reviews.map(r => `
                             <div class="bg-white p-6 md:p-8 rounded-3xl border border-green-50 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_50px_-10px_rgba(22,163,74,0.15)] transition duration-300 flex flex-col sm:flex-row gap-6 relative">
-                                ${r.image ? `<img src="${r.image}" class="w-full sm:w-36 h-56 sm:h-36 rounded-2xl object-cover shadow-md z-10 border-4 border-white">` : ''}
+                                ${r.image ? `<img src="${getImageUrl(r.image)}" class="w-full sm:w-36 h-56 sm:h-36 rounded-2xl object-cover shadow-md z-10 border-4 border-white">` : ''}
                                 <div class="flex-1">
                                     <div class="flex flex-wrap items-center justify-between gap-3 mb-3 border-b border-slate-100 pb-3">
                                         <div class="flex items-center gap-3">
@@ -817,6 +854,8 @@
             const isInside = document.querySelector('input[name="area"]:checked').value === 'Inside Dhaka';
             const dCharge = isInside ? lpData.deliveryInside : lpData.deliveryOutside;
             
+            const mainImg = getImageUrl(lpData.heroImage) || productImagesList[0] || '';
+
             const orderData = {
                 name: document.getElementById('cName').value,
                 phone: document.getElementById('cPhone').value,
@@ -824,7 +863,7 @@
                 deliveryArea: isInside ? 'Inside Dhaka' : 'Outside Dhaka',
                 deliveryCharge: dCharge,
                 productName: lpData.productName,
-                productImage: lpData.heroImage,
+                productImage: mainImg,
                 price: lpData.offerPrice,
                 totalPrice: lpData.offerPrice + dCharge,
                 qty: 1,
