@@ -1510,35 +1510,6 @@
     } 
 });
 
-        const landingData = { 
-            internalName: document.getElementById('lpInternalName').value, 
-            productName: document.getElementById('lpProductName').value, 
-            headline: document.getElementById('lpHeadline').value, 
-            purchasePrice: parseFloat(document.getElementById('lpPurchasePrice').value) || 0,
-            oldPrice: parseFloat(document.getElementById('lpOldPrice').value) || 0, 
-            offerPrice: parseFloat(document.getElementById('lpOfferPrice').value) || 0, 
-            stock: parseInt(document.getElementById('lpStock').value) || 0,
-            deliveryInside: parseInt(document.getElementById('lpDelInside').value) || 60, 
-            deliveryOutside: parseInt(document.getElementById('lpDelOutside').value) || 120, 
-            video: document.getElementById('lpVideo').value, 
-            description: document.getElementById('lpDescription').value, 
-            features: document.getElementById('lpFeatures').value, 
-            heroImage: heroBase64, 
-            reviews: landingPageReviews, 
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-        }; 
-
-        if (lpId) {
-            // Update existing page
-            await db.collection('landing_pages').doc(lpId).update(landingData);
-            showToast("Campaign Page Updated Successfully!", "success");
-        } else {
-            // Add new page
-            landingData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-            await db.collection('landing_pages').add(landingData); 
-            showToast("Campaign Page Deployed Successfully!", "success"); 
-        }
-
         e.target.reset(); 
         document.getElementById('lpId').value = '';
         document.getElementById('lpHeroImage').required = true;
