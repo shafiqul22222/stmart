@@ -672,10 +672,63 @@
                 </div>
 
                 <!-- Landing Page Section -->
-                <div id="landing-section" class="hidden animate-scale-in space-y-6">
-                    <div class="mb-6"><h2 class="text-2xl font-black text-slate-800 tracking-tight">Marketing Pages</h2><p class="text-slate-500 text-xs mt-1 font-medium hidden md:block">Generate high-converting storefronts for specific campaigns.</p></div>
-                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6"><div class="xl:col-span-2"><div class="bg-white rounded-2xl shadow-erp border border-slate-100 p-6 md:p-8"><form id="landingPageForm" class="space-y-6"><div><h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Core Meta</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-5"><div><label class="form-label">Campaign ID (Internal)</label><input type="text" id="lpInternalName" class="form-input" required></div><div><label class="form-label">Display Product Name</label><input type="text" id="lpProductName" class="form-input" required></div><div class="md:col-span-2"><label class="form-label">Hero Copy / Hook</label><input type="text" id="lpHeadline" class="form-input" required></div><div><label class="form-label">MSRP (৳)</label><input type="number" id="lpOldPrice" class="form-input" required></div><div><label class="form-label text-brand-700">Promo Price (৳)</label><input type="number" id="lpOfferPrice" class="form-input bg-brand-50 border-brand-200" required></div><div class="md:col-span-2"><label class="form-label">Shipping Base Rates (Zone 1 | Zone 2)</label><div class="flex gap-4"><input type="number" id="lpDelInside" class="form-input" required><input type="number" id="lpDelOutside" class="form-input" required></div></div></div></div><div><h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="image" class="w-4 h-4 mr-2"></i> Assets</h3><div class="space-y-5"><div><label class="form-label">Hero Graphic *</label><input type="file" id="lpHeroImage" accept="image/*" class="form-input p-2 bg-white" required></div><div><label class="form-label">Video Embed URI</label><input type="url" id="lpVideo" class="form-input"></div><div><label class="form-label">Rich Description</label><textarea id="lpDescription" rows="4" class="form-input" required></textarea></div><div><label class="form-label">Bullet Highlights</label><textarea id="lpFeatures" rows="3" class="form-input" required></textarea></div></div></div><div><h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><span><i data-lucide="star" class="w-4 h-4 mr-2"></i>Social Proof</span></h3><div class="bg-slate-50 border border-slate-200 p-5 rounded-xl mb-4"><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><input type="text" id="revName" class="form-input text-xs" placeholder="Reviewer Profile"><select id="revRating" class="form-input text-xs"><option value="5">⭐⭐⭐⭐⭐ 5 Star</option><option value="4">⭐⭐⭐⭐ 4 Star</option></select><textarea id="revText" class="form-input text-xs md:col-span-2" rows="2" placeholder="Testimonial body..."></textarea><div class="md:col-span-2"><label class="form-label">Attachment</label><input type="file" id="revImage" accept="image/*" class="form-input p-2 text-xs bg-white"></div></div><button type="button" onclick="addLandingReview()" class="bg-slate-800 text-white px-4 py-3 rounded-xl text-xs font-semibold w-full hover:bg-slate-700 transition flex items-center justify-center shadow-md"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Append Review</button></div><div id="lpAddedReviews" class="space-y-2 max-h-40 overflow-y-auto"><p class="text-xs text-slate-400 text-center py-4 font-medium">Awaiting inputs...</p></div></div><button type="submit" class="w-full btn-primary py-4 text-sm mt-4 shadow-glow-brand"><i data-lucide="cpu" class="w-5 h-5 mr-2"></i> Compile Campaign Page</button></form></div></div><div class="xl:col-span-1"><div class="bg-white rounded-2xl shadow-erp border border-slate-100 overflow-hidden sticky top-24"><div class="bg-slate-50/80 p-5 border-b border-slate-100"><h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Active Deployments</h3></div><div class="overflow-y-auto max-h-[700px] p-3" id="generatedLandingPages"></div></div></div></div>
+                <<form id="landingPageForm" class="space-y-6">
+    <!-- Hidden input to store ID during editing -->
+    <input type="hidden" id="lpId">
+
+    <div>
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Core Meta</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div><label class="form-label">Campaign ID (Internal)</label><input type="text" id="lpInternalName" class="form-input" required></div>
+            <div><label class="form-label">Display Product Name</label><input type="text" id="lpProductName" class="form-input" required></div>
+            <div class="md:col-span-2"><label class="form-label">Hero Copy / Hook</label><input type="text" id="lpHeadline" class="form-input" required></div>
+            
+            <!-- Cost, MSRP, Retail, and Stock Fields -->
+            <div><label class="form-label">Cost (COGS) (৳) *</label><input type="number" id="lpPurchasePrice" class="form-input" placeholder="0" required></div>
+            <div><label class="form-label">MSRP (৳) *</label><input type="number" id="lpOldPrice" class="form-input" required></div>
+            <div><label class="form-label text-brand-700">Retail / Offer Price (৳) *</label><input type="number" id="lpOfferPrice" class="form-input bg-brand-50 border-brand-200" required></div>
+            <div><label class="form-label text-rose-700">Initial Stock *</label><input type="number" id="lpStock" class="form-input border-rose-200 bg-rose-50/50" placeholder="0" required></div>
+
+            <div class="md:col-span-2"><label class="form-label">Shipping Base Rates (Zone 1 | Zone 2)</label>
+                <div class="flex gap-4">
+                    <input type="number" id="lpDelInside" class="form-input" placeholder="Inside Dhaka" required>
+                    <input type="number" id="lpDelOutside" class="form-input" placeholder="Outside Dhaka" required>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <div>
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><i data-lucide="image" class="w-4 h-4 mr-2"></i> Assets</h3>
+        <div class="space-y-5">
+            <div><label class="form-label">Hero Graphic *</label><input type="file" id="lpHeroImage" accept="image/*" class="form-input p-2 bg-white" required></div>
+            <div><label class="form-label">Video Embed URI</label><input type="url" id="lpVideo" class="form-input"></div>
+            <div><label class="form-label">Rich Description</label><textarea id="lpDescription" rows="4" class="form-input" required></textarea></div>
+            <div><label class="form-label">Bullet Highlights</label><textarea id="lpFeatures" rows="3" class="form-input" required></textarea></div>
+        </div>
+    </div>
+    
+    <div>
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 pb-3 flex items-center"><span><i data-lucide="star" class="w-4 h-4 mr-2"></i>Social Proof</span></h3>
+        <div class="bg-slate-50 border border-slate-200 p-5 rounded-xl mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="revName" class="form-input text-xs" placeholder="Reviewer Profile">
+                <select id="revRating" class="form-input text-xs">
+                    <option value="5">⭐⭐⭐⭐⭐ 5 Star</option>
+                    <option value="4">⭐⭐⭐⭐ 4 Star</option>
+                </select>
+                <textarea id="revText" class="form-input text-xs md:col-span-2" rows="2" placeholder="Testimonial body..."></textarea>
+                <div class="md:col-span-2"><label class="form-label">Attachment</label><input type="file" id="revImage" accept="image/*" class="form-input p-2 text-xs bg-white"></div>
+            </div>
+            <button type="button" onclick="addLandingReview()" class="bg-slate-800 text-white px-4 py-3 rounded-xl text-xs font-semibold w-full hover:bg-slate-700 transition flex items-center justify-center shadow-md"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Append Review</button>
+        </div>
+        <div id="lpAddedReviews" class="space-y-2 max-h-40 overflow-y-auto">
+            <p class="text-xs text-slate-400 text-center py-4 font-medium">Awaiting inputs...</p>
+        </div>
+    </div>
+    
+    <button type="submit" class="w-full btn-primary py-4 text-sm mt-4 shadow-glow-brand"><i data-lucide="cpu" class="w-5 h-5 mr-2"></i> Save / Update Campaign Page</button>
+</form>
 
                 <!-- Categories Section -->
                 <div id="categories-section" class="hidden animate-scale-in space-y-6">
@@ -1367,8 +1420,110 @@
         async function addLandingReview() { const name = document.getElementById('revName').value; const rating = document.getElementById('revRating').value; const text = document.getElementById('revText').value; const file = document.getElementById('revImage').files[0]; if(!name || !text) { showToast("Name and Review Text required!", "error"); return; } const btn = event.target; const originalText = btn.innerHTML; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 mr-2 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; let imageBase64 = null; if(file) { imageBase64 = await compressAndConvertToBase64(file); } landingPageReviews.push({ name, rating, text, image: imageBase64 }); updateReviewListUI(); document.getElementById('revName').value = ''; document.getElementById('revText').value = ''; document.getElementById('revImage').value = ''; btn.innerHTML = originalText; btn.disabled = false; }
         function updateReviewListUI() { const container = document.getElementById('lpAddedReviews'); if(landingPageReviews.length === 0) { container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4 font-medium">Awaiting inputs...</p>'; return; } container.innerHTML = landingPageReviews.map((rev, index) => `<div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex justify-between items-start gap-3"><div class="flex gap-3">${rev.image ? `<img src="${rev.image}" class="w-12 h-12 object-cover rounded-lg">` : '<div class="w-12 h-12 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></div>'}<div><p class="text-xs font-bold text-slate-800">${rev.name} <span class="text-amber-400 ml-1">★${rev.rating}</span></p><p class="text-[10px] text-slate-500 truncate w-48 mt-1 font-medium">${rev.text}</p></div></div><button type="button" onclick="removeLandingReview(${index})" class="text-rose-400 text-xs p-2 hover:bg-rose-50 hover:text-rose-700 rounded-lg transition"><i data-lucide="x"></i></button></div>`).join(''); lucide.createIcons(); }
         function removeLandingReview(index) { landingPageReviews.splice(index, 1); updateReviewListUI(); }
-        document.getElementById('landingPageForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerHTML; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 mr-2 inline-block"></i> Compiling...'; lucide.createIcons(); btn.disabled = true; try { const heroFile = document.getElementById('lpHeroImage').files[0]; let heroBase64 = ""; if(heroFile) heroBase64 = await compressAndConvertToBase64(heroFile); const landingData = { internalName: document.getElementById('lpInternalName').value, productName: document.getElementById('lpProductName').value, headline: document.getElementById('lpHeadline').value, oldPrice: parseFloat(document.getElementById('lpOldPrice').value), offerPrice: parseFloat(document.getElementById('lpOfferPrice').value), deliveryInside: parseInt(document.getElementById('lpDelInside').value) || 60, deliveryOutside: parseInt(document.getElementById('lpDelOutside').value) || 120, video: document.getElementById('lpVideo').value, description: document.getElementById('lpDescription').value, features: document.getElementById('lpFeatures').value, heroImage: heroBase64, reviews: landingPageReviews, createdAt: firebase.firestore.FieldValue.serverTimestamp() }; await db.collection('landing_pages').add(landingData); showToast("Campaign Page Deployed Successfully!", "success"); e.target.reset(); landingPageReviews = []; updateReviewListUI(); } catch (error) { showToast("Deployment Error: " + error.message, "error"); } finally { btn.innerHTML = originalText; btn.disabled = false; } });
-        function loadLandingPagesList() { db.collection('landing_pages').orderBy('createdAt', 'desc').onSnapshot(snap => { const container = document.getElementById('generatedLandingPages'); if(snap.empty) { container.innerHTML = '<p class="text-xs font-medium text-slate-400 text-center p-6">No nodes deployed.</p>'; return; } let baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '') + 'landing.html?id='; let html = ''; snap.forEach(doc => { const data = doc.data(); const link = baseUrl + doc.id; html += `<div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-3 hover:border-brand-300 transition group"><div class="flex items-start gap-4"><img src="${data.heroImage || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover border border-slate-100 shadow-sm"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-800 truncate">${data.internalName}</p><p class="text-xs text-brand-700 font-bold mt-1 tracking-wide">৳${data.offerPrice}</p></div></div><div class="mt-4 flex gap-2"><button onclick="navigator.clipboard.writeText('${link}'); showToast('URI Copied to Clipboard', 'success')" class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold py-2 rounded-lg transition flex items-center justify-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Copy</button><a href="${link}" target="_blank" class="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center"><i data-lucide="external-link" class="w-4 h-4"></i></a><button onclick="deleteLandingPage('${doc.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`; }); container.innerHTML = html; lucide.createIcons(); }); }
+        document.getElementById('landingPageForm').addEventListener('submit', async (e) => { 
+    e.preventDefault(); 
+    const btn = e.target.querySelector('button[type="submit"]'); 
+    const originalText = btn.innerHTML; 
+    btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 mr-2 inline-block"></i> Saving...'; 
+    lucide.createIcons(); 
+    btn.disabled = true; 
+
+    try { 
+        const lpId = document.getElementById('lpId').value;
+        const heroFile = document.getElementById('lpHeroImage').files[0]; 
+        let heroBase64 = ""; 
+
+        if (heroFile) {
+            heroBase64 = await compressAndConvertToBase64(heroFile);
+        } else if (lpId) {
+            // এডিটের সময় নতুন ছবি না দিলে আগের ছবি রেখে দেবে
+            const existingDoc = await db.collection('landing_pages').doc(lpId).get();
+            if (existingDoc.exists) {
+                heroBase64 = existingDoc.data().heroImage || "";
+            }
+        }
+
+        if (!heroBase64 && !lpId) {
+            showToast("Hero Graphic image is required!", "error");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            return;
+        }
+
+        const landingData = { 
+            internalName: document.getElementById('lpInternalName').value, 
+            productName: document.getElementById('lpProductName').value, 
+            headline: document.getElementById('lpHeadline').value, 
+            purchasePrice: parseFloat(document.getElementById('lpPurchasePrice').value) || 0,
+            oldPrice: parseFloat(document.getElementById('lpOldPrice').value) || 0, 
+            offerPrice: parseFloat(document.getElementById('lpOfferPrice').value) || 0, 
+            stock: parseInt(document.getElementById('lpStock').value) || 0,
+            deliveryInside: parseInt(document.getElementById('lpDelInside').value) || 60, 
+            deliveryOutside: parseInt(document.getElementById('lpDelOutside').value) || 120, 
+            video: document.getElementById('lpVideo').value, 
+            description: document.getElementById('lpDescription').value, 
+            features: document.getElementById('lpFeatures').value, 
+            heroImage: heroBase64, 
+            reviews: landingPageReviews, 
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+        }; 
+
+        if (lpId) {
+            // Update existing page
+            await db.collection('landing_pages').doc(lpId).update(landingData);
+            showToast("Campaign Page Updated Successfully!", "success");
+        } else {
+            // Add new page
+            landingData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('landing_pages').add(landingData); 
+            showToast("Campaign Page Deployed Successfully!", "success"); 
+        }
+
+        e.target.reset(); 
+        document.getElementById('lpId').value = '';
+        document.getElementById('lpHeroImage').required = true;
+        landingPageReviews = []; 
+        updateReviewListUI(); 
+    } catch (error) { 
+        showToast("Save Error: " + error.message, "error"); 
+    } finally { 
+        btn.innerHTML = originalText; 
+        btn.disabled = false; 
+    } 
+});
+        function loadLandingPagesList() { db.collection('landing_pages').orderBy('createdAt', 'desc').onSnapshot(snap => { const container = document.getElementById('generatedLandingPages'); if(snap.empty) { container.innerHTML = '<p class="text-xs font-medium text-slate-400 text-center p-6">No nodes deployed.</p>'; return; } let baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '') + 'landing.html?id='; let html = ''; snap.forEach(doc => { const data = doc.data(); const link = baseUrl + doc.id; html += `<div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-3 hover:border-brand-300 transition group"><div class="flex items-start gap-4"><img src="${data.heroImage || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover border border-slate-100 shadow-sm"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-800 truncate">${data.internalName}</p><p class="text-xs text-brand-700 font-bold mt-1 tracking-wide">৳${data.offerPrice}</p></div></div><div class="mt-4 flex gap-2"><button onclick="navigator.clipboard.writeText('${link}'); showToast('URI Copied to Clipboard', 'success')" class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold py-2 rounded-lg transition flex items-center justify-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Copy</button><a href="${link}" target="_blank" class="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center"><i data-lucide="external-link" class="w-4 h-4"></i></a><button onclick="deleteLandingPage('${doc.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`; }); container.innerHTML = html; lucide.createIcons(); }); } 
+        async function editLandingPage(id) {
+    try {
+        const doc = await db.collection('landing_pages').doc(id).get();
+        if(doc.exists) {
+            const data = doc.data();
+            document.getElementById('lpId').value = id;
+            document.getElementById('lpInternalName').value = data.internalName || '';
+            document.getElementById('lpProductName').value = data.productName || '';
+            document.getElementById('lpHeadline').value = data.headline || '';
+            document.getElementById('lpPurchasePrice').value = data.purchasePrice !== undefined ? data.purchasePrice : '';
+            document.getElementById('lpOldPrice').value = data.oldPrice || '';
+            document.getElementById('lpOfferPrice').value = data.offerPrice || '';
+            document.getElementById('lpStock').value = data.stock !== undefined ? data.stock : '';
+            document.getElementById('lpDelInside').value = data.deliveryInside || 60;
+            document.getElementById('lpDelOutside').value = data.deliveryOutside || 120;
+            document.getElementById('lpVideo').value = data.video || '';
+            document.getElementById('lpDescription').value = data.description || '';
+            document.getElementById('lpFeatures').value = data.features || '';
+            
+            // এডিট করার সময় নতুন ছবি আপলোড করা বাধ্যতামূলক থাকবে না
+            document.getElementById('lpHeroImage').required = false;
+
+            landingPageReviews = data.reviews || [];
+            updateReviewListUI();
+
+            showToast("Editing Campaign Page: " + (data.internalName || ''), "info");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    } catch(e) {
+        showToast("Error loading page details", "error");
+    }
+}
         async function deleteLandingPage(id) { if(await customConfirm("Eradicate this deployment node permanently? URIs will break.")) { await db.collection('landing_pages').doc(id).delete(); showToast("Node destroyed successfully.", "success"); } }
 
         function loadIncompleteOrders() { db.collection('abandoned_carts').orderBy('updatedAt', 'desc').onSnapshot(snap => { const list = document.getElementById('admin-incomplete-list'); if(snap.empty) { list.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-400 font-medium text-xs uppercase tracking-widest">No dropped sessions logged.</td></tr>'; return; } let html = ''; snap.forEach(doc => { const cart = doc.data(); let dateStr = 'Just Now'; if(cart.updatedAt) { const d = cart.updatedAt.toDate ? cart.updatedAt.toDate() : new Date(cart.updatedAt); dateStr = d.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' }); } let contactInfo = `<p class="font-bold text-slate-800">${cart.contactName || 'Anonymous Proxy'}</p>`; let hasPhone = cart.contactPhone && cart.contactPhone !== 'Not Provided' && cart.contactPhone.length >= 10; if(hasPhone) { contactInfo += `<p class="text-brand-700 font-bold text-xs mt-1.5">${cart.contactPhone}</p>`; } else { contactInfo += `<p class="text-slate-400 text-[10px] mt-1.5 uppercase font-bold tracking-wider">No Tel. Logged</p>`; } let itemsHtml = (cart.items || []).map(item => `<div class="flex items-center gap-3 mb-2 last:mb-0"><img src="${item.image}" class="w-10 h-10 rounded-lg border border-slate-100 object-cover shadow-sm"><div><p class="text-[11px] font-bold text-slate-700">${item.name}</p><p class="text-[10px] text-slate-400 font-medium mt-0.5">Vol: ${item.qty} | ৳${item.price}</p></div></div>`).join(''); let actionHtml = `<button onclick="deleteIncompleteCart('${doc.id}')" class="text-rose-500 hover:bg-rose-50 p-2.5 rounded-xl transition" title="Purge Log"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`; if(hasPhone) { let phoneClean = cart.contactPhone.replace(/[^0-9]/g, ''); if(!phoneClean.startsWith('88')) phoneClean = '88' + phoneClean; let msg = encodeURIComponent(`Greetings ${cart.contactName || ''}, regarding your recent activity on ST SPARKLE JEWELRY. Any assistance required to finalize?`); actionHtml = `<a href="https://wa.me/${phoneClean}?text=${msg}" target="_blank" class="text-emerald-500 hover:bg-emerald-50 p-2.5 rounded-xl transition mr-2 inline-block" title="CRM Comms"><i data-lucide="message-circle" class="w-4 h-4"></i></a>` + actionHtml; } html += `<tr class="hover:bg-brand-50/30 transition border-b border-slate-100 align-top"><td class="p-4">${contactInfo}</td><td class="p-4 min-w-[250px]"><div class="bg-slate-50/50 p-3 rounded-xl border border-slate-100">${itemsHtml}</div></td><td class="p-4"><p class="font-black text-slate-700 tracking-tight text-base">৳${cart.totalValue || 0}</p></td><td class="p-4"><span class="text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md uppercase tracking-wider flex items-center gap-1 w-fit"><i data-lucide="clock" class="w-3 h-3"></i> ${dateStr}</span></td><td class="p-4 text-center whitespace-nowrap">${actionHtml}</td></tr>`; }); list.innerHTML = html; lucide.createIcons(); }); }
