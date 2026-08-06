@@ -1943,7 +1943,23 @@ async function processImagesToBase64(files) {
                     let payColor = payStatus === 'Paid' ? "bg-emerald-50 text-emerald-700 border-emerald-200" : (payStatus === 'Partial Paid' ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-rose-50 text-rose-700 border-rose-200");
                     
                     let displayImg = 'https://via.placeholder.com/100?text=No+Media'; 
-                    if(order.productImage) { displayImg = order.productImage.includes('||') ? order.productImage.split('||')[0] : order.productImage; }
+if (order.productImage) { 
+    if (Array.isArray(order.productImage)) {
+        displayImg = order.productImage[0];
+    } else if (typeof order.productImage === 'string') {
+        if (order.productImage.startsWith('[')) {
+            try { displayImg = JSON.parse(order.productImage)[0]; } catch(e) { displayImg = order.productImage; }
+        } else if (order.productImage.includes('||')) {
+            displayImg = order.productImage.split('||')[0];
+        } else if (order.productImage.includes(',')) {
+            displayImg = order.productImage.split(',')[0];
+        } else {
+            displayImg = order.productImage;
+        }
+    }
+} else if (order.items && order.items.length > 0 && order.items[0].image) {
+    displayImg = Array.isArray(order.items[0].image) ? order.items[0].image[0] : order.items[0].image;
+}
                     
                     const searchString = `${shortId} ${order.phone} ${order.name} ${dateStr} ${order.productName}`; 
                     const safeProductName = (order.productName||'').replace(/[\r\n]+/g, ' ').replace(/"/g, '&quot;').replace(/'/g, "\\'"); 
