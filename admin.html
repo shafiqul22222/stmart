@@ -2229,39 +2229,78 @@ async function processImagesToBase64(files) {
         }
 
         async function bookParcel(btnElement, orderId, name, phone, address, amount) { 
-            if(!await customConfirm('Initiate API dispatch sequence for this shipment?')) return; 
-            const originalHtml = btnElement.innerHTML; 
-            btnElement.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 inline"></i>'; 
-            lucide.createIcons(); btnElement.disabled = true; 
-            try { 
-                const settingsDoc = await db.collection('siteSettings').doc('global').get(); 
-                const settingsData = settingsDoc.data(); 
-                const apiKey = settingsData?.courierApiKey; 
-                const secretKey = settingsData?.courierSecretKey; 
-                if(!apiKey || !secretKey) { showToast('Logistics endpoints unconfigured.', 'error'); btnElement.innerHTML = originalHtml; btnElement.disabled = false; return; } 
-                
-                const apiUrl = 'https://portal.packzy.com/api/v1/create_order'; 
-                const payload = { invoice: orderId, recipient_name: name || "Corporate Client", recipient_phone: phone || "00000000000", recipient_address: address || "N/A", cod_amount: parseFloat(amount) || 0, note: "ERP Automated Dispatch" }; 
-                
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Api-Key': apiKey, 'Secret-Key': secretKey }, body: JSON.stringify(payload) }); 
-                const responseText = await response.text(); 
-                let result; 
-                try { result = JSON.parse(responseText); } catch (e) { throw new Error("API Node Fault"); } 
-                
-                if(result.status === 200 || result.status === 'success') { 
-                    showToast('Dispatch sequence confirmed.', 'success'); 
-                    let trackCode = result?.data?.tracking_code || result?.tracking_code || result?.consignment_id || `TRK-${orderId.substring(0,8).toUpperCase()}`;
-                    await db.collection('orders').doc(orderId).update({ courierBooked: true, trackingCode: trackCode }); 
-                    printShippingLabel(orderId, name, phone, address, amount, trackCode);
-                } else { 
-                    showToast('Dispatch Fault: ' + (result?.message || "Verify Variables."), 'error'); 
-                } 
-            } catch (error) { 
-                showToast("Transmission Error: " + error.message, "error"); 
-            } finally { 
-                btnElement.innerHTML = originalHtml; btnElement.disabled = false; 
-            } 
-        }
+    if(!await customConfirm('Initiate API dispatch sequence for this shipment?')) return; 
+    const originalHtml = btnElement.innerHTML; 
+    btnElement.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-4 h-4 inline"></i>'; 
+    lucide.createIcons(); btnElement.disabled = true; 
+    
+    try { 
+        const settingsDoc = await db.collection('siteSettings').doc('global').get(); 
+        const settingsData = settingsDoc.data(); 
+        
+        // Steadfast API Keys
+        const apiKey = settingsData?.steadfastApiKey || settingsData?.courierApiKey; 
+        const secretKey = settingsData?.steadfastSecretKey || settingsData?.courierSecretKey; 
+        
+        if(!apiKey || !secretKey) { 
+            showToast('Logistics endpoints unconfigured.', 'error'); 
+            btnElement.innerHTML = originalHtml; btnElement.disabled = false; 
+            return; 
+        } 
+        
+        // API URL (সরাসরি Steadfast ব্যবহার করলে নিচের URL টি পরিবর্তন করে 'https://api.steadfast.com.bd/v1/create_order' দিন)
+        const apiUrl = 'https://portal.packzy.com/api/v1/create_order'; 
+        
+        const payload = { 
+            invoice: orderId, 
+            recipient_name: name || "Corporate Client", 
+            recipient_phone: phone || "00000000000", 
+            recipient_address: address || "N/A", 
+            cod_amount: parseFloat(amount) || 0, 
+            note: "ERP Automated Dispatch" 
+        }; 
+        
+        const response = await fetch(apiUrl, { 
+            method: 'POST', 
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Api-Key': apiKey, 
+                'Secret-Key': secretKey 
+            }, 
+            body: JSON.stringify(payload) 
+        }); 
+        
+        const responseText = await response.text(); 
+        let result; 
+        try { result = JSON.parse(responseText); } catch (e) { throw new Error("API Node Fault"); } 
+        
+        if(result.status === 200 || result.status === 'success') { 
+            showToast('Dispatch sequence confirmed.', 'success'); 
+            
+            // STEADFAST PERCEL ID CAPTURE LOGIC
+            let trackCode = result?.consignment?.consignment_id || 
+                            result?.data?.consignment_id || 
+                            result?.consignment_id ||
+                            result?.consignment?.tracking_code ||
+                            result?.data?.tracking_code || 
+                            result?.tracking_code || 
+                            `TRK-${orderId.substring(0,8).toUpperCase()}`;
+                            
+            await db.collection('orders').doc(orderId).update({ 
+                courierBooked: true, 
+                trackingCode: trackCode 
+            }); 
+            
+            printShippingLabel(orderId, name, phone, address, amount, trackCode);
+        } else { 
+            showToast('Dispatch Fault: ' + (result?.message || result?.error || "Verify Variables."), 'error'); 
+        } 
+    } catch (error) { 
+        showToast("Transmission Error: " + error.message, "error"); 
+    } finally { 
+        btnElement.innerHTML = originalHtml; btnElement.disabled = false; 
+    } 
+}
 
         function printShippingLabel(orderId, customerName, customerPhone, customerAddress, codAmount, trackingCode) {
             const printWindow = window.open('', '_blank', 'width=800,height=700');
