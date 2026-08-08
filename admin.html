@@ -2215,37 +2215,18 @@ if (order.productImage) {
         } 
         
         async function handleOrderStatusChange(orderId, newStatus, oldStatus, productName, qty) { 
-    if(newStatus === oldStatus) return; 
-    try { 
-        if (newStatus === 'Returned') { 
-            if(!await customConfirm('Execute RMA? This injects inventory back and logs logistics loss.')) { loadOrders(); return; } 
-            const pSnap = await db.collection('products').where('name', '==', productName).get(); 
-            if(!pSnap.empty) { 
-                const pDoc = pSnap.docs[0]; 
-                const currentStock = parseInt(pDoc.data().stock) || 0; 
-                await db.collection('products').doc(pDoc.id).update({ stock: currentStock + (parseInt(qty) || 1) }); 
-                showToast(`Inventory Adjusted: +${qty || 1} units of ${productName}`, 'info'); 
-            } 
-        } 
-        const timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
-        await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); 
-        
-        if(newStatus === 'Completed') {
-            const oDoc = await db.collection('orders').doc(orderId).get();
-            if(oDoc.exists) {
-                const amt = parseFloat(String(oDoc.data().totalPrice || oDoc.data().price || 0).replace(/[^0-9.]/g, '')) || 0;
-                const dCharge = parseFloat(oDoc.data().deliveryCharge) || 0;
-                const netAmt = amt - dCharge; // ইনকাম এন্ট্রিতে ডেলিভারি চার্জ বাদ
-                
-                await db.collection('transactions').add({ type: 'Income', amount: netAmt, category: 'Sales', desc: 'Order #' + orderId.substring(0,6), date: firebase.firestore.FieldValue.serverTimestamp() });
-                addNotification('Sale Completed', 'Order #' + orderId.substring(0,6) + ' fulfilled. Amount: ৳' + netAmt, 'success');
-            }
-        }
-        showToast("Status Machine Updated.", "success"); 
-    } catch (err) { 
-        showToast("State Fault: " + err.message, "error"); loadOrders(); 
-    } 
-}
+            if(newStatus === oldStatus) return; 
+            try { 
+                if (newStatus === 'Returned') { 
+                    if(!await customConfirm('Execute RMA? This injects inventory back and logs logistics loss.')) { loadOrders(); return; } 
+                    const pSnap = await db.collection('products').where('name', '==', productName).get(); 
+                    if(!pSnap.empty) { 
+                        const pDoc = pSnap.docs[0]; 
+                        const currentStock = parseInt(pDoc.data().stock) || 0; 
+                        await db.collection('products').doc(pDoc.id).update({ stock: currentStock + (parseInt(qty) || 1) }); 
+                        showToast(`Inventory Adjusted: +${qty || 1} units of ${productName}`, 'info'); 
+                    } 
+                } 
                 const timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
                 await db.collection('orders').doc(orderId).update({ status: newStatus, [`statusTimestamps.${newStatus}`]: timestamp }); 
                 
@@ -2687,76 +2668,73 @@ if (order.productImage) {
         }
 
         async function savePOSOrder(shouldPrint) {
-    if (posCart.length === 0) return showToast('Cart is empty!', 'error');
+            if (posCart.length === 0) return showToast('Cart is empty!', 'error');
 
-    let subtotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    let deliveryEl = document.getElementById('pos-delivery');
-    let deliveryCharge = deliveryEl ? (parseFloat(deliveryEl.value) || 0) : 0;
-    let discount = parseFloat(document.getElementById('pos-discount').value) || 0;
-    let grandTotal = Math.max(0, subtotal + deliveryCharge - discount);
-    
-    let customerName = document.getElementById('posCustomerName') ? document.getElementById('posCustomerName').value.trim() : '';
-    let customerPhone = document.getElementById('posCustomerPhone') ? document.getElementById('posCustomerPhone').value.trim() : '';
-    let customerAddress = document.getElementById('posCustomerAddress') ? document.getElementById('posCustomerAddress').value.trim() : '';
-    let customer = customerName || 'Walk-in Customer';
+            let subtotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let deliveryEl = document.getElementById('pos-delivery');
+            let deliveryCharge = deliveryEl ? (parseFloat(deliveryEl.value) || 0) : 0;
+            let discount = parseFloat(document.getElementById('pos-discount').value) || 0;
+            let grandTotal = Math.max(0, subtotal + deliveryCharge - discount);
+            
+            let customerName = document.getElementById('posCustomerName') ? document.getElementById('posCustomerName').value.trim() : '';
+            let customerPhone = document.getElementById('posCustomerPhone') ? document.getElementById('posCustomerPhone').value.trim() : '';
+            let customerAddress = document.getElementById('posCustomerAddress') ? document.getElementById('posCustomerAddress').value.trim() : '';
+            let customer = customerName || 'Walk-in Customer';
 
-    try {
-        const batch = db.batch();
-        const orderRef = db.collection('orders').doc();
-        const orderId = orderRef.id;
+            try {
+                const batch = db.batch();
+                const orderRef = db.collection('orders').doc();
+                const orderId = orderRef.id;
 
-        const orderData = {
-            name: customer,
-            phone: customerPhone || 'Walk-in',
-            address: customerAddress || 'POS Store Sale',
-            items: posCart,
-            productName: posCart.map(i => `${i.name} (x${i.qty})`).join(', '),
-            qty: posCart.reduce((sum, item) => sum + item.qty, 0),
-            price: subtotal,
-            deliveryCharge: deliveryCharge,
-            discount: discount,
-            totalPrice: grandTotal,
-            status: 'Completed',
-            paymentStatus: 'Paid',
-            source: 'POS',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
+                const orderData = {
+                    name: customer,
+                    phone: customerPhone || 'Walk-in',
+                    address: customerAddress || 'POS Store Sale',
+                    items: posCart,
+                    productName: posCart.map(i => `${i.name} (x${i.qty})`).join(', '),
+                    qty: posCart.reduce((sum, item) => sum + item.qty, 0),
+                    price: subtotal,
+                    deliveryCharge: deliveryCharge,
+                    discount: discount,
+                    totalPrice: grandTotal,
+                    status: 'Completed',
+                    paymentStatus: 'Paid',
+                    source: 'POS',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
 
-        batch.set(orderRef, orderData);
+                batch.set(orderRef, orderData);
 
-        posCart.forEach(item => { 
-            const pRef = db.collection('products').doc(item.id); 
-            batch.update(pRef, { stock: firebase.firestore.FieldValue.increment(-item.qty) }); 
-        }); 
+                posCart.forEach(item => { 
+                    const pRef = db.collection('products').doc(item.id); 
+                    batch.update(pRef, { stock: firebase.firestore.FieldValue.increment(-item.qty) }); 
+                }); 
 
-        const transRef = db.collection('transactions').doc(); 
-        
-        let netIncome = grandTotal - deliveryCharge; // আসল ইনকাম
-        
-        batch.set(transRef, { 
-            type: 'Income', 
-            amount: netIncome, 
-            category: 'POS Sales', 
-            desc: `POS Order #${orderId.substring(0,6)} (${customer})`, 
-            date: firebase.firestore.FieldValue.serverTimestamp() 
-        }); 
+                const transRef = db.collection('transactions').doc(); 
+                batch.set(transRef, { 
+                    type: 'Income', 
+                    amount: grandTotal, 
+                    category: 'POS Sales', 
+                    desc: `POS Order #${orderId.substring(0,6)} (${customer})`, 
+                    date: firebase.firestore.FieldValue.serverTimestamp() 
+                }); 
 
-        await batch.commit(); 
+                await batch.commit(); 
 
-        addNotification('POS Sale Complete', `Order created for ৳${grandTotal}`, 'success'); 
-        showToast(shouldPrint ? 'Order Saved & Printing Receipt...' : 'Order Saved Successfully', 'success'); 
+                addNotification('POS Sale Complete', `Order created for ৳${grandTotal}`, 'success'); 
+                showToast(shouldPrint ? 'Order Saved & Printing Receipt...' : 'Order Saved Successfully', 'success'); 
 
-        if (shouldPrint) {
-            printPOSReceipt(orderId, customer, posCart, subtotal, deliveryCharge, discount, grandTotal);
+                if (shouldPrint) {
+                    printPOSReceipt(orderId, customer, posCart, subtotal, deliveryCharge, discount, grandTotal);
+                }
+
+                clearPOSCart(); 
+                if(document.getElementById('pos-delivery')) document.getElementById('pos-delivery').value = "0";
+                if(document.getElementById('pos-discount')) document.getElementById('pos-discount').value = "0";
+            } catch(e) {
+                showToast('Error saving POS order: ' + e.message, 'error');
+            } 
         }
-
-        clearPOSCart(); 
-        if(document.getElementById('pos-delivery')) document.getElementById('pos-delivery').value = "0";
-        if(document.getElementById('pos-discount')) document.getElementById('pos-discount').value = "0";
-    } catch(e) {
-        showToast('Error saving POS order: ' + e.message, 'error');
-    } 
-}
 
         function printPOSReceipt(orderId, customer, items, subtotal, delivery, discount, total) {
             const printWindow = window.open('', '_blank', 'width=400,height=600');
@@ -3045,92 +3023,93 @@ if (order.productImage) {
         }
 
         function renderAdvancedDashboard() {
-    let today = new Date(); today.setHours(0,0,0,0); 
-    let firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    let mSales = 0, tSales = 0, lSales = 0; 
-    let mCOGS = 0, lCOGS = 0;
-    let pendingOrders = 0, procOrders = 0, compOrders = 0, totalOrders = 0, todayOrders = 0;
-    let returnLoss = 0, returnedCount = 0; 
-    let customers = new Set();
+            let today = new Date(); today.setHours(0,0,0,0); 
+            let firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            let mSales = 0, tSales = 0, lSales = 0; 
+            let mCOGS = 0, lCOGS = 0;
+            let pendingOrders = 0, procOrders = 0, compOrders = 0, totalOrders = 0, todayOrders = 0;
+            let returnLoss = 0, returnedCount = 0; 
+            let customers = new Set();
 
-    globalDashData.orders.forEach(o => {
-        const status = o.status || 'Pending'; totalOrders++;
-        if(status === 'Pending') pendingOrders++; 
-        else if(status === 'Processing') procOrders++; 
-        else if(status === 'Completed') compOrders++; 
-        else if(status === 'Returned') { returnedCount++; returnLoss += parseFloat(o.deliveryCharge) || 0; }
-        
-        let amount = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0; 
-        let dCharge = parseFloat(o.deliveryCharge) || 0; 
-        let netProductSales = amount - dCharge; // ডেলিভারি চার্জ বাদ দিয়ে আসল প্রোডাক্ট সেলস
+            globalDashData.orders.forEach(o => {
+                const status = o.status || 'Pending'; totalOrders++;
+                if(status === 'Pending') pendingOrders++; 
+                else if(status === 'Processing') procOrders++; 
+                else if(status === 'Completed') compOrders++; 
+                else if(status === 'Returned') { returnedCount++; returnLoss += parseFloat(o.deliveryCharge) || 0; }
+                
+                let amount = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0; 
+let qty = parseInt(o.qty) || 1; 
 
-        let qty = parseInt(o.qty) || 1; 
-
-        let cogsVal = 0;
-        if (o.items && Array.isArray(o.items)) {
-            cogsVal = o.items.reduce((sum, item) => {
-                let pCost = item.purchasePrice !== undefined ? parseFloat(item.purchasePrice) : (globalDashData.products[item.name] || 0);
-                return sum + (pCost * (parseInt(item.qty) || 1));
-            }, 0);
-        } else {
-            let cleanProductName = o.productName ? o.productName.replace(/\s*\(\+?x?\d+\)/gi, '').split(',')[0].trim() : '';
-            cogsVal = (globalDashData.products[cleanProductName] || globalDashData.products[o.productName] || 0) * qty;
-        }
-        
-        if(o.phone) customers.add(o.phone); else if(o.email) customers.add(o.email);
-        if(status === 'Completed') { 
-            lSales += netProductSales; lCOGS += cogsVal; 
-            if(o.dateObj >= firstDayOfMonth) { mSales += netProductSales; mCOGS += cogsVal; } 
-            if(o.dateObj >= today) { tSales += netProductSales; } 
-        }
-        if(o.dateObj >= today) todayOrders++;
-    });
-
-    let mExp = 0, tExp = 0, lExp = 0;
-    globalDashData.expenses.forEach(e => { 
-        let amount = parseFloat(e.amount) || 0; 
-        lExp += amount; 
-        if(e.dateObj >= firstDayOfMonth) mExp += amount; 
-        if(e.dateObj >= today) tExp += amount; 
-    });
-
-    let mGP = mSales - mCOGS; 
-    let lGP = lSales - lCOGS; 
-    let mNP = mGP - mExp;
-    let expRatio = mSales > 0 ? ((mExp / mSales) * 100).toFixed(1) : 0; 
-    let profitMargin = mSales > 0 ? ((mNP / mSales) * 100).toFixed(1) : 0;
-
-    if(document.getElementById('dash-return-loss')) document.getElementById('dash-return-loss').innerText = '৳' + returnLoss;
-    if(document.getElementById('dash-returned-orders')) document.getElementById('dash-returned-orders').innerText = returnedCount;
-    if(document.getElementById('dash-total-orders')) document.getElementById('dash-total-orders').innerText = totalOrders;
-    if(document.getElementById('dash-today-orders')) document.getElementById('dash-today-orders').innerText = todayOrders;
-    if(document.getElementById('dash-total-customers')) document.getElementById('dash-total-customers').innerText = customers.size;
-    if(document.getElementById('dash-pending-orders')) document.getElementById('dash-pending-orders').innerText = pendingOrders;
-    if(document.getElementById('dash-processing-orders')) document.getElementById('dash-processing-orders').innerText = procOrders;
-    if(document.getElementById('dash-complete-orders')) document.getElementById('dash-complete-orders').innerText = compOrders;
-
-    if(document.getElementById('dash-month-sales')) document.getElementById('dash-month-sales').innerText = '৳' + mSales;
-    if(document.getElementById('dash-total-sales')) document.getElementById('dash-total-sales').innerText = '৳' + lSales;
-    if(document.getElementById('dash-today-sales')) document.getElementById('dash-today-sales').innerText = '৳' + tSales;
-    
-    if(document.getElementById('dash-month-expense')) document.getElementById('dash-month-expense').innerText = '৳' + mExp;
-    if(document.getElementById('dash-total-expense')) document.getElementById('dash-total-expense').innerText = '৳' + lExp;
-    if(document.getElementById('dash-today-expense')) document.getElementById('dash-today-expense').innerText = '৳' + tExp;
-
-    if(document.getElementById('dash-month-gp')) document.getElementById('dash-month-gp').innerText = '৳' + mGP;
-    if(document.getElementById('dash-month-cogs')) document.getElementById('dash-month-cogs').innerText = '৳' + mCOGS;
-    if(document.getElementById('dash-total-gp')) document.getElementById('dash-total-gp').innerText = '৳' + lGP;
-
-    let npDom = document.getElementById('dash-month-np');
-    if(npDom) {
-        npDom.innerText = '৳' + mNP;
-        npDom.className = mNP >= 0 ? "text-3xl font-black text-slate-800 tracking-tight mb-2" : "text-3xl font-black text-rose-700 tracking-tight mb-2";
-    }
-    if(document.getElementById('dash-profit-margin')) document.getElementById('dash-profit-margin').innerText = profitMargin + '%';
-    if(document.getElementById('dash-expense-ratio')) document.getElementById('dash-expense-ratio').innerText = expRatio + '%';
-
-    renderExpenseCharts();
+// UPDATE: Accurate Cost of Goods Sold (COGS) Calculation
+let cogsVal = 0;
+if (o.items && Array.isArray(o.items)) {
+    // If order has multiple items (like POS orders), calculate cost for each item
+    cogsVal = o.items.reduce((sum, item) => {
+        let pCost = item.purchasePrice !== undefined ? parseFloat(item.purchasePrice) : (globalDashData.products[item.name] || 0);
+        return sum + (pCost * (parseInt(item.qty) || 1));
+    }, 0);
+} else {
+    // Fallback for single item orders (Clean up string like "Product (x2)")
+    let cleanProductName = o.productName ? o.productName.replace(/\s*\(\+?x?\d+\)/gi, '').split(',')[0].trim() : '';
+    cogsVal = (globalDashData.products[cleanProductName] || globalDashData.products[o.productName] || 0) * qty;
 }
+                
+                if(o.phone) customers.add(o.phone); else if(o.email) customers.add(o.email);
+                if(status === 'Completed') { 
+                    lSales += amount; lCOGS += cogsVal; 
+                    if(o.dateObj >= firstDayOfMonth) { mSales += amount; mCOGS += cogsVal; } 
+                    if(o.dateObj >= today) { tSales += amount; } 
+                }
+                if(o.dateObj >= today) todayOrders++;
+            });
+
+            let mExp = 0, tExp = 0, lExp = 0;
+            globalDashData.expenses.forEach(e => { 
+                let amount = parseFloat(e.amount) || 0; 
+                lExp += amount; 
+                if(e.dateObj >= firstDayOfMonth) mExp += amount; 
+                if(e.dateObj >= today) tExp += amount; 
+            });
+
+            let mGP = mSales - mCOGS; 
+            let lGP = lSales - lCOGS; 
+            let mNP = mGP - mExp;
+            let expRatio = mSales > 0 ? ((mExp / mSales) * 100).toFixed(1) : 0; 
+            let profitMargin = mSales > 0 ? ((mNP / mSales) * 100).toFixed(1) : 0;
+
+            if(document.getElementById('dash-return-loss')) document.getElementById('dash-return-loss').innerText = '৳' + returnLoss;
+            if(document.getElementById('dash-returned-orders')) document.getElementById('dash-returned-orders').innerText = returnedCount;
+            if(document.getElementById('dash-total-orders')) document.getElementById('dash-total-orders').innerText = totalOrders;
+            if(document.getElementById('dash-today-orders')) document.getElementById('dash-today-orders').innerText = todayOrders;
+            if(document.getElementById('dash-total-customers')) document.getElementById('dash-total-customers').innerText = customers.size;
+            if(document.getElementById('dash-pending-orders')) document.getElementById('dash-pending-orders').innerText = pendingOrders;
+            if(document.getElementById('dash-processing-orders')) document.getElementById('dash-processing-orders').innerText = procOrders;
+            if(document.getElementById('dash-complete-orders')) document.getElementById('dash-complete-orders').innerText = compOrders;
+
+            if(document.getElementById('dash-month-sales')) document.getElementById('dash-month-sales').innerText = '৳' + mSales;
+            if(document.getElementById('dash-total-sales')) document.getElementById('dash-total-sales').innerText = '৳' + lSales;
+            if(document.getElementById('dash-today-sales')) document.getElementById('dash-today-sales').innerText = '৳' + tSales;
+            
+            if(document.getElementById('dash-month-expense')) document.getElementById('dash-month-expense').innerText = '৳' + mExp;
+            if(document.getElementById('dash-total-expense')) document.getElementById('dash-total-expense').innerText = '৳' + lExp;
+            if(document.getElementById('dash-today-expense')) document.getElementById('dash-today-expense').innerText = '৳' + tExp;
+
+            if(document.getElementById('dash-month-gp')) document.getElementById('dash-month-gp').innerText = '৳' + mGP;
+            if(document.getElementById('dash-month-cogs')) document.getElementById('dash-month-cogs').innerText = '৳' + mCOGS;
+            if(document.getElementById('dash-total-gp')) document.getElementById('dash-total-gp').innerText = '৳' + lGP;
+
+            let npDom = document.getElementById('dash-month-np');
+            if(npDom) {
+                npDom.innerText = '৳' + mNP;
+                npDom.className = mNP >= 0 ? "text-3xl font-black text-slate-800 tracking-tight mb-2" : "text-3xl font-black text-rose-700 tracking-tight mb-2";
+            }
+            if(document.getElementById('dash-profit-margin')) document.getElementById('dash-profit-margin').innerText = profitMargin + '%';
+            if(document.getElementById('dash-expense-ratio')) document.getElementById('dash-expense-ratio').innerText = expRatio + '%';
+
+            renderExpenseCharts();
+        }
+
         function clearExpenseForm() {
             document.getElementById('expId').value = '';
             document.getElementById('expenseForm').reset();
@@ -3271,82 +3250,63 @@ if (order.productImage) {
         let eCatChart = null;
 
         function renderExpenseCharts() {
-    if(!document.getElementById('expenseTrendChart')) return;
-    
-    let monthsMap = {}; 
-    let monthLabels = [];
-    for(let i=5; i>=0; i--) {
-        let d = new Date(); d.setMonth(d.getMonth() - i);
-        let label = d.toLocaleDateString('en-US', {month:'short', year:'2-digit'});
-        let sortKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-        monthsMap[sortKey] = { label, exp: 0, rev: 0 }; monthLabels.push(label);
-    }
-
-    globalDashData.expenses.forEach(e => {
-        let key = e.date.substring(0,7);
-        if(monthsMap[key]) monthsMap[key].exp += parseFloat(e.amount);
-    });
-
-    globalDashData.orders.forEach(o => {
-        if(o.status === 'Completed') {
-            let d = o.dateObj;
-            let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-            if(monthsMap[key]) {
-                let amt = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0;
-                let dCharge = parseFloat(o.deliveryCharge) || 0;
-                let netRev = amt - dCharge; // ডেলিভারি চার্জ বাদ দেওয়া হলো
-                
-                let cogs = 0;
-                if (o.items && Array.isArray(o.items)) {
-                    cogs = o.items.reduce((sum, item) => {
-                        let pCost = item.purchasePrice !== undefined ? parseFloat(item.purchasePrice) : (globalDashData.products[item.name] || 0);
-                        return sum + (pCost * (parseInt(item.qty) || 1));
-                    }, 0);
-                } else {
-                    let cleanProductName = o.productName ? o.productName.replace(/\s*\(\+?x?\d+\)/gi, '').split(',')[0].trim() : '';
-                    cogs = (globalDashData.products[cleanProductName] || globalDashData.products[o.productName] || 0) * (parseInt(o.qty)||1);
-                }
-                
-                monthsMap[key].rev += (netRev - cogs);
+            if(!document.getElementById('expenseTrendChart')) return;
+            
+            let monthsMap = {}; 
+            let monthLabels = [];
+            for(let i=5; i>=0; i--) {
+                let d = new Date(); d.setMonth(d.getMonth() - i);
+                let label = d.toLocaleDateString('en-US', {month:'short', year:'2-digit'});
+                let sortKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                monthsMap[sortKey] = { label, exp: 0, rev: 0 }; monthLabels.push(label);
             }
+
+            globalDashData.expenses.forEach(e => {
+                let key = e.date.substring(0,7);
+                if(monthsMap[key]) monthsMap[key].exp += parseFloat(e.amount);
+            });
+
+            globalDashData.orders.forEach(o => {
+                if(o.status === 'Completed') {
+    let d = o.dateObj;
+    let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    if(monthsMap[key]) {
+        let amt = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0;
+        
+        // UPDATE: Accurate COGS calculation for Charts
+        let cogs = 0;
+        if (o.items && Array.isArray(o.items)) {
+            cogs = o.items.reduce((sum, item) => {
+                let pCost = item.purchasePrice !== undefined ? parseFloat(item.purchasePrice) : (globalDashData.products[item.name] || 0);
+                return sum + (pCost * (parseInt(item.qty) || 1));
+            }, 0);
+        } else {
+            let cleanProductName = o.productName ? o.productName.replace(/\s*\(\+?x?\d+\)/gi, '').split(',')[0].trim() : '';
+            cogs = (globalDashData.products[cleanProductName] || globalDashData.products[o.productName] || 0) * (parseInt(o.qty)||1);
         }
-    });
-
-    let expData = []; 
-    let profData = [];
-    Object.values(monthsMap).forEach(m => { expData.push(m.exp); profData.push(m.rev); });
-
-    if(eTrendChart) eTrendChart.destroy();
-    eTrendChart = new Chart(document.getElementById('expenseTrendChart'), {
-        type: 'bar',
-        data: {
-            labels: monthLabels,
-            datasets: [
-                { label: 'Gross Profit', data: profData, backgroundColor: '#3b82f6', borderRadius: 4 },
-                { label: 'Expenses', data: expData, backgroundColor: '#f43f5e', borderRadius: 4 }
-            ]
-        },
-        options: { responsive: true, maintainAspectRatio: false, scales: { x:{grid:{display:false}}, y:{beginAtZero:true, grid:{color:'#f1f5f9'}} } }
-    });
-
-    let catMap = {};
-    globalDashData.expenses.forEach(e => {
-        if(!catMap[e.category]) catMap[e.category] = 0;
-        catMap[e.category] += parseFloat(e.amount);
-    });
-    let catLabels = Object.keys(catMap); 
-    let catData = Object.values(catMap);
-
-    if(eCatChart) eCatChart.destroy();
-    eCatChart = new Chart(document.getElementById('expenseCategoryChart'), {
-        type: 'doughnut',
-        data: {
-            labels: catLabels,
-            datasets: [{ data: catData, backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b', '#06b6d4'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels:{usePointStyle:true, font:{size:10}} } } }
-    });
+        
+        monthsMap[key].rev += (amt - cogs);
+    }
 }
+});
+
+            let expData = []; 
+            let profData = [];
+            Object.values(monthsMap).forEach(m => { expData.push(m.exp); profData.push(m.rev); });
+
+            if(eTrendChart) eTrendChart.destroy();
+            eTrendChart = new Chart(document.getElementById('expenseTrendChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthLabels,
+                    datasets: [
+                        { label: 'Gross Profit', data: profData, backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'Expenses', data: expData, backgroundColor: '#f43f5e', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x:{grid:{display:false}}, y:{beginAtZero:true, grid:{color:'#f1f5f9'}} } }
+            });
+
             let catMap = {};
             globalDashData.expenses.forEach(e => {
                 if(!catMap[e.category]) catMap[e.category] = 0;
