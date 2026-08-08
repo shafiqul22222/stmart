@@ -3038,8 +3038,10 @@ if (order.productImage) {
                 else if(status === 'Completed') compOrders++; 
                 else if(status === 'Returned') { returnedCount++; returnLoss += parseFloat(o.deliveryCharge) || 0; }
                 
-                let amount = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0; 
-let qty = parseInt(o.qty) || 1; 
+                let rawAmount = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0; 
+let dCharge = parseFloat(o.deliveryCharge) || 0;
+let amount = rawAmount - dCharge;
+let qty = parseInt(o.qty) || 1;
 
 // UPDATE: Accurate Cost of Goods Sold (COGS) Calculation
 let cogsVal = 0;
@@ -3271,9 +3273,11 @@ if (o.items && Array.isArray(o.items)) {
     let d = o.dateObj;
     let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
     if(monthsMap[key]) {
-        let amt = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0;
-        
-        // UPDATE: Accurate COGS calculation for Charts
+        let rawAmt = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0;
+let dCharge = parseFloat(o.deliveryCharge) || 0;
+let amt = rawAmt - dCharge;
+                
+// UPDATE: Accurate COGS calculation for Charts
         let cogs = 0;
         if (o.items && Array.isArray(o.items)) {
             cogs = o.items.reduce((sum, item) => {
