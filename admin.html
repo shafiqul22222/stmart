@@ -2601,15 +2601,18 @@ if (order.productImage) {
         }
 
         function addToPOS(id) { 
-            const p = posProducts.find(x => x.id === id); 
-            if(!p || p.stock <= 0) return showToast('Out of Stock!', 'error'); 
-            let item = posCart.find(x => x.id === id); 
-            if(item) { 
-                if(item.qty < p.stock) item.qty++; 
-                else showToast('Max stock reached', 'error'); 
-            } else posCart.push({ id: p.id, name: p.name, price: parseFloat(p.price), qty: 1, stock: p.stock }); 
-            renderPOSCart(); 
-        }
+    const p = posProducts.find(x => x.id === id); 
+    if(!p || p.stock <= 0) return showToast('Out of Stock!', 'error'); 
+    let item = posCart.find(x => x.id === id); 
+    if(item) { 
+        if(item.qty < p.stock) item.qty++; 
+        else showToast('Max stock reached', 'error'); 
+    } else {
+        // Updated: Added purchasePrice to calculate profit properly
+        posCart.push({ id: p.id, name: p.name, price: parseFloat(p.price), purchasePrice: parseFloat(p.purchasePrice || 0), qty: 1, stock: p.stock }); 
+    }
+    renderPOSCart(); 
+}
 
         function updatePOSQty(id, diff) { 
             let item = posCart.find(x => x.id === id); 
@@ -3036,8 +3039,21 @@ if (order.productImage) {
                 else if(status === 'Returned') { returnedCount++; returnLoss += parseFloat(o.deliveryCharge) || 0; }
                 
                 let amount = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0; 
-                let qty = parseInt(o.qty) || 1; 
-                let cogsVal = (globalDashData.products[o.productName] || 0) * qty;
+let qty = parseInt(o.qty) || 1; 
+
+// UPDATE: Accurate Cost of Goods Sold (COGS) Calculation
+let cogsVal = 0;
+if (o.items && Array.isArray(o.items)) {
+    // If order has multiple items (like POS orders), calculate cost for each item
+    cogsVal = o.items.reduce((sum, item) => {
+        let pCost = item.purchasePrice !== undefined ? parseFloat(item.purchasePrice) : (globalDashData.products[item.name] || 0);
+        return sum + (pCost * (parseInt(item.qty) || 1));
+    }, 0);
+} else {
+    // Fallback for single item orders (Clean up string like "Product (x2)")
+    let cleanProductName = o.productName ? o.productName.replace(/\s*\(\+?x?\d+\)/gi, '').split(',')[0].trim() : '';
+    cogsVal = (globalDashData.products[cleanProductName] || globalDashData.products[o.productName] || 0) * qty;
+}
                 
                 if(o.phone) customers.add(o.phone); else if(o.email) customers.add(o.email);
                 if(status === 'Completed') { 
@@ -3252,15 +3268,27 @@ if (order.productImage) {
 
             globalDashData.orders.forEach(o => {
                 if(o.status === 'Completed') {
-                    let d = o.dateObj;
-                    let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-                    if(monthsMap[key]) {
-                        let amt = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0;
-                        let cogs = (globalDashData.products[o.productName] || 0) * (parseInt(o.qty)||1);
-                        monthsMap[key].rev += (amt - cogs);
-                    }
-                }
-            });
+    let d = o.dateObj;
+    let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    if(monthsMap[key]) {
+        let amt = parseFloat(String(o.totalPrice || o.price || 0).replace(/[^0-9.]/g, '')) || 0;
+        
+        // UPDATE: Accurate COGS calculation for Charts
+        let cogs = 0;
+        if (o.items && Array.isArray(o.items)) {
+            cogs = o.items.reduce((sum, item) => {
+                let pCost = item.purchasePrice !== undefined ? parseFloat(item.purchasePrice) : (globalDashData.products[item.name] || 0);
+                return sum + (pCost * (parseInt(item.qty) || 1));
+            }, 0);
+        } else {
+            let cleanProductName = o.productName ? o.productName.replace(/\s*\(\+?x?\d+\)/gi, '').split(',')[0].trim() : '';
+            cogs = (globalDashData.products[cleanProductName] || globalDashData.products[o.productName] || 0) * (parseInt(o.qty)||1);
+        }
+        
+        monthsMap[key].rev += (amt - cogs);
+    }
+}
+});
 
             let expData = []; 
             let profData = [];
