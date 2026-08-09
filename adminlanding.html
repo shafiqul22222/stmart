@@ -12,6 +12,26 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    
+    // এখানে আপনার আইডি বসানো হলো
+    fbq('init', '985687714528040'); 
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=985687714528040&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
     <!-- Tailwind Config for exact Green Theme Colors -->
     <script>
         tailwind.config = {
@@ -35,105 +55,52 @@
     </script>
 
     <style>
-        body { 
-            background-color: #F8FFF8;
-            overflow-x: hidden;
-            touch-action: manipulation;
-        }
-
-        /* Glassmorphism Background Blobs */
-        .bg-shape {
-            position: fixed;
-            filter: blur(100px);
-            z-index: -1;
-            opacity: 0.4;
-            animation: floatShape 10s infinite alternate;
-        }
-        @keyframes floatShape {
-            0% { transform: translateY(0) scale(1); }
-            100% { transform: translateY(-30px) scale(1.1); }
-        }
-
-        /* Loading Spinner */
+        body { background-color: #F8FFF8; overflow-x: hidden; touch-action: manipulation; }
+        .bg-shape { position: fixed; filter: blur(100px); z-index: -1; opacity: 0.4; animation: floatShape 10s infinite alternate; }
+        @keyframes floatShape { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-30px) scale(1.1); } }
         .loader { border: 4px solid #DCFCE7; border-top: 4px solid #16A34A; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 20vh auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #F8FFF8; }
         ::-webkit-scrollbar-thumb { background: #86efac; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #16A34A; }
-
-        /* Scroll Animations (Intersection Observer) */
-        .scroll-anim {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .scroll-anim.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Premium Pulsing Button */
+        .scroll-anim { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .scroll-anim.show { opacity: 1; transform: translateY(0); }
         .buy-btn-anim { animation: pulse-green 2s infinite; }
-        @keyframes pulse-green { 
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6); } 
-            70% { transform: scale(1.03); box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); } 
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); } 
-        }
-
-        /* Progress Bar Animation */
+        @keyframes pulse-green { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6); } 70% { transform: scale(1.03); box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); } }
         .progress-bar-fill { animation: fill-bar 1.5s ease-out forwards; }
         @keyframes fill-bar { 0% { width: 0%; } 100% { width: 85%; } }
-
-        /* Hide details marker for FAQ */
         details > summary::-webkit-details-marker { display: none; }
-
-        /* Star Rating Animation */
-        @keyframes starPop {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes starPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
         .star-anim i { animation: starPop 0.5s ease-out forwards; opacity: 0; }
         .star-anim i:nth-child(1) { animation-delay: 0.1s; }
         .star-anim i:nth-child(2) { animation-delay: 0.2s; }
         .star-anim i:nth-child(3) { animation-delay: 0.3s; }
         .star-anim i:nth-child(4) { animation-delay: 0.4s; }
         .star-anim i:nth-child(5) { animation-delay: 0.5s; }
-        
         html { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="text-slate-800 antialiased selection:bg-green-200 relative">
 
-    <!-- Background Glassmorphism Shapes -->
     <div class="bg-shape w-96 h-96 bg-green-300 rounded-full top-10 left-10"></div>
     <div class="bg-shape w-96 h-96 bg-emerald-300 rounded-full bottom-20 right-10" style="animation-delay: 2s;"></div>
 
-    <!-- Loading Screen -->
     <div id="loading" class="text-center min-h-screen flex flex-col justify-center items-center bg-[#F8FFF8] fixed inset-0 z-[100]">
         <div class="loader shadow-lg shadow-green-500/20"></div>
         <p class="font-extrabold text-green-800 mt-5 text-2xl tracking-wide">🚚 সারা দেশে ক্যাশ অন ডেলিভারি! নিরাপদে অর্ডার করুন...</p>
     </div>
 
-    <!-- Top Trust Banner -->
     <div class="bg-gradient-to-r from-green-600 to-emerald-500 text-white text-sm md:text-base py-2.5 text-center font-bold shadow-md z-50 relative">
         <span class="animate-pulse flex items-center justify-center gap-2">
-            <i class="fas fa-shipping-fast text-lg"></i> সারা বাংলাদেশে ডেলিভারি করা হয়! সীমিত সময়ের জন্য ডিস্কাউন্ট!
+            <i class="fas fa-shipping-fast text-lg"></i> সারা বাংলাদেশে ডেলিভারি করা হয়! সীমিত সময়ের জন্য ডিস্কাউন্ট!
         </span>
     </div>
 
-    <!-- Main Content Container -->
     <div id="landing-content" class="hidden w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-        
         <div class="bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] sm:rounded-3xl border border-white overflow-hidden flex flex-col lg:flex-row pb-24 lg:pb-0">
             
-            <!-- Left Side: Product Details -->
             <div class="w-full lg:w-7/12 xl:w-2/3 p-5 md:p-8 lg:p-10 lg:border-r border-green-50">
-                
-                <!-- Dynamic Live Counters -->
                 <div class="flex flex-wrap items-center gap-3 mb-6 scroll-anim">
                     <div class="flex items-center gap-2 text-green-700 font-bold text-sm bg-green-100 px-4 py-1.5 rounded-full border border-green-200 shadow-sm">
                         <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-600"></span></span>
@@ -144,10 +111,8 @@
                     </div>
                 </div>
 
-                <!-- Headline -->
                 <h1 id="viewHeadline" class="text-3xl md:text-[2.75rem] font-black leading-tight text-slate-900 mb-6 scroll-anim drop-shadow-sm"></h1>
 
-                <!-- Trust Badges (Under Headline) -->
                 <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-slate-700 mb-6 scroll-anim">
                     <div class="flex items-center gap-1 text-orange-400 text-lg star-anim">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
@@ -163,36 +128,24 @@
                     </div>
                 </div>
 
-                <!-- Hero Section (Gallery Slider & Click-to-Zoom) -->
                 <div class="scroll-anim">
                     <div class="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-50 group">
-                        <!-- Main Display Image -->
                         <img id="viewImage" src="" onclick="openImageZoom(this.src)" class="w-full h-auto object-cover max-h-[500px] cursor-zoom-in transition-transform duration-300 hover:scale-105" alt="Product Image">
-                        
-                        <!-- Tap to Zoom Badge Hint -->
                         <div class="absolute top-4 left-4 bg-black/60 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none shadow-md">
                             <i class="fas fa-search-plus"></i> বড় করে দেখতে ক্লিক করুন
                         </div>
-
-                        <!-- Navigation Slider Arrows -->
                         <button id="prevImgBtn" onclick="changeImage(-1)" class="hidden absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-800 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition z-10 font-bold"><i class="fas fa-chevron-left"></i></button>
                         <button id="nextImgBtn" onclick="changeImage(1)" class="hidden absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-800 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition z-10 font-bold"><i class="fas fa-chevron-right"></i></button>
-
-                        <!-- Money Back Badge -->
                         <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-green-800 font-extrabold px-4 py-2 rounded-xl text-sm shadow-xl flex items-center gap-2 border border-green-100 pointer-events-none">
                             <i class="fas fa-undo text-green-600 text-lg"></i> মানি ব্যাক গ্যারান্টি
                         </div>
                     </div>
-
-                    <!-- Dynamic Thumbnails Gallery -->
                     <div id="thumbContainer" class="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-none"></div>
                 </div>
 
-                <!-- Green Pricing & Stock Box -->
                 <div class="mt-8 scroll-anim">
                     <div class="bg-gradient-to-br from-[#166534] via-[#16A34A] to-[#22C55E] rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6">
                         <div class="absolute -right-10 -top-10 text-white/10 text-9xl transform rotate-12"><i class="fas fa-tags"></i></div>
-                        
                         <div class="z-10 text-center md:text-left text-white">
                             <div class="inline-block bg-black/20 backdrop-blur-md border border-white/20 text-green-100 font-bold px-4 py-1.5 rounded-full text-sm mb-3">
                                 <i class="fas fa-bolt text-yellow-300"></i> স্পেশাল ডিসকাউন্ট প্রাইস
@@ -202,15 +155,13 @@
                                 অফার মূল্য: ৳<span id="viewPrice"></span>
                             </p>
                         </div>
-                        
                         <div class="z-10 flex flex-col gap-3 w-full md:w-auto text-center">
-                            <button onclick="document.getElementById('checkoutSection').scrollIntoView({behavior: 'smooth'})" class="w-full md:w-auto bg-white text-green-700 hover:bg-green-50 font-black px-10 py-5 rounded-2xl text-xl shadow-[0_10px_25px_rgba(0,0,0,0.2)] flex items-center justify-center gap-3 transition-transform hover:-translate-y-1 buy-btn-anim">
+                            <button onclick="trackInitiateCheckout(); document.getElementById('checkoutSection').scrollIntoView({behavior: 'smooth'})" class="w-full md:w-auto bg-white text-green-700 hover:bg-green-50 font-black px-10 py-5 rounded-2xl text-xl shadow-[0_10px_25px_rgba(0,0,0,0.2)] flex items-center justify-center gap-3 transition-transform hover:-translate-y-1 buy-btn-anim">
                                 <i class="fas fa-shopping-cart text-2xl"></i> অর্ডার করুন
                             </button>
                         </div>
                     </div>
 
-                    <!-- Green Limited Stock Indicator -->
                     <div class="mt-5 bg-green-50 border border-green-200 rounded-2xl p-5 flex flex-col gap-3 shadow-inner">
                         <div class="flex justify-between items-end text-sm md:text-base font-extrabold text-green-800">
                             <span class="flex items-center gap-2"><i class="fas fa-stopwatch text-green-600 animate-pulse text-xl"></i> অফারটি শেষ হওয়ার আগে দ্রুত অর্ডার করুন!</span>
@@ -222,7 +173,6 @@
                     </div>
                 </div>
 
-                <!-- Animated Countdown Timer -->
                 <div class="mt-8 bg-white border border-green-100 rounded-2xl p-6 text-center shadow-lg relative overflow-hidden scroll-anim">
                     <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-600 to-emerald-400"></div>
                     <span class="text-green-800 font-extrabold text-xl flex items-center justify-center gap-2 mb-5">
@@ -235,62 +185,42 @@
                     </div>
                 </div>
 
-                <!-- Premium Description -->
                 <div class="mt-12 scroll-anim">
-                    <h2 class="text-3xl font-black text-slate-800 mb-6 flex items-center gap-3">
-                        <span class="w-2 h-8 bg-green-500 rounded-full"></span> প্রোডাক্ট বিবরণ
-                    </h2>
+                    <h2 class="text-3xl font-black text-slate-800 mb-6 flex items-center gap-3"><span class="w-2 h-8 bg-green-500 rounded-full"></span> প্রোডাক্ট বিবরণ</h2>
                     <div class="bg-white/80 backdrop-blur-md p-8 rounded-3xl border border-green-100 shadow-md text-slate-700 font-medium text-lg leading-[1.8] whitespace-pre-wrap" id="viewDesc"></div>
                 </div>
 
-                <!-- Video Section -->
                 <div id="videoContainer" class="hidden mt-12 scroll-anim">
-                    <h2 class="text-3xl font-black text-slate-800 mb-6 flex items-center gap-3">
-                        <span class="w-2 h-8 bg-green-500 rounded-full"></span> প্রোডাক্ট ভিডিও
-                    </h2>
+                    <h2 class="text-3xl font-black text-slate-800 mb-6 flex items-center gap-3"><span class="w-2 h-8 bg-green-500 rounded-full"></span> প্রোডাক্ট ভিডিও</h2>
                     <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900 relative">
                         <iframe id="viewVideo" class="w-full h-64 md:h-[450px]" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 </div>
                 
-                <!-- Features Section (Glass Effect + Gradient Icon) -->
                 <div class="mt-14 scroll-anim">
-                    <h3 class="text-3xl font-black text-slate-800 mb-8 flex items-center gap-3">
-                        <span class="w-2 h-8 bg-green-500 rounded-full"></span> কেন এই প্রোডাক্টটি সেরা?
-                    </h3>
-                    <div id="viewFeatures" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <!-- Cards injected via JS -->
-                    </div>
+                    <h3 class="text-3xl font-black text-slate-800 mb-8 flex items-center gap-3"><span class="w-2 h-8 bg-green-500 rounded-full"></span> কেন এই প্রোডাক্টটি সেরা?</h3>
+                    <div id="viewFeatures" class="grid grid-cols-1 sm:grid-cols-2 gap-5"></div>
                 </div>
 
-                <!-- Delivery Timeline UI -->
                 <div class="mt-14 bg-white/60 backdrop-blur rounded-3xl border border-green-100 p-8 shadow-md scroll-anim">
                     <h3 class="text-2xl font-black text-slate-800 mb-10 text-center">সহজ অর্ডারিং প্রসেস</h3>
-                    
                     <div class="relative flex flex-col md:flex-row justify-between items-center max-w-3xl mx-auto">
-                        <!-- Horizontal line for Desktop -->
                         <div class="hidden md:block absolute top-1/2 left-0 w-full h-1.5 bg-green-100 -translate-y-1/2 z-0 rounded-full"></div>
-                        
-                        <!-- Timeline Items -->
                         <div class="relative z-10 flex flex-col items-center gap-3 mb-8 md:mb-0 group">
                             <div class="w-16 h-16 bg-white border-4 border-green-200 text-green-600 rounded-full flex items-center justify-center text-2xl shadow-lg group-hover:bg-green-500 group-hover:text-white transition duration-300 group-hover:scale-110"><i class="fas fa-mouse-pointer"></i></div>
                             <div class="text-center"><p class="font-bold text-slate-800 text-lg">অর্ডার Today</p></div>
                         </div>
-                        <!-- Vertical line for mobile -->
                         <div class="block md:hidden h-10 w-1 bg-green-100 -mt-6 mb-2"></div>
-                        
                         <div class="relative z-10 flex flex-col items-center gap-3 mb-8 md:mb-0 group">
                             <div class="w-16 h-16 bg-white border-4 border-green-200 text-green-600 rounded-full flex items-center justify-center text-2xl shadow-lg group-hover:bg-green-500 group-hover:text-white transition duration-300 group-hover:scale-110"><i class="fas fa-box-open"></i></div>
                             <div class="text-center"><p class="font-bold text-slate-800 text-lg">Packaging</p></div>
                         </div>
                         <div class="block md:hidden h-10 w-1 bg-green-100 -mt-6 mb-2"></div>
-
                         <div class="relative z-10 flex flex-col items-center gap-3 mb-8 md:mb-0 group">
                             <div class="w-16 h-16 bg-white border-4 border-green-200 text-green-600 rounded-full flex items-center justify-center text-2xl shadow-lg group-hover:bg-green-500 group-hover:text-white transition duration-300 group-hover:scale-110"><i class="fas fa-truck-fast"></i></div>
                             <div class="text-center"><p class="font-bold text-slate-800 text-lg">Courier</p></div>
                         </div>
                         <div class="block md:hidden h-10 w-1 bg-green-100 -mt-6 mb-2"></div>
-
                         <div class="relative z-10 flex flex-col items-center gap-3 group">
                             <div class="w-16 h-16 bg-green-600 border-4 border-green-200 text-white rounded-full flex items-center justify-center text-2xl shadow-lg group-hover:bg-green-700 transition duration-300 group-hover:scale-110"><i class="fas fa-home"></i></div>
                             <div class="text-center"><p class="font-bold text-slate-800 text-lg">Delivery</p></div>
@@ -298,21 +228,15 @@
                     </div>
                 </div>
 
-                <!-- Professional Review Section -->
                 <div id="reviewsContainer" class="hidden mt-14 scroll-anim">
                     <div class="flex items-center justify-between mb-8">
-                        <h2 class="text-3xl font-black text-slate-800 flex items-center gap-3">
-                            <span class="w-2 h-8 bg-green-500 rounded-full"></span> কাস্টমার রিভিউ
-                        </h2>
+                        <h2 class="text-3xl font-black text-slate-800 flex items-center gap-3"><span class="w-2 h-8 bg-green-500 rounded-full"></span> কাস্টমার রিভিউ</h2>
                     </div>
                     <div id="reviewsList" class="grid grid-cols-1 gap-6"></div>
                 </div>
 
-                <!-- Premium Accordion FAQ Section -->
                 <div class="mt-14 mb-8 scroll-anim">
-                    <h2 class="text-3xl font-black text-slate-800 mb-8 flex items-center gap-3">
-                        <span class="w-2 h-8 bg-green-500 rounded-full"></span> সাধারণ জিজ্ঞাসা (FAQ)
-                    </h2>
+                    <h2 class="text-3xl font-black text-slate-800 mb-8 flex items-center gap-3"><span class="w-2 h-8 bg-green-500 rounded-full"></span> সাধারণ জিজ্ঞাসা (FAQ)</h2>
                     <div class="space-y-4">
                         <details class="bg-white border border-green-100 rounded-2xl overflow-hidden group shadow-sm hover:shadow-md transition duration-300">
                             <summary class="font-bold text-slate-800 p-6 text-lg cursor-pointer flex justify-between items-center group-open:bg-green-50 group-open:text-green-700 transition outline-none">
@@ -355,12 +279,9 @@
 
             </div>
 
-            <!-- Right Side: Sticky Checkout Form Premium -->
             <div class="w-full lg:w-5/12 xl:w-1/3 p-5 md:p-8 relative">
                 
                 <div id="checkoutSection" class="bg-white border border-green-100 rounded-[2rem] shadow-[0_20px_50px_-10px_rgba(22,163,74,0.15)] relative overflow-hidden lg:sticky lg:top-8 mt-2 lg:mt-0">
-                    
-                    <!-- Progress Step Indicator -->
                     <div class="bg-slate-50 pt-6 px-6 pb-4 border-b border-green-100">
                         <div class="flex items-center justify-center gap-4 text-sm font-bold">
                             <div class="flex items-center gap-2 text-green-600"><div class="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center"><i class="fas fa-check text-xs"></i></div> Details</div>
@@ -369,7 +290,6 @@
                         </div>
                     </div>
 
-                    <!-- Trust Badges above form -->
                     <div class="grid grid-cols-2 gap-2 p-4 bg-green-50/50">
                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white p-2 rounded-lg border border-green-50"><i class="fas fa-lock text-green-500"></i> SSL Secure</div>
                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white p-2 rounded-lg border border-green-50"><i class="fas fa-award text-green-500"></i> 100% Original</div>
@@ -377,36 +297,25 @@
                         <div class="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white p-2 rounded-lg border border-green-50"><i class="fas fa-hand-holding-usd text-green-500"></i> Cash On Delivery</div>
                     </div>
                     
-                    <!-- Order Form -->
                     <form id="orderForm" class="p-6 space-y-5 bg-white">
                         
                         <div class="space-y-4">
-                            <!-- Name Input -->
                             <div>
-                                <label for="cName" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2">
-                                    <i class="fas fa-user text-green-600"></i> আপনার নাম <span class="text-red-500">*</span>
-                                </label>
+                                <label for="cName" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-user text-green-600"></i> আপনার নাম <span class="text-red-500">*</span></label>
                                 <input type="text" id="cName" required class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400" placeholder="যেমন: মোঃ রহিম হোসাইন" />
                             </div>
                             
-                            <!-- Mobile Input -->
                             <div>
-                                <label for="cPhone" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2">
-                                    <i class="fas fa-phone-alt text-green-600"></i> মোবাইল নাম্বার <span class="text-red-500">*</span>
-                                </label>
+                                <label for="cPhone" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-phone-alt text-green-600"></i> মোবাইল নাম্বার <span class="text-red-500">*</span></label>
                                 <input type="tel" id="cPhone" required class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400" placeholder="যেমন: 017XXXXXXXX" />
                             </div>
 
-                            <!-- Address Input -->
                             <div>
-                                <label for="cAddress" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2">
-                                    <i class="fas fa-map-marker-alt text-green-600"></i> সম্পূর্ণ ঠিকানা <span class="text-red-500">*</span>
-                                </label>
+                                <label for="cAddress" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-map-marker-alt text-green-600"></i> সম্পূর্ণ ঠিকানা <span class="text-red-500">*</span></label>
                                 <textarea id="cAddress" required rows="2" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400 resize-none" placeholder="গ্রাম/মহল্লা, থানা, জেলা উল্লেখ করুন"></textarea>
                             </div>
                         </div>
                         
-                        <!-- Radio Area -->
                         <div class="pt-2">
                             <label class="block text-sm font-bold text-slate-700 mb-3">ডেলিভারি এরিয়া <span class="text-red-500">*</span></label>
                             <div class="flex flex-col gap-3">
@@ -427,7 +336,6 @@
                             </div>
                         </div>
 
-                        <!-- Checkout Summary -->
                         <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mt-6 shadow-inner relative">
                             <h4 class="text-slate-800 font-bold text-lg mb-4 flex items-center gap-2 border-b border-slate-200 pb-2"><i class="fas fa-file-invoice text-green-600"></i> অর্ডার সামারি</h4>
                             
@@ -435,12 +343,10 @@
                                 <span class="flex items-center gap-2"><i class="fas fa-box text-slate-400"></i> প্রোডাক্ট মূল্য:</span>
                                 <span>৳<span id="sumPrice">0</span></span>
                             </div>
-                            
                             <div class="flex justify-between items-center text-base mb-3 font-medium text-slate-600">
                                 <span class="flex items-center gap-2"><i class="fas fa-truck text-slate-400"></i> ডেলিভারি চার্জ:</span>
                                 <span class="text-green-600">+ ৳<span id="sumCharge">0</span></span>
                             </div>
-                            
                             <div class="flex justify-between items-center text-base mb-4 font-medium text-slate-600">
                                 <span class="flex items-center gap-2"><i class="fas fa-tags text-slate-400"></i> ডিসকাউন্ট:</span>
                                 <span class="text-red-500">- ৳0</span>
@@ -460,7 +366,6 @@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -477,7 +382,7 @@
             <span class="text-xs font-bold text-red-500 animate-pulse">🔥 Limited Stock</span>
             <span class="text-xl font-black text-slate-800">৳<span id="stickyPrice"></span></span>
         </div>
-        <button onclick="document.getElementById('checkoutSection').scrollIntoView({behavior: 'smooth'})" class="bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black py-3 px-8 rounded-xl shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 buy-btn-anim text-lg">
+        <button onclick="trackInitiateCheckout(); document.getElementById('checkoutSection').scrollIntoView({behavior: 'smooth'})" class="bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black py-3 px-8 rounded-xl shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 buy-btn-anim text-lg">
             Buy Now <i class="fas fa-arrow-right"></i>
         </button>
     </div>
@@ -556,7 +461,6 @@
     </div>
 
     <script>
-        // Animations on Scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -565,13 +469,11 @@
             });
         }, { threshold: 0.1 });
         
-        // English to Bengali Number Converter
         function toBengaliNum(num) {
             const banglaDigits = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
             return num.toString().split('').map(digit => banglaDigits[digit] || digit).join('');
         }
 
-        // Live Counter Logic
         let liveCount = 23;
         let orderCount = 58;
 
@@ -590,7 +492,6 @@
             }
         }, 15000);
 
-        // Countdown Timer Logic
         function startTimer() {
             let time = 5 * 3600 + 45 * 60 + 30; 
             setInterval(() => {
@@ -606,7 +507,17 @@
         }
         startTimer();
 
-        // Firebase Configuration
+        // Facebook Pixel Custom Event Function
+        function trackInitiateCheckout() {
+            if(typeof fbq !== 'undefined' && lpData) {
+                fbq('track', 'InitiateCheckout', {
+                    content_name: lpData.productName,
+                    value: lpData.offerPrice,
+                    currency: 'BDT'
+                });
+            }
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyB3NEk6Ske5-43HEYg4dNc4OU-f9o6Xz60",
             authDomain: "shafiqul-survey.firebaseapp.com",
@@ -618,7 +529,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // URL Parameters Logic
         const urlParams = new URLSearchParams(window.location.search);
         const pageId = urlParams.get('id');
         let lpData = null;
@@ -629,7 +539,6 @@
             loadLandingPage();
         }
 
-        // Safe Image URL Extraction Helper (Fixes [object Object] and broken images)
         function getImageUrl(item) {
             if (!item) return '';
             if (typeof item === 'string') return item.trim();
@@ -639,13 +548,11 @@
             return '';
         }
 
-        // Dynamic Gallery Processor
         let productImagesList = [];
         let currentImgIndex = 0;
 
         function setupGallery(data) {
             let images = [];
-
             if (Array.isArray(data.images) && data.images.length > 0) {
                 images = data.images.map(getImageUrl).filter(url => url !== '');
             } else if (Array.isArray(data.galleryImages) && data.galleryImages.length > 0) {
@@ -661,13 +568,11 @@
                 }
             }
 
-            // Fallback if no images found
             if (images.length === 0) {
                 const fallback = getImageUrl(data.heroImage);
                 if (fallback) images = [fallback];
             }
 
-            // If only 1 image found, duplicate for thumbnails display
             if (images.length === 1) {
                 productImagesList = [images[0], images[0], images[0]];
             } else {
@@ -678,7 +583,6 @@
                 setActiveImage(0);
             }
 
-            // Show arrows if multiple distinct images exist
             const uniqueImages = new Set(productImagesList);
             if(uniqueImages.size > 1) {
                 document.getElementById('prevImgBtn').classList.remove('hidden');
@@ -688,7 +592,6 @@
                 document.getElementById('nextImgBtn').classList.add('hidden');
             }
 
-            // Render Thumbnails
             const thumbContainer = document.getElementById('thumbContainer');
             thumbContainer.innerHTML = productImagesList.map((imgUrl, index) => `
                 <img src="${imgUrl}" onclick="setActiveImage(${index})" onerror="this.style.display='none'" class="thumb-item w-20 h-20 rounded-xl border-2 object-cover cursor-pointer shadow-sm transition-all duration-200 flex-shrink-0 ${index === 0 ? 'border-green-500 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}">
@@ -717,7 +620,6 @@
             setActiveImage(currentImgIndex);
         }
 
-        // Image Zoom Modal Lightbox Logic
         let currentZoomScale = 1;
         function openImageZoom(src) {
             if (!src) return;
@@ -756,10 +658,8 @@
                     document.getElementById('stickyPrice').innerText = lpData.offerPrice;
                     document.getElementById('viewDesc').innerText = lpData.description;
                     
-                    // Setup Gallery safely
                     setupGallery(lpData);
                     
-                    // Features
                     const featuresHtml = lpData.features.split('\n').filter(f=>f.trim()!=='').map(f => `
                         <div class="bg-white/60 backdrop-blur-lg p-5 rounded-2xl border border-white shadow-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex items-start gap-4 group">
                             <div class="bg-gradient-to-br from-green-500 to-emerald-400 text-white w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
@@ -770,7 +670,6 @@
                     `).join('');
                     document.getElementById('viewFeatures').innerHTML = featuresHtml;
 
-                    // Video
                     if(lpData.video) {
                         let embedUrl = lpData.video;
                         if(lpData.video.includes('watch?v=')) {
@@ -782,7 +681,6 @@
                         document.getElementById('videoContainer').classList.remove('hidden');
                     }
 
-                    // Reviews
                     if(lpData.reviews && lpData.reviews.length > 0) {
                         document.getElementById('reviewsContainer').classList.remove('hidden');
                         document.getElementById('reviewsList').innerHTML = lpData.reviews.map(r => `
@@ -823,6 +721,16 @@
                     }, 100);
 
                     updateTotal();
+
+                    // --- Facebook Pixel ViewContent Event Trigger ---
+                    if(typeof fbq !== 'undefined') {
+                        fbq('track', 'ViewContent', {
+                            content_name: lpData.productName,
+                            value: lpData.offerPrice,
+                            currency: 'BDT'
+                        });
+                    }
+                    
                 } else {
                     document.body.innerHTML = "<div class='min-h-screen flex flex-col items-center justify-center bg-[#F8FFF8]'><div class='w-24 h-24 bg-slate-200 text-slate-400 rounded-full flex items-center justify-center text-5xl mb-6'><i class='fas fa-box-open'></i></div><h2 class='font-black text-3xl md:text-4xl text-slate-700'>অফারটি পাওয়া যায়নি!</h2></div>";
                 }
@@ -831,7 +739,6 @@
             }
         }
 
-        // Calculate total amount
         function updateTotal() {
             if(!lpData) return;
             const isInside = document.querySelector('input[name="area"]:checked').value === 'Inside Dhaka';
@@ -843,7 +750,6 @@
             document.getElementById('sumTotal').innerText = price + dCharge;
         }
 
-        // Form Submit to Firebase Orders
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -875,6 +781,16 @@
 
             try {
                 await db.collection('orders').add(orderData);
+                
+                // --- Facebook Pixel Purchase Event Trigger ---
+                if(typeof fbq !== 'undefined') {
+                    fbq('track', 'Purchase', {
+                        content_name: lpData.productName,
+                        value: lpData.offerPrice + dCharge,
+                        currency: 'BDT'
+                    });
+                }
+
                 document.getElementById('landing-content').classList.add('hidden');
                 document.getElementById('footerContent').classList.add('hidden');
                 
