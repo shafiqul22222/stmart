@@ -2,7 +2,6 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <!-- Updated: Removed user-scalable=no to allow natural pinch-to-zoom on mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Special Offer | Premium Order</title>
     
@@ -25,7 +24,6 @@
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
     
-    // এখানে আপনার আইডি বসানো হলো
     fbq('init', '985687714528040'); 
     fbq('track', 'PageView');
     </script>
@@ -80,7 +78,6 @@
         .star-anim i:nth-child(5) { animation-delay: 0.5s; }
         html { scroll-behavior: smooth; }
 
-        /* Speed Boost & Bug Fix */
         @media (max-width: 768px) {
             .bg-shape { display: none !important; animation: none !important; }
             .backdrop-blur-xl, .backdrop-blur-md, .backdrop-blur, .backdrop-blur-lg { 
@@ -100,7 +97,6 @@
         </span>
     </div>
 
-    <!-- Removed the #loading spinner completely. Content shows instantly -->
     <div id="landing-content" class="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         <div class="bg-white/90 shadow-[0_8px_30px_rgb(0,0,0,0.06)] sm:rounded-3xl border border-slate-100 overflow-hidden flex flex-col lg:flex-row pb-24 lg:pb-0">
             
@@ -136,7 +132,6 @@
                     <div class="relative w-full rounded-2xl overflow-hidden shadow-xl border border-slate-200 bg-slate-50 group">
                         <img id="viewImage" src="" onclick="openImageZoom(this.src)" class="w-full h-auto object-cover max-h-[500px] cursor-zoom-in transition-transform duration-300 hover:scale-105" alt="Product Image">
                         
-                        <!-- Updated: Removed backdrop-blur here to prevent white box bug -->
                         <div class="absolute top-4 left-4 bg-black/70 text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none shadow-md">
                             <i class="fas fa-search-plus"></i> বড় করে দেখতে ক্লিক করুন
                         </div>
@@ -148,7 +143,6 @@
                             <i class="fas fa-undo text-green-600 text-lg"></i> মানি ব্যাক গ্যারান্টি
                         </div>
                     </div>
-                    <!-- Thumbnails container (will auto-hide if only 1 image) -->
                     <div id="thumbContainer" class="hidden flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-none"></div>
                 </div>
 
@@ -156,14 +150,10 @@
                     <div class="bg-gradient-to-br from-[#166534] via-[#16A34A] to-[#22C55E] rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6">
                         <div class="absolute -right-10 -top-10 text-white/10 text-9xl transform rotate-12"><i class="fas fa-tags"></i></div>
                         <div class="z-10 text-center md:text-left text-white w-full">
-                            <!-- Updated: Yellow bg and dark text for clear visibility -->
                             <div class="inline-block bg-yellow-400 text-slate-900 font-extrabold px-4 py-1.5 rounded-full text-sm mb-4 shadow-md border border-yellow-300">
                                 <i class="fas fa-bolt text-red-600 text-base"></i> স্পেশাল ডিসকাউন্ট প্রাইস
                             </div>
-                            
-                            <!-- Updated: Red Strikethrough added (decoration-red-500) -->
                             <p class="text-green-100 line-through decoration-red-500 decoration-2 mb-1 font-medium text-xl">রেগুলার প্রাইস: ৳<span id="viewOldPrice">---</span></p>
-                            
                             <p class="text-5xl md:text-[3.5rem] font-black drop-shadow-lg text-white">
                                 অফার মূল্য: ৳<span id="viewPrice">---</span>
                             </p>
@@ -266,7 +256,7 @@
                                 <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 transition group-open:rotate-180"><i class="fas fa-chevron-down"></i></span>
                             </summary>
                             <div class="p-6 pt-0 text-slate-600 leading-relaxed bg-green-50 font-medium text-base border-t border-green-100/50">
-                                আমাদের রয়েছে 100% ক্যাশ অন ডেলিভারি সুবিধা। অর্থাৎ আপনি পণ্য হাতে পেয়ে, চেক করে ডেলিভারি ম্যানকে পেমেন্ট করবেন। আগে কোনো টাকা দিতে হবে না।
+                                আমাদের রয়েছে 100% ক্যাশ অন ডেলিভারি সুবিধা। অর্থাৎ আপনি পণ্য হাতে পেয়ে, চেক করে ডেলিভারি ম্যানকে পেমেন্ট করবেন। আগে কোনো টাকা দিতে হবে কাশী।
                             </div>
                         </details>
                         <details class="bg-white border border-slate-100 rounded-2xl overflow-hidden group shadow-sm hover:shadow-md transition duration-300">
@@ -314,9 +304,31 @@
                                 <input type="tel" id="cPhone" autocomplete="tel" required pattern="01[3-9][0-9]{8}" maxlength="11" title="সঠিক ১১ ডিজিটের মোবাইল নাম্বার দিন (যেমন: 01712345678)" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400" placeholder="যেমন: 017XXXXXXXX" />
                             </div>
 
+                            <!-- New: Variant/Color Field -->
+                            <div>
+                                <label for="cVariant" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-palette text-green-600"></i> কালার / সাইজ (যদি থাকে)</label>
+                                <input type="text" id="cVariant" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400" placeholder="যেমন: লাল কালার, XL সাইজ" />
+                            </div>
+
                             <div>
                                 <label for="cAddress" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-map-marker-alt text-green-600"></i> সম্পূর্ণ ঠিকানা <span class="text-red-500">*</span></label>
                                 <textarea id="cAddress" autocomplete="street-address" required rows="2" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400 resize-none" placeholder="গ্রাম/মহল্লা, থানা, জেলা উল্লেখ করুন"></textarea>
+                            </div>
+
+                            <!-- New: Customer Note Field -->
+                            <div>
+                                <label for="cNote" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-comment-dots text-green-600"></i> নোট (ঐচ্ছিক)</label>
+                                <textarea id="cNote" rows="2" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400 resize-none" placeholder="স্পেশাল কোনো ইন্সট্রাকশন থাকলে লিখুন"></textarea>
+                            </div>
+
+                            <!-- New: Quantity Selector -->
+                            <div>
+                                <label class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-layer-group text-green-600"></i> পরিমাণ (Quantity) <span class="text-red-500">*</span></label>
+                                <div class="flex items-center gap-4 bg-slate-50 border-2 border-slate-200 rounded-xl p-2 w-max">
+                                    <button type="button" onclick="changeQty(-1)" class="w-10 h-10 rounded-lg bg-white shadow-sm border border-slate-200 text-slate-600 font-bold text-xl flex items-center justify-center hover:bg-slate-100 hover:text-red-500 transition">-</button>
+                                    <span id="cQty" class="text-xl font-black text-slate-800 w-8 text-center">1</span>
+                                    <button type="button" onclick="changeQty(1)" class="w-10 h-10 rounded-lg bg-white shadow-sm border border-slate-200 text-slate-600 font-bold text-xl flex items-center justify-center hover:bg-slate-100 hover:text-green-600 transition">+</button>
+                                </div>
                             </div>
                         </div>
                         
@@ -448,7 +460,7 @@
         </div>
     </div>
 
-    <!-- Updated: Simple Native Image Zoom Modal -->
+    <!-- Image Zoom Modal -->
     <div id="imageZoomModal" class="fixed inset-0 bg-black/95 z-[300] hidden flex-col transition-opacity">
         <div class="absolute top-4 right-4 z-50">
             <button onclick="closeImageZoom()" class="bg-white/20 hover:bg-white/40 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl transition shadow-lg"><i class="fas fa-times"></i></button>
@@ -474,6 +486,7 @@
 
         let liveCount = 23;
         let orderCount = 58;
+        let currentQty = 1; // New variable for Quantity
 
         setInterval(() => {
             let offset = Math.floor(Math.random() * 5) - 2;
@@ -571,7 +584,6 @@
                 if (fallback) images = [fallback];
             }
 
-            // Updated: Removes the 3 image duplication. Just keeps exact images.
             productImagesList = images;
 
             if(productImagesList.length > 0) {
@@ -579,7 +591,6 @@
             }
 
             const thumbContainer = document.getElementById('thumbContainer');
-            // Updated: Hide thumbnail block completely if there's only 1 image
             if(productImagesList.length > 1) {
                 document.getElementById('prevImgBtn').classList.remove('hidden');
                 document.getElementById('nextImgBtn').classList.remove('hidden');
@@ -617,19 +628,27 @@
             setActiveImage(currentImgIndex);
         }
 
-        // Updated: Native Zoom Handling
         function openImageZoom(src) {
             if (!src) return;
             document.getElementById('zoomModalImg').src = src;
             document.getElementById('imageZoomModal').classList.remove('hidden');
             document.getElementById('imageZoomModal').classList.add('flex');
-            document.body.style.overflow = 'hidden'; // Stop background scrolling
+            document.body.style.overflow = 'hidden'; 
         }
 
         function closeImageZoom() {
             document.getElementById('imageZoomModal').classList.add('hidden');
             document.getElementById('imageZoomModal').classList.remove('flex');
-            document.body.style.overflow = ''; // Restore scrolling
+            document.body.style.overflow = ''; 
+        }
+
+        // New: Quantity change function
+        function changeQty(amount) {
+            currentQty += amount;
+            if (currentQty < 1) currentQty = 1; // Minimum 1 quantity
+            if (currentQty > 10) currentQty = 10; // Maximum 10 limit (change if needed)
+            document.getElementById('cQty').innerText = currentQty;
+            updateTotal(); // Calculate price automatically
         }
 
         async function loadLandingPage() {
@@ -722,15 +741,18 @@
             }
         }
 
+        // Updated: Total calculation based on Quantity
         function updateTotal() {
             if(!lpData) return;
             const isInside = document.querySelector('input[name="area"]:checked').value === 'Inside Dhaka';
             const dCharge = isInside ? lpData.deliveryInside : lpData.deliveryOutside;
             const price = lpData.offerPrice;
             
-            document.getElementById('sumPrice').innerText = price;
+            const totalProductPrice = price * currentQty; // Multiplying by qty
+            
+            document.getElementById('sumPrice').innerText = totalProductPrice;
             document.getElementById('sumCharge').innerText = dCharge;
-            document.getElementById('sumTotal').innerText = price + dCharge;
+            document.getElementById('sumTotal').innerText = totalProductPrice + dCharge;
         }
 
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
@@ -742,20 +764,24 @@
 
             const isInside = document.querySelector('input[name="area"]:checked').value === 'Inside Dhaka';
             const dCharge = isInside ? lpData.deliveryInside : lpData.deliveryOutside;
+            const totalPayable = (lpData.offerPrice * currentQty) + dCharge;
             
             const mainImg = getImageUrl(lpData.heroImage) || productImagesList[0] || '';
 
+            // Updated Data mapping for Firebase adding new fields
             const orderData = {
                 name: document.getElementById('cName').value,
                 phone: document.getElementById('cPhone').value,
                 address: document.getElementById('cAddress').value,
+                variant: document.getElementById('cVariant').value || 'N/A', // New Variant Data
+                note: document.getElementById('cNote').value || '',          // New Note Data
                 deliveryArea: isInside ? 'Inside Dhaka' : 'Outside Dhaka',
                 deliveryCharge: dCharge,
                 productName: lpData.productName,
                 productImage: mainImg,
                 price: lpData.offerPrice,
-                totalPrice: lpData.offerPrice + dCharge,
-                qty: 1,
+                qty: currentQty, // Updated Quantity Data
+                totalPrice: totalPayable, // Updated Total calculation
                 status: 'Pending',
                 paymentStatus: 'Unpaid',
                 source: 'Landing Page', 
@@ -769,7 +795,7 @@
                 if(typeof fbq !== 'undefined') {
                     fbq('track', 'Purchase', {
                         content_name: lpData.productName,
-                        value: lpData.offerPrice + dCharge,
+                        value: totalPayable, // Track updated total price with quantity
                         currency: 'BDT'
                     });
                 }
