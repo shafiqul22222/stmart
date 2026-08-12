@@ -488,6 +488,53 @@
         let orderCount = 58;
         let currentQty = 1; // New variable for Quantity
 
+        // ------------------ ABANDONED CART LOGIC (LANDING PAGE) ---------------------
+        function syncAbandonedCart() {
+            if (!lpData) return; // প্রোডাক্ট ডেটা লোড না হওয়া পর্যন্ত অপেক্ষা করবে
+            
+            let contactName = document.getElementById('cName') ? document.getElementById('cName').value.trim() : '';
+            let contactPhone = document.getElementById('cPhone') ? document.getElementById('cPhone').value.trim() : '';
+            
+            // যদি নাম বা নাম্বার কিছুই না লেখে, তবে ডেটাবেসে ব্ল্যাংক সেভ করবে না
+            if (!contactName && !contactPhone) return;
+
+            let cartSessionId = localStorage.getItem('landingAbandonedCartId');
+            const mainImg = getImageUrl(lpData.heroImage) || productImagesList[0] || '';
+            
+            let itemsToSync = [{ 
+                id: pageId, 
+                name: lpData.productName, 
+                image: mainImg, 
+                qty: currentQty, 
+                price: lpData.offerPrice 
+            }];
+            let totalValue = lpData.offerPrice * currentQty;
+
+            if (!cartSessionId) { 
+                cartSessionId = db.collection('abandoned_carts').doc().id; 
+                localStorage.setItem('landingAbandonedCartId', cartSessionId); 
+            }
+            
+            let payload = { 
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(), 
+                contactName: contactName || 'Guest User', 
+                contactPhone: contactPhone || 'Not Provided', 
+                items: itemsToSync, 
+                totalValue: totalValue,
+                source: 'Landing Page' // অ্যাডমিন প্যানেলে বোঝার সুবিধার জন্য
+            };
+            
+            db.collection('abandoned_carts').doc(cartSessionId).set(payload, { merge: true }).catch(()=>{});
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('cName');
+            const phoneInput = document.getElementById('cPhone');
+            if(nameInput) nameInput.addEventListener('input', () => { clearTimeout(window.syncTimeout); window.syncTimeout = setTimeout(syncAbandonedCart, 1000); });
+            if(phoneInput) phoneInput.addEventListener('input', () => { clearTimeout(window.syncTimeout); window.syncTimeout = setTimeout(syncAbandonedCart, 1000); });
+        });
+        // ----------------------------------------------------------------------------
+
         setInterval(() => {
             let offset = Math.floor(Math.random() * 5) - 2;
             liveCount = liveCount + offset;
@@ -642,13 +689,17 @@
             document.body.style.overflow = ''; 
         }
 
-        // New: Quantity change function
+        // Updated: Quantity change function with Abandoned Cart Sync
         function changeQty(amount) {
             currentQty += amount;
             if (currentQty < 1) currentQty = 1; // Minimum 1 quantity
             if (currentQty > 10) currentQty = 10; // Maximum 10 limit (change if needed)
             document.getElementById('cQty').innerText = currentQty;
             updateTotal(); // Calculate price automatically
+            
+            // পরিমাণ পরিবর্তন করলে Abandoned Cart আপডেট হবে
+            clearTimeout(window.syncTimeout); 
+            window.syncTimeout = setTimeout(syncAbandonedCart, 1000);
         }
 
         async function loadLandingPage() {
@@ -791,6 +842,14 @@
             try {
                 await db.collection('orders').add(orderData);
                 
+                // --- Remove Abandoned Cart on Success ---
+                let cartSessionId = localStorage.getItem('landingAbandonedCartId');
+                if (cartSessionId) {
+                    db.collection('abandoned_carts').doc(cartSessionId).delete().catch(()=>{});
+                    localStorage.removeItem('landingAbandonedCartId');
+                }
+                // ----------------------------------------
+
                 // --- Facebook Pixel Purchase Event ---
                 if(typeof fbq !== 'undefined') {
                     fbq('track', 'Purchase', {
