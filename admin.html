@@ -470,17 +470,19 @@
                     </div>
                     
                     <!-- PnL Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                        <div class="card-stat bg-slate-900 border-none text-white relative overflow-hidden">
-                            <div class="absolute right-0 top-0 w-32 h-32 bg-brand-500 rounded-full blur-3xl opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
-                            <p class="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider mb-1">Gross Sales (MTD)</p>
-                            <h3 id="dash-month-sales" class="text-3xl font-black tracking-tight mb-2">৳0</h3>
-                            <div class="flex justify-between text-xs font-medium border-t border-slate-800 pt-2 mt-2">
-                                <span class="text-slate-400">Today: <span class="text-white font-bold" id="dash-today-sales">৳0</span></span>
-                                <span class="text-slate-400">Lifetime: <span class="text-brand-400 font-bold" id="dash-total-sales">৳0</span></span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Gross Sales Card (Now White) -->
+                        <div class="card-stat bg-white border border-brand-100 shadow-sm relative overflow-hidden">
+                            <div class="absolute right-0 top-0 w-1 h-full bg-brand-500"></div>
+                            <p class="text-brand-600 text-[10px] font-extrabold uppercase tracking-wider mb-1">Gross Sales (MTD)</p>
+                            <h3 id="dash-month-sales" class="text-3xl font-black text-slate-800 tracking-tight mb-2">৳0</h3>
+                            <div class="flex justify-between text-xs font-medium border-t border-slate-100 pt-2 mt-2">
+                                <span class="text-slate-500">Today: <span class="text-brand-600 font-bold" id="dash-today-sales">৳0</span></span>
+                                <span class="text-slate-500">Lifetime: <span class="text-slate-800 font-bold" id="dash-total-sales">৳0</span></span>
                             </div>
                         </div>
 
+                        <!-- Total Expenses Card -->
                         <div class="card-stat bg-white border border-rose-100 shadow-sm relative overflow-hidden">
                             <div class="absolute right-0 top-0 w-1 h-full bg-rose-500"></div>
                             <p class="text-rose-500 text-[10px] font-extrabold uppercase tracking-wider mb-1">Total Expenses (MTD)</p>
@@ -491,6 +493,7 @@
                             </div>
                         </div>
 
+                        <!-- Gross Profit Card -->
                         <div class="card-stat bg-white border border-blue-100 shadow-sm relative overflow-hidden">
                             <div class="absolute right-0 top-0 w-1 h-full bg-blue-500"></div>
                             <p class="text-blue-500 text-[10px] font-extrabold uppercase tracking-wider mb-1">Gross Profit (MTD)</p>
@@ -501,6 +504,7 @@
                             </div>
                         </div>
 
+                        <!-- Net Profit Card -->
                         <div class="card-stat bg-brand-50 border border-brand-200 shadow-sm relative overflow-hidden">
                             <div class="absolute right-0 top-0 w-1 h-full bg-brand-500"></div>
                             <p class="text-brand-700 text-[10px] font-extrabold uppercase tracking-wider mb-1">Net Profit (MTD)</p>
