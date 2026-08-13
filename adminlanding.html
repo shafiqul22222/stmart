@@ -5,15 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Special Offer | Premium Order</title>
     
+    <!-- দ্রুত লোডিং এর জন্য Preconnect যুক্ত করা হয়েছে -->
+    <link rel="preconnect" href="https://firestore.googleapis.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.gstatic.com">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase -->
+    <!-- Firebase (Head এ লোড করে সাথে সাথে কল করা হয়েছে যেন প্যারালাল ডেটা ফেচ হয়) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-    <!-- Meta Pixel Code -->
+    <!-- Super Fast DB Fetch (DOM লোড হওয়ার আগেই ব্যাকগ্রাউন্ডে ডেটা কল শুরু করবে) -->
+    <script>
+        var db, pageId, initialDataFetch;
+        try {
+            const firebaseConfig = {
+                apiKey: "AIzaSyB3NEk6Ske5-43HEYg4dNc4OU-f9o6Xz60",
+                authDomain: "shafiqul-survey.firebaseapp.com",
+                projectId: "shafiqul-survey",
+                storageBucket: "shafiqul-survey.firebasestorage.app",
+                messagingSenderId: "269731246501",
+                appId: "1:269731246501:web:301f75feca0632f2ab384c"
+            };
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            
+            // অফলাইন ক্যাশ চালু করা হলো, যাতে দ্বিতীয়বার ক্লিক করলে ইনস্ট্যান্ট পেজ ওপেন হয়
+            db.enablePersistence({synchronizeTabs:true}).catch(function(err) {
+                console.log("Persistence error:", err);
+            });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            pageId = urlParams.get('id');
+            if (pageId) {
+                // পেজ লোড হওয়ার আগেই ব্যাকগ্রাউন্ডে ডেটা নিয়ে আসা শুরু
+                initialDataFetch = db.collection('landing_pages').doc(pageId).get();
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    </script>
+
+    <!-- Meta Pixel Code (আপনার পিক্সেল অক্ষত রাখা হয়েছে) -->
     <script>
     !function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -130,7 +168,8 @@
 
                 <div class="scroll-anim">
                     <div class="relative w-full rounded-2xl overflow-hidden shadow-xl border border-slate-200 bg-slate-50 group">
-                        <img id="viewImage" src="" onclick="openImageZoom(this.src)" class="w-full h-auto object-cover max-h-[500px] cursor-zoom-in transition-transform duration-300 hover:scale-105" alt="Product Image">
+                        <!-- fetchpriority="high" যুক্ত করা হয়েছে যাতে মূল ছবিটি সবার আগে লোড হয় -->
+                        <img id="viewImage" src="" fetchpriority="high" decoding="sync" onclick="openImageZoom(this.src)" class="w-full h-auto object-cover max-h-[500px] cursor-zoom-in transition-transform duration-300 hover:scale-105" alt="Product Image">
                         
                         <div class="absolute top-4 left-4 bg-black/70 text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none shadow-md">
                             <i class="fas fa-search-plus"></i> বড় করে দেখতে ক্লিক করুন
@@ -304,7 +343,7 @@
                                 <input type="tel" id="cPhone" autocomplete="tel" required pattern="01[3-9][0-9]{8}" maxlength="11" title="সঠিক ১১ ডিজিটের মোবাইল নাম্বার দিন (যেমন: 01712345678)" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400" placeholder="যেমন: 017XXXXXXXX" />
                             </div>
 
-                            <!-- New: Variant/Color Field -->
+                            <!-- Variant/Color Field -->
                             <div>
                                 <label for="cVariant" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-palette text-green-600"></i> কালার / সাইজ (যদি থাকে)</label>
                                 <input type="text" id="cVariant" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400" placeholder="যেমন: লাল কালার, XL সাইজ" />
@@ -315,13 +354,13 @@
                                 <textarea id="cAddress" autocomplete="street-address" required rows="2" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400 resize-none" placeholder="গ্রাম/মহল্লা, থানা, জেলা উল্লেখ করুন"></textarea>
                             </div>
 
-                            <!-- New: Customer Note Field -->
+                            <!-- Customer Note Field -->
                             <div>
                                 <label for="cNote" class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-comment-dots text-green-600"></i> নোট (ঐচ্ছিক)</label>
                                 <textarea id="cNote" rows="2" class="w-full text-base text-slate-900 bg-slate-50 border-2 border-slate-200 focus:border-green-600 focus:bg-white rounded-xl px-4 py-3 outline-none transition shadow-sm font-medium placeholder-slate-400 resize-none" placeholder="স্পেশাল কোনো ইন্সট্রাকশন থাকলে লিখুন"></textarea>
                             </div>
 
-                            <!-- New: Quantity Selector -->
+                            <!-- Quantity Selector -->
                             <div>
                                 <label class="block text-sm font-extrabold text-slate-800 mb-1.5 flex items-center gap-2"><i class="fas fa-layer-group text-green-600"></i> পরিমাণ (Quantity) <span class="text-red-500">*</span></label>
                                 <div class="flex items-center gap-4 bg-slate-50 border-2 border-slate-200 rounded-xl p-2 w-max">
@@ -486,16 +525,15 @@
 
         let liveCount = 23;
         let orderCount = 58;
-        let currentQty = 1; // New variable for Quantity
+        let currentQty = 1;
 
-        // ------------------ ABANDONED CART LOGIC (LANDING PAGE) ---------------------
+        // ------------------ ABANDONED CART LOGIC ---------------------
         function syncAbandonedCart() {
-            if (!lpData) return; // প্রোডাক্ট ডেটা লোড না হওয়া পর্যন্ত অপেক্ষা করবে
+            if (!lpData) return; 
             
             let contactName = document.getElementById('cName') ? document.getElementById('cName').value.trim() : '';
             let contactPhone = document.getElementById('cPhone') ? document.getElementById('cPhone').value.trim() : '';
             
-            // যদি নাম বা নাম্বার কিছুই না লেখে, তবে ডেটাবেসে ব্ল্যাংক সেভ করবে না
             if (!contactName && !contactPhone) return;
 
             let cartSessionId = localStorage.getItem('landingAbandonedCartId');
@@ -521,7 +559,7 @@
                 contactPhone: contactPhone || 'Not Provided', 
                 items: itemsToSync, 
                 totalValue: totalValue,
-                source: 'Landing Page' // অ্যাডমিন প্যানেলে বোঝার সুবিধার জন্য
+                source: 'Landing Page'
             };
             
             db.collection('abandoned_carts').doc(cartSessionId).set(payload, { merge: true }).catch(()=>{});
@@ -565,7 +603,7 @@
         }
         startTimer();
 
-        // Facebook Pixel
+        // Facebook Pixel tracking wrapper
         function trackInitiateCheckout() {
             if(typeof fbq !== 'undefined' && lpData) {
                 fbq('track', 'InitiateCheckout', {
@@ -576,19 +614,6 @@
             }
         }
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB3NEk6Ske5-43HEYg4dNc4OU-f9o6Xz60",
-            authDomain: "shafiqul-survey.firebaseapp.com",
-            projectId: "shafiqul-survey",
-            storageBucket: "shafiqul-survey.firebasestorage.app",
-            messagingSenderId: "269731246501",
-            appId: "1:269731246501:web:301f75feca0632f2ab384c"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const pageId = urlParams.get('id');
         let lpData = null;
 
         if(!pageId) {
@@ -689,22 +714,23 @@
             document.body.style.overflow = ''; 
         }
 
-        // Updated: Quantity change function with Abandoned Cart Sync
         function changeQty(amount) {
             currentQty += amount;
-            if (currentQty < 1) currentQty = 1; // Minimum 1 quantity
-            if (currentQty > 10) currentQty = 10; // Maximum 10 limit (change if needed)
+            if (currentQty < 1) currentQty = 1; 
+            if (currentQty > 10) currentQty = 10; 
             document.getElementById('cQty').innerText = currentQty;
-            updateTotal(); // Calculate price automatically
+            updateTotal(); 
             
-            // পরিমাণ পরিবর্তন করলে Abandoned Cart আপডেট হবে
             clearTimeout(window.syncTimeout); 
             window.syncTimeout = setTimeout(syncAbandonedCart, 1000);
         }
 
         async function loadLandingPage() {
             try {
-                const doc = await db.collection('landing_pages').doc(pageId).get();
+                // হেড ট্যাগে শুরু করা ডেটা ফেচিং থেকে ডেটা সরাসরি এখানে পাওয়া যাবে
+                if (!initialDataFetch) return;
+                const doc = await initialDataFetch;
+                
                 if(doc.exists) {
                     lpData = doc.data();
                     
@@ -775,7 +801,7 @@
 
                     updateTotal();
 
-                    // --- Facebook Pixel ViewContent Event ---
+                    // Facebook Pixel ViewContent Event
                     if(typeof fbq !== 'undefined') {
                         fbq('track', 'ViewContent', {
                             content_name: lpData.productName,
@@ -792,14 +818,13 @@
             }
         }
 
-        // Updated: Total calculation based on Quantity
         function updateTotal() {
             if(!lpData) return;
             const isInside = document.querySelector('input[name="area"]:checked').value === 'Inside Dhaka';
             const dCharge = isInside ? lpData.deliveryInside : lpData.deliveryOutside;
             const price = lpData.offerPrice;
             
-            const totalProductPrice = price * currentQty; // Multiplying by qty
+            const totalProductPrice = price * currentQty; 
             
             document.getElementById('sumPrice').innerText = totalProductPrice;
             document.getElementById('sumCharge').innerText = dCharge;
@@ -819,20 +844,19 @@
             
             const mainImg = getImageUrl(lpData.heroImage) || productImagesList[0] || '';
 
-            // Updated Data mapping for Firebase adding new fields
             const orderData = {
                 name: document.getElementById('cName').value,
                 phone: document.getElementById('cPhone').value,
                 address: document.getElementById('cAddress').value,
-                variant: document.getElementById('cVariant').value || 'N/A', // New Variant Data
-                note: document.getElementById('cNote').value || '',          // New Note Data
+                variant: document.getElementById('cVariant').value || 'N/A',
+                note: document.getElementById('cNote').value || '',          
                 deliveryArea: isInside ? 'Inside Dhaka' : 'Outside Dhaka',
                 deliveryCharge: dCharge,
                 productName: lpData.productName,
                 productImage: mainImg,
                 price: lpData.offerPrice,
-                qty: currentQty, // Updated Quantity Data
-                totalPrice: totalPayable, // Updated Total calculation
+                qty: currentQty, 
+                totalPrice: totalPayable, 
                 status: 'Pending',
                 paymentStatus: 'Unpaid',
                 source: 'Landing Page', 
@@ -842,19 +866,18 @@
             try {
                 await db.collection('orders').add(orderData);
                 
-                // --- Remove Abandoned Cart on Success ---
+                // Remove Abandoned Cart on Success
                 let cartSessionId = localStorage.getItem('landingAbandonedCartId');
                 if (cartSessionId) {
                     db.collection('abandoned_carts').doc(cartSessionId).delete().catch(()=>{});
                     localStorage.removeItem('landingAbandonedCartId');
                 }
-                // ----------------------------------------
 
-                // --- Facebook Pixel Purchase Event ---
+                // Facebook Pixel Purchase Event
                 if(typeof fbq !== 'undefined') {
                     fbq('track', 'Purchase', {
                         content_name: lpData.productName,
-                        value: totalPayable, // Track updated total price with quantity
+                        value: totalPayable,
                         currency: 'BDT'
                     });
                 }
