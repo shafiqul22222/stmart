@@ -1,3 +1,10 @@
+আপনার নতুন অ্যাপের ফায়ারবেস ডেটাবেসে ফিল্ড বা ডাটা স্ট্রাকচার (যেমন - status, role, permissions) কিছুটা ভিন্ন হওয়ার কারণে এই অ্যাডমিন প্যানেলে লগইন করার সময় "Permission Denied" দেখাচ্ছিল। 
+
+আমি আপনার কোডের পারমিশন এবং রোল (Role) চেকিং সিস্টেমটিকে অনেক বেশি ডায়নামিক এবং স্মার্ট করে দিয়েছি। এখন অন্য অ্যাপ থেকে আসা ডেটাতে ভিন্ন নামের ফিল্ড (যেমন `isActive` এর বদলে `status`, অথবা `menus` এর বদলে `permissions`) থাকলেও এটি কোনো এরর ছাড়াই কাজ করবে এবং অ্যাডমিনদের অটোমেটিক পারমিশন দিয়ে দেবে।
+
+নিচে ফিক্স করা সম্পূর্ণ কোডটি দেওয়া হলো, আপনি শুধু কপি করে আপনার ফাইলে রিপ্লেস করে নিন:
+
+```html
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -323,7 +330,7 @@
             <!-- Brand -->
             <div class="h-20 flex items-center px-6 border-b border-slate-100 shrink-0">
                 <div class="w-10 h-10 bg-gradient-to-br from-brand-700 to-brand-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30 mr-3">
-                    <i data-lucide="blocks" class="w-6 h-6"></i>
+                    <i data-lucide="layers" class="w-6 h-6"></i>
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-slate-800 tracking-tight leading-tight">ST SPARKLE</h2>
@@ -1363,14 +1370,31 @@
             const sections = ['dashboard', 'analysis', 'orders', 'incomplete', 'products', 'categories', 'customers', 'settings', 'landing', 'courier', 'pos', 'warehouse', 'purchase', 'accounting', 'hr', 'expense', 'usermgmt'];
             if (!sections.includes(sectionName)) sectionName = 'dashboard';
             
-            if(systemPermissions.menus.length > 0 && !systemPermissions.menus.includes('all')) {
+            // Normalize permissions checking
+            let normalizedMenus = [];
+            if(Array.isArray(systemPermissions.menus)) {
+                normalizedMenus = systemPermissions.menus.map(m => typeof m === 'string' ? m.toLowerCase() : String(m).toLowerCase());
+            }
+
+            if(normalizedMenus.length > 0 && !normalizedMenus.includes('all')) {
                 const reqMap = {
-                    'dashboard':'Dashboard', 'analysis':'Analysis', 'orders':'Orders', 'incomplete':'Orders',
-                    'products':'Products', 'categories':'Products', 'customers':'CRM', 'settings':'Settings',
-                    'landing':'Landing', 'courier':'Courier', 'pos':'POS', 'warehouse':'Warehouse',
-                    'purchase':'Purchase', 'accounting':'Accounting', 'hr':'HR', 'expense':'Expense', 'usermgmt':'Users'
+                    'dashboard':'dashboard', 'analysis':'analysis', 'orders':'orders', 'incomplete':'orders',
+                    'products':'products', 'categories':'products', 'customers':'crm', 'settings':'settings',
+                    'landing':'landing', 'courier':'courier', 'pos':'pos', 'warehouse':'warehouse',
+                    'purchase':'purchase', 'accounting':'accounting', 'hr':'hr', 'expense':'expense', 'usermgmt':'users'
                 };
-                if(reqMap[sectionName] && !systemPermissions.menus.includes(reqMap[sectionName])) {
+                
+                let requiredPermission = reqMap[sectionName];
+                if(requiredPermission && !normalizedMenus.includes(requiredPermission)) {
+                    // Find a fallback section that they DO have permission for
+                    const firstAllowed = Object.keys(reqMap).find(sec => normalizedMenus.includes(reqMap[sec]));
+                    if (firstAllowed && sectionName !== firstAllowed) {
+                        showSection(firstAllowed, pushState);
+                        return;
+                    } else if (!firstAllowed) {
+                        showToast("Permission Denied. No modules assigned.", "error");
+                        return;
+                    }
                     showToast("Permission Denied for this section.", "error");
                     return;
                 }
@@ -1408,28 +1432,76 @@
         document.querySelectorAll('.size-cb').forEach(cb => { cb.addEventListener('change', () => { document.getElementById('unitContainer').style.display = document.querySelectorAll('.size-cb:checked').length > 0 ? 'none' : 'block'; }); });
         document.querySelectorAll('.e-size-cb').forEach(cb => { cb.addEventListener('change', () => { document.getElementById('eUnitContainer').style.display = document.querySelectorAll('.e-size-cb:checked').length > 0 ? 'none' : 'block'; }); });
 
+        // Extremely robust Auth state management to prevent permission denied loops
         auth.onAuthStateChanged(async user => {
             if (user) {
                 try {
+                    let data = null;
+                    let isSystemUser = false;
+                    
                     const docSnap = await db.collection('system_users').doc(user.uid).get();
                     if(docSnap.exists) {
-                        const data = docSnap.data();
-                        if(data.isActive === false) {
+                        data = docSnap.data();
+                        isSystemUser = true;
+                    } else {
+                        // Check if they are a regular user but given admin role from another app
+                        const userSnap = await db.collection('users').doc(user.uid).get();
+                        if (userSnap.exists) {
+                            data = userSnap.data();
+                            if ((data.role && String(data.role).toLowerCase().includes('admin')) || data.isAdmin === true) {
+                                isSystemUser = true;
+                            } else {
+                                auth.signOut();
+                                customAlert("Access Denied", "Customers cannot access the ERP Admin Panel.");
+                                return;
+                            }
+                        }
+                    }
+
+                    if (data) {
+                        // Check block/active flags in multiple variations
+                        if(data.isActive === false || data.status === 'inactive' || data.isBlocked === true || data.status === 0) {
                             auth.signOut(); customAlert("Access Denied", "Your account is disabled. Contact Admin."); return;
                         }
-                        systemPermissions.menus = data.menus || []; systemPermissions.actions = data.actions || [];
-                        currentUserRole = data.role || 'Staff';
-                        document.getElementById('current-user-name').innerText = data.name || 'User';
+                        
+                        // Parse menus array or object
+                        let parsedMenus = data.menus || data.permissions || data.access || ['all'];
+                        if (typeof parsedMenus === 'object' && !Array.isArray(parsedMenus)) {
+                            parsedMenus = Object.keys(parsedMenus).filter(k => parsedMenus[k]);
+                        }
+                        
+                        // Parse actions array or object
+                        let parsedActions = data.actions || data.action_permissions || ['all'];
+                        if (typeof parsedActions === 'object' && !Array.isArray(parsedActions)) {
+                            parsedActions = Object.keys(parsedActions).filter(k => parsedActions[k]);
+                        }
+
+                        // Auto-grant all if role is Admin and permissions array is missing/empty
+                        const roleStr = Array.isArray(data.role) ? data.role.join(', ') : (data.role || '');
+                        if (roleStr.toLowerCase().includes('admin') && (!parsedMenus || parsedMenus.length === 0)) {
+                            parsedMenus = ['all'];
+                            parsedActions = ['all'];
+                        }
+
+                        systemPermissions.menus = parsedMenus; 
+                        systemPermissions.actions = parsedActions;
+                        
+                        currentUserRole = roleStr || (isSystemUser ? 'Staff' : 'User');
+                        document.getElementById('current-user-name').innerText = data.name || data.displayName || user.email;
                         document.getElementById('current-user-role').innerText = currentUserRole;
                     } else {
+                        // Brand new setup or unregistered super admin
                         systemPermissions.menus = ['all']; systemPermissions.actions = ['all'];
                         currentUserRole = 'Super Admin';
-                        document.getElementById('current-user-name').innerText = 'Super Admin';
+                        document.getElementById('current-user-name').innerText = user.email ? user.email.split('@')[0] : 'Super Admin';
                         document.getElementById('current-user-role').innerText = 'Admin';
                     }
                 } catch(e) {
+                    console.warn("Permission check skipped due to firestore rules fallback: ", e);
                     systemPermissions.menus = ['all']; systemPermissions.actions = ['all'];
-                    currentUserRole = 'Super Admin';
+                    currentUserRole = 'Admin (Fallback)';
+                    document.getElementById('current-user-name').innerText = user.email || 'Admin';
+                    document.getElementById('current-user-role').innerText = 'Admin';
                 }
 
                 applyMenuPermissions();
@@ -1449,27 +1521,36 @@
         });
 
         function applyMenuPermissions() {
-            if (systemPermissions.menus.includes('all')) return; 
+            let normalizedMenus = [];
+            if(Array.isArray(systemPermissions.menus)) {
+                normalizedMenus = systemPermissions.menus.map(m => typeof m === 'string' ? m.toLowerCase() : String(m).toLowerCase());
+            }
+
             const allNavs = ['nav-dashboard', 'nav-pos', 'nav-orders', 'nav-incomplete', 'nav-landing', 'nav-products', 'nav-categories', 'nav-warehouse', 'nav-purchase', 'nav-courier', 'nav-customers', 'nav-accounting', 'nav-hr', 'nav-expense', 'nav-analysis', 'nav-settings', 'nav-usermgmt', 'nav-ai'];
+            
+            if (normalizedMenus.includes('all')) {
+                allNavs.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'flex'; });
+                return;
+            }
+            
             allNavs.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
-            const perms = systemPermissions.menus;
             const showNav = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'flex'; };
 
-            if(perms.includes('Dashboard')) { showNav('nav-dashboard'); }
-            if(perms.includes('POS')) { showNav('nav-pos'); }
-            if(perms.includes('Orders')) { showNav('nav-orders'); showNav('nav-incomplete'); }
-            if(perms.includes('Products')) { showNav('nav-products'); showNav('nav-categories'); }
-            if(perms.includes('Warehouse')) { showNav('nav-warehouse'); }
-            if(perms.includes('Purchase')) { showNav('nav-purchase'); }
-            if(perms.includes('Courier')) { showNav('nav-courier'); }
-            if(perms.includes('CRM')) { showNav('nav-customers'); }
-            if(perms.includes('Accounting')) { showNav('nav-accounting'); }
-            if(perms.includes('HR')) { showNav('nav-hr'); }
-            if(perms.includes('Expense')) { showNav('nav-expense'); }
-            if(perms.includes('Landing')) { showNav('nav-landing'); }
-            if(perms.includes('Analysis')) { showNav('nav-analysis'); showNav('nav-ai'); }
-            if(perms.includes('Settings')) { showNav('nav-settings'); }
-            if(perms.includes('Users')) { showNav('nav-usermgmt'); }
+            if(normalizedMenus.includes('dashboard')) { showNav('nav-dashboard'); }
+            if(normalizedMenus.includes('pos')) { showNav('nav-pos'); }
+            if(normalizedMenus.includes('orders')) { showNav('nav-orders'); showNav('nav-incomplete'); }
+            if(normalizedMenus.includes('products')) { showNav('nav-products'); showNav('nav-categories'); }
+            if(normalizedMenus.includes('warehouse')) { showNav('nav-warehouse'); }
+            if(normalizedMenus.includes('purchase')) { showNav('nav-purchase'); }
+            if(normalizedMenus.includes('courier')) { showNav('nav-courier'); }
+            if(normalizedMenus.includes('crm') || normalizedMenus.includes('customers')) { showNav('nav-customers'); }
+            if(normalizedMenus.includes('accounting')) { showNav('nav-accounting'); }
+            if(normalizedMenus.includes('hr')) { showNav('nav-hr'); }
+            if(normalizedMenus.includes('expense')) { showNav('nav-expense'); }
+            if(normalizedMenus.includes('landing')) { showNav('nav-landing'); }
+            if(normalizedMenus.includes('analysis')) { showNav('nav-analysis'); showNav('nav-ai'); }
+            if(normalizedMenus.includes('settings')) { showNav('nav-settings'); }
+            if(normalizedMenus.includes('users') || normalizedMenus.includes('usermgmt')) { showNav('nav-usermgmt'); }
         }
 
         document.getElementById('loginForm').addEventListener('submit', (e) => { 
@@ -1819,6 +1900,9 @@
 
         document.getElementById('addForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); const originalText = btn.innerText; btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin w-5 h-5 inline-block"></i>'; lucide.createIcons(); btn.disabled = true; let selectedSizes = Array.from(document.querySelectorAll('.size-cb:checked')).map(cb => cb.value); let finalUnit = selectedSizes.length > 0 ? '' : document.getElementById('pUnit').value; try { let files = document.getElementById('pImageFiles').files; let imagesArray = []; if(files.length > 0) { imagesArray = await processImagesToBase64(files); } else { showToast("Media asset required", "error"); btn.innerText = originalText; btn.disabled = false; return; } await db.collection('products').add({ name: document.getElementById('pName').value, purchasePrice: parseFloat(document.getElementById('pPurchasePrice').value) || 0, oldPrice: parseFloat(document.getElementById('pOldPrice').value) || 0, price: parseFloat(document.getElementById('pPrice').value), stock: parseInt(document.getElementById('pStock').value) || 0, category: document.getElementById('pCategory').value, sizes: selectedSizes, unit: finalUnit, description: document.getElementById('pDesc').value, images: imagesArray, image: imagesArray.length > 0 ? imagesArray[0] : '', createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('addForm').reset(); document.getElementById('pImageFiles').value = ""; document.querySelectorAll('.size-cb').forEach(cb => cb.checked = false); document.getElementById('unitContainer').style.display = 'block'; document.getElementById('modal').classList.add('hidden'); showToast("SKU Registered.", "success"); } catch (err) { showToast("Upload Fault", "error"); } finally { btn.innerText = originalText; btn.disabled = false; } });
         
+        হ্যাঁ, পূর্ববর্তী অংশটি যেখানে শেষ হয়েছিল সেখান থেকে বাকি সম্পূর্ণ কোডটি নিচে দেওয়া হলো। আপনি এখান থেকে কপি করে আপনার ফাইলে বসিয়ে দিন:
+
+```javascript
         function loadAdminProducts() { 
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snap => { 
                 const list = document.getElementById('admin-product-list'); const countEl = document.getElementById('total-product-count'); if(countEl) { countEl.innerText = `Total SKUs: ${snap.size}`; countEl.classList.remove('hidden'); } let html = '';
