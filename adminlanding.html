@@ -866,6 +866,22 @@
             try {
                 await db.collection('orders').add(orderData);
                 
+                // Push Notification API Call (Non-blocking)
+                try {
+                    const orderNumber = Math.floor(10000 + Math.random() * 90000); 
+                    fetch("https://my-backend-gamma-seven.vercel.app/api/notify", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            title: `🛍️ New Order: #WEB-${orderNumber}`,
+                            body: `🛒 ৳${totalPayable} - ${document.getElementById('cName').value}`,
+                            type: "new_order"
+                        })
+                    }).catch(err => console.log("Push failed", err));
+                } catch (pushErr) {
+                    console.log(pushErr);
+                }
+
                 // Remove Abandoned Cart on Success
                 let cartSessionId = localStorage.getItem('landingAbandonedCartId');
                 if (cartSessionId) {
@@ -897,41 +913,6 @@
                 btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         });
-    </script>
-
-    <!-- Push Notification Script -->
-    <script>
-        const formPush = document.getElementById('orderForm'); 
-        
-        if(formPush) {
-            formPush.addEventListener('submit', function(event) {
-                // ফর্ম থেকে কাস্টমারের নাম এবং দাম ডাইনামিক ভাবে নেওয়া হচ্ছে 
-                const customerName = document.getElementById('cName') ? document.getElementById('cName').value : "New Customer";
-                const orderAmount = document.getElementById('sumTotal') ? document.getElementById('sumTotal').innerText : "0"; 
-                
-                // রেন্ডম অর্ডার নাম্বার তৈরি করা হচ্ছে
-                const orderNumber = Math.floor(10000 + Math.random() * 90000); 
-
-                // আপনার Vercel এপিআই তে নোটিফিকেশন পাঠানোর রিকোয়েস্ট
-                fetch("https://my-backend-gamma-seven.vercel.app/api/notify", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        title: `🛍️ New Order: #WEB-${orderNumber}`,
-                        body: `🛒 ৳${orderAmount} - ${customerName}`,
-                        type: "new_order"
-                    })
-                })
-                .then(response => {
-                    console.log("Push Notification triggered successfully!");
-                })
-                .catch(error => {
-                    console.error("Error triggering notification:", error);
-                });
-            });
-        }
     </script>
 </body>
 </html>
